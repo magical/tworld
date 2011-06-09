@@ -28,6 +28,14 @@ enum {
     CHIP_NOTOKAY
 };
 
+/* The data associated with a sliding object.
+ */
+typedef	struct slipper {
+    creature   *cr;
+    int		dir;
+} slipper;
+
+
 /* Status information specific to the MS game logic.
  */
 struct msstate {
@@ -39,15 +47,35 @@ struct msstate {
     short		goalpos;	/* mouse spot to move Chip towards */
     signed char		xviewoffset;	/* offset of map view center */
     signed char		yviewoffset;	/*   position from position of Chip */
+    signed char		laststepping;	/* most recent stepping phase used */
+
+    /* The linked list of creature pools, forming the creature arena.
+     */
+    creature	       *creaturepool;
+    void	       *creaturepoolend;
+
+    /* The list of active creatures.
+     */
+    creature	      **creatures;
+    int			creaturecount;
+    int			creaturesallocated;
+
+    /* The list of "active" blocks.
+     */
+    creature	      **blocks;
+    int			blockcount;
+    int			blocksallocated;
+
+    /* The list of sliding creatures.
+     */
+    slipper	       *slips;
+    int			slipcount;
+    int			slipsallocated;
 };
 
 /* Forward declaration of a central function.
  */
 static int advancecreature(gamestate *state, creature *cr, int dir);
-
-/* The most recently used stepping phase value.
- */
-static int		laststepping = 0;
 
 /*
  * Accessor macros for various fields in the game state. Many of the
@@ -56,7 +84,7 @@ static int		laststepping = 0;
 
 #define	setstate(p)		(state = (p)->state)
 
-#define	getchip()		(creatures[0])
+#define	getchip()		(creatures()[0])
 #define	chippos()		(getchip()->pos)
 #define	chipdir()		(getchip()->dir)
 
@@ -96,10 +124,26 @@ static int		laststepping = 0;
 #define	lastslipdir()		(getmsstate()->lastslipdir)
 #define	xviewoffset()		(getmsstate()->xviewoffset)
 #define	yviewoffset()		(getmsstate()->yviewoffset)
+#define	laststepping()		(getmsstate()->laststepping)
 
 #define	goalpos()		(getmsstate()->goalpos)
 #define	hasgoal()		(goalpos() >= 0)
 #define	cancelgoal()		(goalpos() = -1)
+
+#define	creaturepool()		(getmsstate()->creaturepool)
+#define	creaturepoolend()	(getmsstate()->creaturepoolend)
+
+#define	creatures()		(getmsstate()->creatures)
+#define	creaturecount()		(getmsstate()->creaturecount)
+#define	creaturesallocated()	(getmsstate()->creaturesallocated)
+
+#define	blocks()		(getmsstate()->blocks)
+#define	blockcount()		(getmsstate()->blockcount)
+#define	blocksallocated()	(getmsstate()->blocksallocated)
+
+#define	slips()			(getmsstate()->slips)
+#define	slipcount()		(getmsstate()->slipcount)
+#define	slipsallocated()	(getmsstate()->slipsallocated)
 
 #define	possession(obj)	(*_possession(state, obj))
 static short *_possession(gamestate *state, int obj)
@@ -138,92 +182,62 @@ static short *_possession(gamestate *state, int obj)
 /*
  * Memory allocation functions for the various arenas.
  */
-
-/* The data associated with a sliding object.
- */
-typedef	struct slipper {
-    creature   *cr;
-    int		dir;
-} slipper;
-
-/* The linked list of creature pools, forming the creature arena.
- */
-static creature	       *creaturepool = NULL;
-static void	       *creaturepoolend = NULL;
-static int const	creaturepoolchunk = 256;
-
-/* The list of active creatures.
- */
-static creature	      **creatures = NULL;
-static int		creaturecount = 0;
-static int		creaturesallocated = 0;
-
-/* The list of "active" blocks.
- */
-static creature	      **blocks = NULL;
-static int		blockcount = 0;
-static int		blocksallocated = 0;
-
-/* The list of sliding creatures.
- */
-static slipper	       *slips = NULL;
-static int		slipcount = 0;
-static int		slipsallocated = 0;
+int const	creaturepoolchunk = 256;
 
 /* Mark all entries in the creature arena as unused.
  */
-static void resetcreaturepool(void)
+static void resetcreaturepool(gamestate *state)
 {
-    if (!creaturepoolend)
+    if (!creaturepoolend())
 	return;
-    while (creaturepoolend) {
-	creaturepool = creaturepoolend;
-	creaturepoolend = ((creature**)creaturepoolend)[0];
+    while (creaturepoolend()) {
+	creaturepool() = creaturepoolend();
+	creaturepoolend() = ((creature**)creaturepoolend())[0];
     }
-    creaturepoolend = creaturepool;
-    creaturepool = (creature*)creaturepoolend - creaturepoolchunk + 1;
+    creaturepoolend() = creaturepool();
+    creaturepool() = (creature*)creaturepoolend() - creaturepoolchunk + 1;
 }
 
 /* Destroy the creature arena.
  */
-static void freecreaturepool(void)
+static void freecreaturepool(gamestate *state)
 {
-    if (!creaturepoolend)
+    if (!creaturepoolend())
 	return;
     for (;;) {
-	creaturepoolend = ((creature**)creaturepoolend)[1];
-	free(creaturepool);
-	creaturepool = creaturepoolend;
-	if (!creaturepool)
+	creaturepoolend() = ((creature**)creaturepoolend())[1];
+	free(creaturepool());
+	creaturepool() = creaturepoolend();
+	if (!creaturepool())
 	    break;
-	creaturepoolend = creaturepool + creaturepoolchunk - 1;
+	creaturepoolend() = creaturepool() + creaturepoolchunk - 1;
     }
 }
 
 /* Return a pointer to a fresh creature.
  */
-static creature *allocatecreature(void)
+static creature *allocatecreature(gamestate *state)
 {
     creature   *cr;
 
-    if (creaturepool == creaturepoolend) {
-	if (creaturepoolend && ((creature**)creaturepoolend)[1]) {
-	    creaturepool = ((creature**)creaturepoolend)[1];
-	    creaturepoolend = creaturepool + creaturepoolchunk - 1;
+    if (creaturepool() == creaturepoolend()) {
+	if (creaturepoolend() && ((creature**)creaturepoolend())[1]) {
+	    creaturepool() = ((creature**)creaturepoolend())[1];
+	    creaturepoolend() = creaturepool() + creaturepoolchunk - 1;
 	} else {
-	    cr = creaturepoolend;
-	    creaturepool = malloc(creaturepoolchunk * sizeof *creaturepool);
-	    if (!creaturepool)
+	    cr = creaturepoolend();
+	    creaturepool() = malloc(creaturepoolchunk * sizeof *creaturepool());
+	    if (!creaturepool())
 		memerrexit();
 	    if (cr)
-		((creature**)cr)[1] = creaturepool;
-	    creaturepoolend = creaturepool + creaturepoolchunk - 1;
-	    ((creature**)creaturepoolend)[0] = cr;
-	    ((creature**)creaturepoolend)[1] = NULL;
+		((creature**)cr)[1] = creaturepool();
+	    creaturepoolend() = creaturepool() + creaturepoolchunk - 1;
+	    ((creature**)creaturepoolend())[0] = cr;
+	    ((creature**)creaturepoolend())[1] = NULL;
 	}
     }
 
-    cr = creaturepool++;
+    cr = creaturepool()++;
     cr->id = Nothing;
     cr->pos = -1;
     cr->dir = NIL;
@@ -237,129 +251,129 @@ static creature *allocatecreature(void)
 
 /* Empty the list of active creatures.
  */
-static void resetcreaturelist(void)
+static void resetcreaturelist(gamestate *state)
 {
-    creaturecount = 0;
+    creaturecount() = 0;
 }
 
 /* Append the given creature to the end of the creature list.
  */
-static creature *addtocreaturelist(creature *cr)
+static creature *addtocreaturelist(gamestate *state, creature *cr)
 {
-    if (creaturecount >= creaturesallocated) {
-	creaturesallocated = creaturesallocated ? creaturesallocated * 2 : 16;
-	creatures = realloc(creatures, creaturesallocated * sizeof *creatures);
-	if (!creatures)
+    if (creaturecount() >= creaturesallocated()) {
+	creaturesallocated() = creaturesallocated() ? creaturesallocated() * 2 : 16;
+	creatures() = realloc(creatures(), creaturesallocated() * sizeof *creatures());
+	if (!creatures())
 	    memerrexit();
     }
-    creatures[creaturecount++] = cr;
+    creatures()[creaturecount()++] = cr;
     return cr;
 }
 
 /* Empty the list of "active" blocks.
  */
-static void resetblocklist(void)
+static void resetblocklist(gamestate *state)
 {
-    blockcount = 0;
+    blockcount() = 0;
 }
 
 /* Append the given block to the end of the block list.
  */
-static creature *addtoblocklist(creature *cr)
+static creature *addtoblocklist(gamestate *state, creature *cr)
 {
-    if (blockcount >= blocksallocated) {
-	blocksallocated = blocksallocated ? blocksallocated * 2 : 16;
-	blocks = realloc(blocks, blocksallocated * sizeof *blocks);
-	if (!blocks)
+    if (blockcount() >= blocksallocated()) {
+	blocksallocated() = blocksallocated() ? blocksallocated() * 2 : 16;
+	blocks() = realloc(blocks(), blocksallocated() * sizeof *blocks());
+	if (!blocks())
 	    memerrexit();
     }
-    blocks[blockcount++] = cr;
+    blocks()[blockcount()++] = cr;
     return cr;
 }
 
 /* Empty the list of sliding creatures.
  */
-static void resetsliplist(void)
+static void resetsliplist(gamestate *state)
 {
-    slipcount = 0;
+    slipcount() = 0;
 }
 
 /* Append the given creature to the end of the slip list.
  */
-static creature *appendtosliplist(creature *cr, int dir)
+static creature *appendtosliplist(gamestate *state, creature *cr, int dir)
 {
     int	n;
 
-    for (n = 0 ; n < slipcount ; ++n) {
-	if (slips[n].cr == cr) {
-	    slips[n].dir = dir;
+    for (n = 0 ; n < slipcount() ; ++n) {
+	if (slips()[n].cr == cr) {
+	    slips()[n].dir = dir;
 	    return cr;
 	}
     }
 
-    if (slipcount >= slipsallocated) {
-	slipsallocated = slipsallocated ? slipsallocated * 2 : 16;
-	slips = realloc(slips, slipsallocated * sizeof *slips);
-	if (!slips)
+    if (slipcount() >= slipsallocated()) {
+	slipsallocated() = slipsallocated() ? slipsallocated() * 2 : 16;
+	slips() = realloc(slips(), slipsallocated() * sizeof *slips());
+	if (!slips())
 	    memerrexit();
     }
-    slips[slipcount].cr = cr;
-    slips[slipcount].dir = dir;
-    ++slipcount;
+    slips()[slipcount()].cr = cr;
+    slips()[slipcount()].dir = dir;
+    ++slipcount();
     return cr;
 }
 
 /* Add the given creature to the start of the slip list.
  */
-static creature *prependtosliplist(creature *cr, int dir)
+static creature *prependtosliplist(gamestate *state, creature *cr, int dir)
 {
     int	n;
 
-    if (slipcount && slips[0].cr == cr) {
-	slips[0].dir = dir;
+    if (slipcount() && slips()[0].cr == cr) {
+	slips()[0].dir = dir;
 	return cr;
     }
 
-    if (slipcount >= slipsallocated) {
-	slipsallocated = slipsallocated ? slipsallocated * 2 : 16;
-	slips = realloc(slips, slipsallocated * sizeof *slips);
-	if (!slips)
+    if (slipcount() >= slipsallocated()) {
+	slipsallocated() = slipsallocated() ? slipsallocated() * 2 : 16;
+	slips() = realloc(slips(), slipsallocated() * sizeof *slips());
+	if (!slips())
 	    memerrexit();
     }
-    for (n = slipcount ; n ; --n)
-	slips[n] = slips[n - 1];
-    ++slipcount;
-    slips[0].cr = cr;
-    slips[0].dir = dir;
+    for (n = slipcount() ; n ; --n)
+	slips()[n] = slips()[n - 1];
+    ++slipcount();
+    slips()[0].cr = cr;
+    slips()[0].dir = dir;
     return cr;
 }
 
 /* Return the sliding direction of a creature on the slip list.
  */
-static int getslipdir(creature *cr)
+static int getslipdir(gamestate *state, creature *cr)
 {
     int	n;
 
-    for (n = 0 ; n < slipcount ; ++n)
-	if (slips[n].cr == cr)
-	    return slips[n].dir;
+    for (n = 0 ; n < slipcount() ; ++n)
+	if (slips()[n].cr == cr)
+	    return slips()[n].dir;
     return NIL;
 }
 
 /* Remove the given creature from the slip list.
  */
-static void removefromsliplist(creature *cr)
+static void removefromsliplist(gamestate *state, creature *cr)
 {
     int	n;
 
-    for (n = 0 ; n < slipcount ; ++n)
-	if (slips[n].cr == cr)
+    for (n = 0 ; n < slipcount() ; ++n)
+	if (slips()[n].cr == cr)
 	    break;
-    if (n == slipcount)
+    if (n == slipcount())
 	return;
-    --slipcount;
-    for ( ; n < slipcount ; ++n)
-	slips[n] = slips[n + 1];
+    --slipcount();
+    for ( ; n < slipcount() ; ++n)
+	slips()[n] = slips()[n + 1];
 }
 
 /*
@@ -557,18 +571,18 @@ static void togglewalls(gamestate *state)
 /* Return the creature located at pos. Ignores Chip unless includechip
  * is TRUE. Return NULL if no such creature is present.
  */
-static creature *lookupcreature(int pos, int includechip)
+static creature *lookupcreature(gamestate *state, int pos, int includechip)
 {
     int	n;
 
-    if (!creatures)
+    if (!creatures())
 	return NULL;
-    for (n = 0 ; n < creaturecount ; ++n) {
-	if (creatures[n]->hidden)
+    for (n = 0 ; n < creaturecount() ; ++n) {
+	if (creatures()[n]->hidden)
 	    continue;
-	if (creatures[n]->pos == pos)
-	    if (creatures[n]->id != Chip || includechip)
-		return creatures[n];
+	if (creatures()[n]->pos == pos)
+	    if (creatures()[n]->id != Chip || includechip)
+		return creatures()[n];
     }
     return NULL;
 }
@@ -583,13 +597,13 @@ static creature *lookupblock(gamestate *state, int pos)
     creature   *cr;
     int		id, n;
 
-    if (blocks) {
-	for (n = 0 ; n < blockcount ; ++n)
-	    if (blocks[n]->pos == pos && !blocks[n]->hidden)
-		return blocks[n];
+    if (blocks()) {
+	for (n = 0 ; n < blockcount() ; ++n)
+	    if (blocks()[n]->pos == pos && !blocks()[n]->hidden)
+		return blocks()[n];
     }
 
-    cr = allocatecreature();
+    cr = allocatecreature(state);
     cr->id = Block;
     cr->pos = pos;
     id = cellat(pos)->top.id;
@@ -609,7 +623,7 @@ static creature *lookupblock(gamestate *state, int pos)
 	}
     }
 
-    return addtoblocklist(cr);
+    return addtoblocklist(state, cr);
 }
 
 /* Update the given creature's tile on the map to reflect its current
@@ -670,11 +684,11 @@ static creature *awakencreature(gamestate *state, int pos)
     tileid = cellat(pos)->top.id;
     if (!iscreature(tileid) || creatureid(tileid) == Chip)
 	return NULL;
-    new = allocatecreature();
+    new = allocatecreature(state);
     new->id = creatureid(tileid);
     new->dir = creaturedirid(tileid);
     new->pos = pos;
-    return new->id == Block ? addtoblocklist(new) : addtocreaturelist(new);
+    return new->id == Block ? addtoblocklist(state, new) : addtocreaturelist(state, new);
 }
 
 /* Mark a creature as dead.
@@ -696,22 +710,22 @@ static void turntanks(gamestate *state, creature const *inmidmove)
 {
     int	n;
 
-    for (n = 0 ; n < creaturecount ; ++n) {
-	if (creatures[n]->hidden || creatures[n]->id != Tank)
+    for (n = 0 ; n < creaturecount() ; ++n) {
+	if (creatures()[n]->hidden || creatures()[n]->id != Tank)
 	    continue;
-	creatures[n]->dir = back(creatures[n]->dir);
-	if (!(creatures[n]->state & CS_TURNING))
-	    creatures[n]->state |= CS_TURNING | CS_HASMOVED;
-	if (creatures[n] != inmidmove) {
-	    if (creatureid(cellat(creatures[n]->pos)->top.id) == Tank) {
-		updatecreature(state, creatures[n]);
+	creatures()[n]->dir = back(creatures()[n]->dir);
+	if (!(creatures()[n]->state & CS_TURNING))
+	    creatures()[n]->state |= CS_TURNING | CS_HASMOVED;
+	if (creatures()[n] != inmidmove) {
+	    if (creatureid(cellat(creatures()[n]->pos)->top.id) == Tank) {
+		updatecreature(state, creatures()[n]);
 	    } else {
-		if (creatures[n]->state & CS_TURNING) {
-		    creatures[n]->state &= ~CS_TURNING;
-		    updatecreature(state, creatures[n]);
-		    creatures[n]->state |= CS_TURNING;
+		if (creatures()[n]->state & CS_TURNING) {
+		    creatures()[n]->state &= ~CS_TURNING;
+		    updatecreature(state, creatures()[n]);
+		    creatures()[n]->state |= CS_TURNING;
 		}
-		creatures[n]->dir = back(creatures[n]->dir);
+		creatures()[n]->dir = back(creatures()[n]->dir);
 	    }
 	}
     }
@@ -743,32 +757,32 @@ static void startfloormovement(gamestate *state, creature *cr, int floor)
 
     if (cr->id == Chip) {
 	cr->state |= isslide(floor) ? CS_SLIDE : CS_SLIP;
-	prependtosliplist(cr, dir);
+	prependtosliplist(state, cr, dir);
 	cr->dir = dir;
 	updatecreature(state, cr);
     } else {
 	cr->state |= CS_SLIP;
-	appendtosliplist(cr, dir);
+	appendtosliplist(state, cr, dir);
     }
 }
 
 /* Remove the given creature from the slip list.
  */
-static void endfloormovement(creature *cr)
+static void endfloormovement(gamestate *state, creature *cr)
 {
     cr->state &= ~(CS_SLIP | CS_SLIDE);
-    removefromsliplist(cr);
+    removefromsliplist(state, cr);
 }
 
 /* Clean out deadwood entries in the slip list.
  */
-static void updatesliplist()
+static void updatesliplist(gamestate *state)
 {
     int	n;
 
-    for (n = slipcount - 1 ; n >= 0 ; --n)
-	if (!(slips[n].cr->state & (CS_SLIP | CS_SLIDE)))
-	    endfloormovement(slips[n].cr);
+    for (n = slipcount() - 1 ; n >= 0 ; --n)
+	if (!(slips()[n].cr->state & (CS_SLIP | CS_SLIDE)))
+	    endfloormovement(state, slips()[n].cr);
 }
 
 /*
@@ -896,7 +910,7 @@ static int pushblock(gamestate *state, int pos, int dir, int flags)
 	return FALSE;
     }
     if (cr->state & (CS_SLIP | CS_SLIDE)) {
-	slipdir = getslipdir(cr);
+	slipdir = getslipdir(state, cr);
 	if (dir == slipdir || dir == back(slipdir))
 	    if (!(flags & CMM_TELEPORTPUSH))
 		return FALSE;
@@ -1227,7 +1241,7 @@ static int chipmovetogoalpos(gamestate *state)
 
 /* Translate a map position into a packed location relative to Chip.
  */
-static int makemouserelative(int abspos)
+static int makemouserelative(gamestate *state, int abspos)
 {
     int	x, y;
 
@@ -1240,7 +1254,7 @@ static int makemouserelative(int abspos)
 
 /* Unpack a Chip-relative map location.
  */
-static int makemouseabsolute(int relpos)
+static int makemouseabsolute(gamestate *state, int relpos)
 {
     int	x, y;
 
@@ -1282,11 +1296,11 @@ static void choosechipmove(gamestate *state, creature *cr, int discard)
 
     if (dir >= CmdAbsMouseMoveFirst && dir <= CmdAbsMouseMoveLast) {
 	goalpos() = dir - CmdAbsMouseMoveFirst;
-	lastmove() = CmdMouseMoveFirst + makemouserelative(goalpos());
+	lastmove() = CmdMouseMoveFirst + makemouserelative(state, goalpos());
 	dir = NIL;
     } else if (dir >= CmdMouseMoveFirst && dir <= CmdMouseMoveLast) {
 	lastmove() = dir;
-	goalpos() = makemouseabsolute(dir - CmdMouseMoveFirst);
+	goalpos() = makemouseabsolute(state, dir - CmdMouseMoveFirst);
 	dir = NIL;
     } else {
 	if ((dir & (NORTH | SOUTH)) && (dir & (EAST | WEST)))
@@ -1410,7 +1424,7 @@ static void springtrap(gamestate *state, int buttonpos)
 	if (cr)
 	    cr->state |= CS_RELEASED;
     } else if (iscreature(id)) {
-	cr = lookupcreature(pos, TRUE);
+	cr = lookupcreature(state, pos, TRUE);
 	if (cr)
 	    cr->state |= CS_RELEASED;
     }
@@ -1758,7 +1772,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	cr->state &= ~(CS_SLIP | CS_SLIDE);
 
     if (!wasslipping && (cr->state & (CS_SLIP | CS_SLIDE)) && cr->id != Chip)
-	controllerdir() = getslipdir(cr);
+	controllerdir() = getslipdir(state, cr);
 }
 
 /* Move the given creature in the given direction.
@@ -1814,12 +1828,12 @@ static void floormovements(gamestate *state)
     int		floor, slipdir;
     int		savedcount, n;
 
-    for (n = 0 ; n < slipcount ; ++n) {
-	savedcount = slipcount;
-	cr = slips[n].cr;
-	if (!(slips[n].cr->state & (CS_SLIP | CS_SLIDE)))
+    for (n = 0 ; n < slipcount() ; ++n) {
+	savedcount = slipcount();
+	cr = slips()[n].cr;
+	if (!(slips()[n].cr->state & (CS_SLIP | CS_SLIDE)))
 	    continue;
-	slipdir = getslipdir(cr);
+	slipdir = getslipdir(state, cr);
 	if (slipdir == NIL)
 	    continue;
 	if (advancecreature(state, cr, slipdir)) {
@@ -1840,25 +1854,25 @@ static void floormovements(gamestate *state)
 		    cr->state &= ~CS_HASMOVED;
 	    }
 	    if (cr->state & (CS_SLIP | CS_SLIDE)) {
-		endfloormovement(cr);
+		endfloormovement(state, cr);
 		startfloormovement(state, cr, cellat(cr->pos)->bot.id);
 	    }
 	}
 	if (checkforending(state))
 	    return;
 	if (!(cr->state & (CS_SLIP | CS_SLIDE)) && cr->id != Chip
-						&& slipcount == savedcount + 1)
+						&& slipcount() == savedcount + 1)
 	    ++n;
     }
 }
 
-static void createclones(void)
+static void createclones(gamestate *state)
 {
     int	n;
 
-    for (n = 0 ; n < creaturecount ; ++n)
-	if (creatures[n]->state & CS_CLONING)
-	    creatures[n]->state &= ~CS_CLONING;
+    for (n = 0 ; n < creaturecount() ; ++n)
+	if (creatures()[n]->state & CS_CLONING)
+	    creatures()[n]->state &= ~CS_CLONING;
 }
 
 #ifndef NDEBUG
@@ -1884,13 +1898,13 @@ static void dumpmap(gamestate *state)
 	fputc('\n', stderr);
     }
     fputc('\n', stderr);
-    for (y = 0 ; y < creaturecount ; ++y) {
-	cr = creatures[y];
+    for (y = 0 ; y < creaturecount() ; ++y) {
+	cr = creatures()[y];
 	fprintf(stderr, "%02X%c (%d %d)",
 			cr->id, "-^<?v?\?\?>"[(int)cr->dir],
 			cr->pos % CXGRID, cr->pos / CXGRID);
-	for (x = 0 ; x < slipcount ; ++x) {
-	    if (cr == slips[x].cr) {
+	for (x = 0 ; x < slipcount() ; ++x) {
+	    if (cr == slips()[x].cr) {
 		fprintf(stderr, " [%d]", x + 1);
 		break;
 	    }
@@ -1905,17 +1919,17 @@ static void dumpmap(gamestate *state)
 			cr->state & CS_SLIDE ? " sliding" : "",
 			cr->state & CS_DEFERPUSH ? " deferred-push" : "",
 			cr->state & CS_MUTANT ? " mutant" : "");
-	if (x < slipcount)
-	    fprintf(stderr, " %c", "-^<?v?\?\?>"[(int)slips[x].dir]);
+	if (x < slipcount())
+	    fprintf(stderr, " %c", "-^<?v?\?\?>"[(int)slips()[x].dir]);
 	fputc('\n', stderr);
     }
-    for (y = 0 ; y < blockcount ; ++y) {
-	cr = blocks[y];
+    for (y = 0 ; y < blockcount() ; ++y) {
+	cr = blocks()[y];
 	fprintf(stderr, "block %d: (%d %d) %c", y,
 			cr->pos % CXGRID, cr->pos / CXGRID,
 			"-^<?v?\?\?>"[(int)cr->dir]);
-	for (x = 0 ; x < slipcount ; ++x) {
-	    if (cr == slips[x].cr) {
+	for (x = 0 ; x < slipcount() ; ++x) {
+	    if (cr == slips()[x].cr) {
 		fprintf(stderr, " [%d]", x + 1);
 		break;
 	    }
@@ -1930,8 +1944,8 @@ static void dumpmap(gamestate *state)
 			cr->state & CS_SLIDE ? " sliding" : "",
 			cr->state & CS_DEFERPUSH ? " deferred-push" : "",
 			cr->state & CS_MUTANT ? " mutant" : "");
-	if (x < slipcount)
-	    fprintf(stderr, " %c", "-^<?v?\?\?>"[(int)slips[x].dir]);
+	if (x < slipcount())
+	    fprintf(stderr, " %c", "-^<?v?\?\?>"[(int)slips()[x].dir]);
 	fputc('\n', stderr);
     }
 }
@@ -1943,8 +1957,8 @@ static void verifymap(gamestate *state)
     creature   *cr;
     int		n;
 
-    for (n = 0 ; n < creaturecount ; ++n) {
-	cr = creatures[n];
+    for (n = 0 ; n < creaturecount() ; ++n) {
+	cr = creatures()[n];
 	if (cr->id < 0x40 || cr->id >= 0x80)
 	    warn("%d: Undefined creature %02X at (%d %d)",
 		 state->currenttime, cr->id,
@@ -2005,13 +2019,13 @@ static void initialhousekeeping(gamestate *state)
 #endif
 
     if (currenttime() == 0)
-	laststepping = stepping();
+	laststepping() = stepping();
 
     if (!(currenttime() & 3)) {
-	for (n = 1 ; n < creaturecount ; ++n) {
-	    if (creatures[n]->state & CS_TURNING) {
-		creatures[n]->state &= ~(CS_TURNING | CS_HASMOVED);
-		updatecreature(state, creatures[n]);
+	for (n = 1 ; n < creaturecount() ; ++n) {
+	    if (creatures()[n]->state & CS_TURNING) {
+		creatures()[n]->state &= ~(CS_TURNING | CS_HASMOVED);
+		updatecreature(state, creatures()[n]);
 	    }
 	}
 	++chipwait();
@@ -2077,11 +2091,11 @@ static int initgame(gamelogic *logic)
 		cell->bot.state |= FS_BROKEN;
     }
 
-    chip = allocatecreature();
+    chip = allocatecreature(state);
     chip->pos = 0;
     chip->id = Chip;
     chip->dir = SOUTH;
-    addtocreaturelist(chip);
+    addtocreaturelist(state, chip);
     for (n = 0 ; n < state->crlistcount ; ++n) {
 	pos = state->crlist[n];
 	if (pos < 0 || pos >= CXGRID * CYGRID) {
@@ -2097,11 +2111,11 @@ static int initgame(gamelogic *logic)
 	}
 	if (creatureid(cell->top.id) != Block
 				&& cell->bot.id != CloneMachine) {
-	    cr = allocatecreature();
+	    cr = allocatecreature(state);
 	    cr->pos = pos;
 	    cr->id = creatureid(cell->top.id);
 	    cr->dir = creaturedirid(cell->top.id);
-	    addtocreaturelist(cr);
+	    addtocreaturelist(state, cr);
 	    if (iscreature(cell->bot.id) && creatureid(cell->bot.id) == Chip) {
 		chip->pos = pos;
 		chip->dir = creaturedirid(cell->bot.id);
@@ -2140,7 +2154,7 @@ static int initgame(gamelogic *logic)
     chipstatus() = CHIP_OKAY;
     controllerdir() = NIL;
     lastslipdir() = NIL;
-    stepping() = laststepping;
+    stepping() = laststepping();
     cancelgoal();
     xviewoffset() = 0;
     yviewoffset() = 0;
@@ -2165,8 +2179,8 @@ static int advancegame(gamelogic *logic)
 
     if (currenttime() && !(currenttime() & 1)) {
 	controllerdir() = NIL;
-	for (n = 0 ; n < creaturecount ; ++n) {
-	    cr = creatures[n];
+	for (n = 0 ; n < creaturecount() ; ++n) {
+	    cr = creatures()[n];
 	    if (cr->hidden || (cr->state & CS_CLONING) || cr->id == Chip)
 		continue;
 	    choosemove(state, cr);
@@ -2182,7 +2196,7 @@ static int advancegame(gamelogic *logic)
 	if ((r = checkforending(state)))
 	    goto done;
     }
-    updatesliplist();
+    updatesliplist(state);
 
     timeoffset() = 0;
     if (timelimit()) {
@@ -2203,8 +2217,8 @@ static int advancegame(gamelogic *logic)
 		goto done;
 	cr->state |= CS_HASMOVED;
     }
-    updatesliplist();
-    createclones();
+    updatesliplist(state);
+    createclones(state);
 
   done:
     finalhousekeeping(state);
@@ -2216,11 +2230,10 @@ static int advancegame(gamelogic *logic)
  */
 static int endgame(gamelogic *logic)
 {
-    (void)logic;
-    resetcreaturepool();
-    resetcreaturelist();
-    resetblocklist();
-    resetsliplist();
+    resetcreaturepool(logic->state);
+    resetcreaturelist(logic->state);
+    resetblocklist(logic->state);
+    resetsliplist(logic->state);
     return TRUE;
 }
 
@@ -2228,25 +2241,25 @@ static int endgame(gamelogic *logic)
  */
 static void shutdown(gamelogic *logic)
 {
-    (void)logic;
+    gamestate *state = logic->state;
 
-    free(creatures);
-    creatures = NULL;
-    creaturecount = 0;
-    creaturesallocated = 0;
-    free(blocks);
-    blocks = NULL;
-    blockcount = 0;
-    blocksallocated = 0;
-    free(slips);
-    slips = NULL;
-    slipcount = 0;
-    slipsallocated = 0;
+    free(creatures());
+    creatures() = NULL;
+    creaturecount() = 0;
+    creaturesallocated() = 0;
+    free(blocks());
+    blocks() = NULL;
+    blockcount() = 0;
+    blocksallocated() = 0;
+    free(slips());
+    slips() = NULL;
+    slipcount() = 0;
+    slipsallocated() = 0;
 
-    resetcreaturepool();
-    freecreaturepool();
-    creaturepool = NULL;
-    creaturepoolend = NULL;
+    resetcreaturepool(state);
+    freecreaturepool(state);
+    creaturepool() = NULL;
+    creaturepoolend() = NULL;
 }
 
 /* The exported function: Initialize and return the module's gamelogic
