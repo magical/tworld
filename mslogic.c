@@ -83,8 +83,6 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
  * macros can be used as an lvalue.
  */
 
-#define	setstate(p)		(state = (p)->state)
-
 #define	getchip()		(creatures()[0])
 #define	chippos()		(getchip()->pos)
 #define	chipdir()		(getchip()->dir)
@@ -2085,7 +2083,7 @@ static int initgame(gamelogic *logic)
     creature	       *chip;
     int			pos, num, n;
 
-    setstate(logic);
+    state = logic->state;
     num = state->game->number;
     state->statusflags &= ~SF_BADTILES;
     state->statusflags |= SF_NOANIMATION;
@@ -2174,12 +2172,12 @@ static int initgame(gamelogic *logic)
  */
 static int advancegame(gamelogic *logic)
 {
-    gamestate	*state;;
+    gamestate	*state;
     creature   *cr;
     int		r = 0;
     int		n;
 
-    setstate(logic);
+    state = logic->state;
 
     timeoffset() = -1;
     initialhousekeeping(state);
