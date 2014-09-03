@@ -383,11 +383,13 @@ static void removefromsliplist(gamestate *state, creature *cr)
 
 /* Floor state flags.
  */
-#define	FS_BUTTONDOWN		0x01	/* button press is deferred */
-#define	FS_CLONING		0x02	/* clone machine is activated */
-#define	FS_BROKEN		0x04	/* teleport/toggle wall doesn't work */
-#define	FS_HASMUTANT		0x08	/* beartrap contains mutant block */
-#define	FS_MARKER		0x10	/* marker used during initialization */
+enum {
+    FS_BUTTONDOWN	= 0x01,	/* button press is deferred */
+    FS_CLONING		= 0x02,	/* clone machine is activated */
+    FS_BROKEN		= 0x04,	/* teleport/toggle wall doesn't work */
+    FS_HASMUTANT	= 0x08,	/* beartrap contains mutant block */
+    FS_MARKER		= 0x10	/* marker used during initialization */
+};
 
 /* Translate a slide floor into the direction it points in. In the
  * case of a random slide floor, a new direction is selected.
@@ -560,14 +562,16 @@ static void togglewalls(gamestate *state)
 
 /* Creature state flags.
  */
-#define	CS_RELEASED		0x01	/* can leave a beartrap */
-#define	CS_CLONING		0x02	/* cannot move this tick */
-#define	CS_HASMOVED		0x04	/* already used current move */
-#define	CS_TURNING		0x08	/* is turning around */
-#define	CS_SLIP			0x10	/* is on the slip list */
-#define	CS_SLIDE		0x20	/* is on the slip list but can move */
-#define	CS_DEFERPUSH		0x40	/* button pushes will be delayed */
-#define	CS_MUTANT		0x80	/* block is mutant, looks like Chip */
+enum {
+    CS_RELEASED		= 0x01,	/* can leave a beartrap */
+    CS_CLONING		= 0x02,	/* cannot move this tick */
+    CS_HASMOVED		= 0x04,	/* already used current move */
+    CS_TURNING		= 0x08,	/* is turning around */
+    CS_SLIP		= 0x10,	/* is on the slip list */
+    CS_SLIDE		= 0x20,	/* is on the slip list but can move */
+    CS_DEFERPUSH	= 0x40,	/* button pushes will be delayed */
+    CS_MUTANT		= 0x80	/* block is mutant, looks like Chip */
+};
 
 /* Return the creature located at pos. Ignores Chip unless includechip
  * is TRUE. Return NULL if no such creature is present.
@@ -797,7 +801,7 @@ static void updatesliplist(gamestate *state)
  * specific situation.
  */
 
-#define	NWSE	(NORTH | WEST | SOUTH | EAST)
+enum { NWSE = NORTH | WEST | SOUTH | EAST };
 
 static struct { unsigned char chip, block, creature; } const movelaws[] = {
     /* Nothing */		{ 0, 0, 0 },
@@ -887,12 +891,14 @@ static struct { unsigned char chip, block, creature; } const movelaws[] = {
  * block away from him. Finally, CMM_NODEFERBUTTONS causes buttons
  * pressed by pushed blocks to take effect immediately.
  */
-#define	CMM_NOLEAVECHECK	0x0001
-#define	CMM_NOEXPOSEWALLS	0x0002
-#define	CMM_CLONECANTBLOCK	0x0004
-#define	CMM_NOPUSHING		0x0008
-#define	CMM_TELEPORTPUSH	0x0010
-#define	CMM_NODEFERBUTTONS	0x0020
+enum {
+    CMM_NOLEAVECHECK	= 0x0001,
+    CMM_NOEXPOSEWALLS	= 0x0002,
+    CMM_CLONECANTBLOCK	= 0x0004,
+    CMM_NOPUSHING	= 0x0008,
+    CMM_TELEPORTPUSH	= 0x0010,
+    CMM_NODEFERBUTTONS	= 0x0020
+};
 
 /* Move a block at the given position forward in the given direction.
  * FALSE is returned if the block cannot be pushed.

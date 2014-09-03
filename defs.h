@@ -82,9 +82,11 @@ struct solutioninfo {
  * (Mouse moves are stored as a relative offset in order to fit all
  * possible moves in nine bits.)
  */
-#define	MOUSERANGEMIN	-9
-#define	MOUSERANGEMAX	+9
-#define	MOUSERANGE	19
+enum {
+    MOUSERANGEMIN	= -9,
+    MOUSERANGEMAX	= +9,
+    MOUSERANGE		= 19
+};
 
 /* The complete list of commands that the user can given.
  */
@@ -156,37 +158,39 @@ enum {
 
 /* The list of available sound effects.
  */
-#define	SND_CHIP_LOSES		0
-#define	SND_CHIP_WINS		1
-#define	SND_TIME_OUT		2
-#define	SND_TIME_LOW		3
-#define	SND_DEREZZ		4
-#define	SND_CANT_MOVE		5
-#define	SND_IC_COLLECTED	6
-#define	SND_ITEM_COLLECTED	7
-#define	SND_BOOTS_STOLEN	8
-#define	SND_TELEPORTING		9
-#define	SND_DOOR_OPENED		10
-#define	SND_SOCKET_OPENED	11
-#define	SND_BUTTON_PUSHED	12
-#define	SND_TILE_EMPTIED	13
-#define	SND_WALL_CREATED	14
-#define	SND_TRAP_ENTERED	15
-#define	SND_BOMB_EXPLODES	16
-#define	SND_WATER_SPLASH	17
+enum {
+    SND_CHIP_LOSES = 0,
+    SND_CHIP_WINS,
+    SND_TIME_OUT,
+    SND_TIME_LOW,
+    SND_DEREZZ,
+    SND_CANT_MOVE,
+    SND_IC_COLLECTED,
+    SND_ITEM_COLLECTED,
+    SND_BOOTS_STOLEN,
+    SND_TELEPORTING,
+    SND_DOOR_OPENED,
+    SND_SOCKET_OPENED,
+    SND_BUTTON_PUSHED,
+    SND_TILE_EMPTIED,
+    SND_WALL_CREATED,
+    SND_TRAP_ENTERED,
+    SND_BOMB_EXPLODES,
+    SND_WATER_SPLASH,
 
-#define	SND_ONESHOT_COUNT	18
+    SND_ONESHOT_COUNT,
 
-#define	SND_BLOCK_MOVING	18
-#define	SND_SKATING_FORWARD	19
-#define	SND_SKATING_TURN	20
-#define	SND_SLIDING		21
-#define	SND_SLIDEWALKING	22
-#define	SND_ICEWALKING		23
-#define	SND_WATERWALKING	24
-#define	SND_FIREWALKING		25
+    SND_BLOCK_MOVING = SND_ONESHOT_COUNT,
+    SND_SKATING_FORWARD,
+    SND_SKATING_TURN,
+    SND_SLIDING,
+    SND_SLIDEWALKING,
+    SND_ICEWALKING,
+    SND_WATERWALKING,
+    SND_FIREWALKING,
 
-#define	SND_COUNT		26
+    SND_COUNT
+};
 
 /*
  * Structures for defining the games proper.
@@ -212,9 +216,11 @@ struct gamesetup {
 
 /* Flags associated with a saved game.
  */
-#define	SGF_HASPASSWD		0x0001	/* player knows the level's password */
-#define	SGF_REPLACEABLE		0x0002	/* solution is marked as replaceable */
-#define	SGF_SETNAME		0x0004	/* internal to solution.c */
+enum {
+    SGF_HASPASSWD	= 0x0001,	/* player knows the level's password */
+    SGF_REPLACEABLE	= 0x0002,	/* solution is marked as replaceable */
+    SGF_SETNAME		= 0x0004	/* internal to solution.c */
+};
 
 /* The collection of data maintained for each series.
  */
@@ -239,10 +245,12 @@ struct gameseries {
 
 /* Flags associated with a series.
  */
-#define	GSF_ALLMAPSREAD		0x0001	/* finished reading the data file */
-#define	GSF_NOSAVING		0x0002	/* treat solution file as read-only */
-#define	GSF_NODEFAULTSAVE	0x0004	/* don't use default tws filename */
-#define	GSF_IGNOREPASSWDS	0x0008	/* don't require passwords */
-#define	GSF_LYNXFIXES		0x0010	/* change MS data into Lynx levels */
+enum {
+    GSF_ALLMAPSREAD	= 0x0001,	/* finished reading the data file */
+    GSF_NOSAVING	= 0x0002,	/* treat solution file as read-only */
+    GSF_NODEFAULTSAVE	= 0x0004,	/* don't use default tws filename */
+    GSF_IGNOREPASSWDS	= 0x0008,	/* don't require passwords */
+    GSF_LYNXFIXES	= 0x0010	/* change MS data into Lynx levels */
+};
 
 #endif
