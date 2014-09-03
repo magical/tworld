@@ -236,12 +236,14 @@ struct gamestate {
 
 /* General status flags.
  */
-#define	SF_NOSAVING		0x0001		/* solution won't be saved */
-#define	SF_INVALID		0x0002		/* level is not playable */
-#define	SF_BADTILES		0x0004		/* map has undefined tiles */
-#define	SF_SHOWHINT		0x0008		/* display the hint text */
-#define	SF_NOANIMATION		0x0010		/* suppress tile animation */
-#define	SF_SHUTTERED		0x0020		/* hide map view */
+enum {
+    SF_NOSAVING		= 0x0001,		/* solution won't be saved */
+    SF_INVALID		= 0x0002,		/* level is not playable */
+    SF_BADTILES		= 0x0004,		/* map has undefined tiles */
+    SF_SHOWHINT		= 0x0008,		/* display the hint text */
+    SF_NOANIMATION	= 0x0010,		/* suppress tile animation */
+    SF_SHUTTERED	= 0x0020		/* hide map view */
+};
 
 /* Macros for the keys and boots.
  */

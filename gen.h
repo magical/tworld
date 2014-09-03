@@ -38,19 +38,23 @@ struct tablespec {
 
 /* The dimensions of a level.
  */
-#define	CXGRID	32
-#define	CYGRID	32
+enum {
+    CXGRID	= 32,
+    CYGRID	= 32
+};
 
 /* The four directions plus one non-direction.
  */
-#define	NIL	0
-#define	NORTH	1
-#define	WEST	2
-#define	SOUTH	4
-#define	EAST	8
+enum {
+    NIL		= 0,
+    NORTH	= 1,
+    WEST	= 2,
+    SOUTH	= 4,
+    EAST	= 8
+};
 
-/* Translating directions to and from a two-bit representation. (Note
- * that NIL will map to the same value as NORTH.)
+/* Translating directions to and from a two-bit representation.
+ * (Note that NIL will map to the same value as NORTH.)
  */
 #define	diridx(dir)	((0x30210 >> ((dir) * 2)) & 3)
 #define	idxdir(idx)	(1 << ((idx) & 3))
@@ -59,7 +63,7 @@ struct tablespec {
  * seconds in the game, which are not necessarily the same length as
  * real-time seconds.
  */
-#define	TICKS_PER_SECOND	20
+enum { TICKS_PER_SECOND = 20 };
 
 /* The gameplay timer's value is forced to remain within 23 bits.
  * Thus, gameplay of a single level cannot exceed 4 days 20 hours 30

@@ -15,16 +15,16 @@
 /* A number well above the maximum number of creatures that could possibly
  * exist simultaneously.
  */
-#define	MAX_CREATURES	(2 * CXGRID * CYGRID)
+enum { MAX_CREATURES = 2 * CXGRID * CYGRID };
 
 /* The maximum number of creatures on the original Atari Lynx version.
  */
-#define	PMAX_CREATURES	128
+enum { PMAX_CREATURES = 128 };
 
 /* Temporary "holding" values used in place of a direction.
  */
-#define	WALKER_TURN	(NORTH | SOUTH | EAST)
-#define	BLOB_TURN	(NORTH | SOUTH | WEST)
+enum { WALKER_TURN = NORTH | SOUTH | EAST };
+enum { BLOB_TURN   = NORTH | SOUTH | WEST };
 
 /* TRUE if dir is a diagonal move.
  */
@@ -218,8 +218,10 @@ static unsigned char lynx_prng(void)
 
 /* Floor state flags.
  */
-#define	FS_CLAIMED		0x40	/* spot is claimed by a creature */
-#define	FS_ANIMATED		0x20	/* spot is playing an animation */
+enum {
+    FS_CLAIMED		= 0x40,	/* spot is claimed by a creature */
+    FS_ANIMATED		= 0x20	/* spot is playing an animation */
+};
 
 /* Accessor macros for the floor states.
  */
@@ -351,11 +353,13 @@ static void resetfloorsounds(int includepushing)
 
 /* Creature state flags.
  */
-#define	CS_FDIRMASK		0x0F	/* temp storage for forced moves */
-#define	CS_SLIDETOKEN		0x10	/* can move off of a slide floor */
-#define	CS_REVERSE		0x20	/* needs to turn around */
-#define	CS_PUSHED		0x40	/* block was pushed by Chip */
-#define	CS_TELEPORTED		0x80	/* creature was just teleported */
+enum {
+    CS_FDIRMASK		= 0x0F,	/* temp storage for forced moves */
+    CS_SLIDETOKEN	= 0x10,	/* can move off of a slide floor */
+    CS_REVERSE		= 0x20,	/* needs to turn around */
+    CS_PUSHED		= 0x40,	/* block was pushed by Chip */
+    CS_TELEPORTED	= 0x80	/* creature was just teleported */
+};
 
 #define	getfdir(cr)	((cr)->state & CS_FDIRMASK)
 #define	setfdir(cr, d)	((cr)->state = ((cr)->state & ~CS_FDIRMASK) \
@@ -691,11 +695,13 @@ static struct { unsigned char chip, block, creature; } const movelaws[] = {
  * blocks to be pushed immediately, instead of waiting for the block's
  * turn to move.
  */
-#define	CMM_RELEASING		0x0001
-#define	CMM_CLEARANIMATIONS	0x0002
-#define	CMM_STARTMOVEMENT	0x0004
-#define	CMM_PUSHBLOCKS		0x0008
-#define	CMM_PUSHBLOCKSNOW	0x0010
+enum {
+    CMM_RELEASING		= 0x0001,
+    CMM_CLEARANIMATIONS		= 0x0002,
+    CMM_STARTMOVEMENT		= 0x0004,
+    CMM_PUSHBLOCKS		= 0x0008,
+    CMM_PUSHBLOCKSNOW		= 0x0010
+};
 
 /* Return TRUE if the given block is allowed to be moved in the given
  * direction. If flags includes CMM_PUSHBLOCKSNOW, then the indicated
