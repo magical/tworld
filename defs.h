@@ -25,19 +25,21 @@ enum {
 
 /* File I/O structure.
  */
-typedef	struct fileinfo {
+typedef struct fileinfo fileinfo;
+struct fileinfo {
     char       *name;		/* the name of the file */
     FILE       *fp;		/* the real file handle */
     char	alloc;		/* TRUE if name was allocated internally */
-} fileinfo;
+};
 
 /* Pseudorandom number generators.
  */
-typedef	struct prng {
+typedef struct prng prng;
+struct prng {
     unsigned long	initial;	/* initial seed value */
     unsigned long	value;		/* latest random value */
     char		shared;		/* FALSE if independent sequence */
-} prng;
+};
 
 /*
  * Definitions used in game play.
@@ -51,25 +53,30 @@ typedef	struct prng {
 
 /* A move is specified by its direction and when it takes place.
  */
-typedef	struct action { unsigned int when:23, dir:9; } action;
+typedef struct action action;
+struct action {
+    unsigned int when:23, dir:9;
+};
 
 /* A structure for managing the memory holding the moves of a game.
  */
-typedef struct actlist {
+typedef struct actlist actlist;
+struct actlist {
     int			allocated;	/* number of elements allocated */
     int			count;		/* size of the actual array */
     action	       *list;		/* the array */
-} actlist;
+};
 
 /* A structure holding all the data needed to reconstruct a solution.
  */
-typedef	struct solutioninfo {
+typedef struct solutioninfo solutioninfo;
+struct solutioninfo {
     actlist		moves;		/* the actual moves of the solution */
     unsigned long	rndseed;	/* the PRNG's initial seed */
     unsigned long	flags;		/* other flags (currently unused) */
     unsigned char	rndslidedir;	/* random slide's initial direction */
     signed char		stepping;	/* the timer offset */
-} solutioninfo;
+};
 
 /* The range of relative mouse moves is a 19x19 square around Chip.
  * (Mouse moves are stored as a relative offset in order to fit all
@@ -187,7 +194,8 @@ enum {
 
 /* The collection of data maintained for each level.
  */
-typedef	struct gamesetup {
+typedef struct gamesetup gamesetup;
+struct gamesetup {
     int			number;		/* numerical ID of the level */
     int			time;		/* no. of seconds allotted */
     int			besttime;	/* time (in ticks) of best solution */
@@ -200,7 +208,7 @@ typedef	struct gamesetup {
     char const	       *unsolvable;	/* why level is unsolvable, or NULL */
     char		name[256];	/* name of the level */
     char		passwd[256];	/* the level's password */
-} gamesetup;
+};
 
 /* Flags associated with a saved game.
  */
@@ -210,7 +218,8 @@ typedef	struct gamesetup {
 
 /* The collection of data maintained for each series.
  */
-typedef	struct gameseries {
+typedef struct gameseries gameseries;
+struct gameseries {
     int			count;		/* number of levels in the series */
     int			allocated;	/* number of elements allocated */
     int			final;		/* number of the ending level */
@@ -226,7 +235,7 @@ typedef	struct gameseries {
     char		filebase[256];	/* the level set's filename */
     char		name[256];	/* the filename minus any path */
     unsigned char	solheader[256];	/* extra solution header bytes */
-} gameseries;
+};
 
 /* Flags associated with a series.
  */

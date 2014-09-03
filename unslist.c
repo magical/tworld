@@ -18,13 +18,14 @@
 /* The information comprising one entry in the list of unsolvable
  * levels.
  */
-typedef	struct unslistentry {
+typedef struct unslistentry unslistentry;
+struct unslistentry {
     int			setid;		/* the ID of the level set's name */
     int			levelnum;	/* the level's number */
     int			size;		/* the levels data's compressed size */
     unsigned long	hashval;	/* the levels data's hash value */
     int			note;		/* the entry's annotation ID, if any */
-} unslistentry;
+};
 
 /* The pool of strings. In here are stored the level set names and the
  * annotations. The string IDs are simple offsets from the strings

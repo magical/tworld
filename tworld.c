@@ -29,7 +29,8 @@ enum { Play_None, Play_Normal, Play_Back, Play_Verify };
 
 /* The data needed to identify what level is being played.
  */
-typedef	struct gamespec {
+typedef struct gamespec gamespec;
+struct gamespec {
     gameseries	series;		/* the complete set of levels */
     int		currentgame;	/* which level is currently selected */
     int		playmode;	/* which mode to play */
@@ -37,11 +38,12 @@ typedef	struct gamespec {
     int		status;		/* final status of last game played */
     int		enddisplay;	/* TRUE if the final level was completed */
     int		melindacount;	/* count for Melinda's free pass */
-} gamespec;
+};
 
 /* Structure used to hold data collected by initoptionswithcmdline().
  */
-typedef	struct startupdata {
+typedef struct startupdata startupdata;
+struct startupdata {
     char       *filename;	/* which data file to use */
     char       *savefilename;	/* an alternate solution file */
     int		levelnum;	/* a selected initial level */ 
@@ -50,15 +52,16 @@ typedef	struct startupdata {
     int		listscores;	/* TRUE if the scores should be listed */
     int		listtimes;	/* TRUE if the times should be listed */
     int		batchverify;	/* TRUE to enter batch verification */
-} startupdata;
+};
 
 /* Structure used to hold the complete list of available series.
  */
-typedef	struct seriesdata {
+typedef struct seriesdata seriesdata;
+struct seriesdata {
     gameseries *list;		/* the array of available series */
     int		count;		/* size of arary */
     tablespec	table;		/* table for displaying the array */
-} seriesdata;
+};
 
 /* TRUE suppresses sound and the console bell.
  */

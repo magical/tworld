@@ -55,7 +55,8 @@ enum {
  * information back to the caller. The remaining fields are used
  * internally by readoption().
  */
-typedef struct cmdlineinfo {
+typedef struct cmdlineinfo cmdlineinfo;
+struct cmdlineinfo {
     char const *options;	/* the list of valid options */
     int		argc;		/* cmdline's argc */
     char      **argv;		/* cmdline's argv */
@@ -65,7 +66,7 @@ typedef struct cmdlineinfo {
     int		index;		/* index of the next argument */
     char       *argptr;		/* ptr to the next option/argument */
     int		stop;		/* flag indicating no further options */
-} cmdlineinfo;
+};
 
 /* initoptions() initializes the cmdline parsing. opt is an empty
  * cmdlineinfo structure to initialize. list is a string containing

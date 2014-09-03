@@ -143,29 +143,33 @@ enum
 /* Two x,y-coordinates give the locations of a button and what it is
  * connected to.
  */
-typedef	struct xyconn {
+typedef struct xyconn xyconn;
+struct xyconn {
     short		from;		/* location of the button */
     short		to;		/* location of the trap/cloner */
-} xyconn;
+};
 
 /* A tile on the map.
  */
-typedef struct maptile {
+typedef struct maptile maptile;
+struct maptile {
     unsigned char	id;		/* identity of the tile */
     unsigned char	state;		/* internal state flags */
-} maptile;
+};
 
 /* A location on the map.
  */
-typedef	struct mapcell {
+typedef struct mapcell mapcell;
+struct mapcell {
     maptile		top;		/* the upper tile */
     maptile		bot;		/* the lower tile */
-} mapcell;
+};
 
 /* A creature.
  */
 #if 0
-typedef	struct creature {
+typedef struct creature creature;
+struct creature;
     signed int		pos   : 11;	/* creature's location */
     signed int		dir   : 5;	/* current direction of creature */
     signed int		id    : 8;	/* type of creature */
@@ -174,9 +178,10 @@ typedef	struct creature {
     signed int		moving: 5;	/* positional offset of creature */
     signed int		frame : 5;	/* explicit animation index */
     signed int		tdir  : 5;	/* internal state value */
-} creature;
+};
 #else
-typedef struct creature {
+typedef struct creature creature;
+struct creature {
     short		pos;		/* creature's location */
     unsigned char	id;		/* type of creature */
     unsigned char	dir;		/* current direction of creature */
@@ -185,7 +190,7 @@ typedef struct creature {
     unsigned char	hidden;		/* TRUE if creature is invisible */
     unsigned char	state;		/* internal state value */
     unsigned char	tdir;		/* internal state value */
-} creature;
+};
 #endif
 
 /*
@@ -196,7 +201,8 @@ typedef struct creature {
  * and both logic modules need to know about a game in progress is
  * in here.
  */
-typedef struct gamestate {
+typedef struct gamestate gamestate;
+struct gamestate {
     gamesetup	       *game;			/* the level specification */
     int			ruleset;		/* the ruleset for the game */
     int			replay;			/* playback move index */
@@ -226,7 +232,7 @@ typedef struct gamestate {
     char		hinttext[256];		/* text of the hint */
     mapcell		map[CXGRID * CYGRID];	/* the game's map */
     unsigned char	localstateinfo[256];	/* rule-specific state data */
-} gamestate;
+};
 
 /* General status flags.
  */
