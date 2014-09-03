@@ -67,17 +67,19 @@
 
 /* Structure for enumerating the resource names.
  */
-typedef	struct rcitem {
+typedef struct rcitem rcitem;
+struct rcitem {
     char const *name;
     int		numeric;
-} rcitem;
+};
 
 /* Union for storing the resource values.
  */
-typedef union resourceitem {
+typedef union resourceitem resourceitem;
+union resourceitem {
     int		num;
     char	str[256];
-} resourceitem;
+};
 
 /* The complete list of resource names.
  */

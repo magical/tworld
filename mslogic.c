@@ -30,10 +30,11 @@ enum {
 
 /* The data associated with a sliding object.
  */
-typedef	struct slipper {
+typedef struct slipper slipper;
+struct slipper {
     creature   *cr;
     int		dir;
-} slipper;
+};
 
 
 /* Status information specific to the MS game logic.

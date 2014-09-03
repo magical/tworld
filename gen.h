@@ -27,13 +27,14 @@
  * "!" to permit the cell to occupy multiple lines, with word
  * wrapping. At most one cell in a given row can be word-wrapped.
  */
-typedef	struct tablespec {
+typedef struct tablespec tablespec;
+struct tablespec {
     short	rows;		/* number of rows */
     short	cols;		/* number of columns */
     short	sep;		/* amount of space between columns */
     short	collapse;	/* the column to squeeze if necessary */
     char      **items;		/* the table's contents */
-} tablespec;
+};
 
 /* The dimensions of a level.
  */

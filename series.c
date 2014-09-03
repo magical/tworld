@@ -28,12 +28,13 @@
 
 /* Mini-structure for passing data in and out of findfiles().
  */
-typedef	struct seriesdata {
+typedef struct seriesdata seriesdata;
+struct seriesdata {
     gameseries *list;		/* the gameseries list */
     int		allocated;	/* number of gameseries currently allocated */
     int		count;		/* number of gameseries filled in */
     int		usedatdir;	/* TRUE if the file is in seriesdatdir. */
-} seriesdata;
+};
 
 /* The directory containing the series files (data files and
  * configuration files).

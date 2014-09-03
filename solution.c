@@ -750,13 +750,14 @@ int loadsolutionsetname(char const *filename, char *buffer)
 
 /* Mini-structure for passing data in and out of findfiles().
  */
-typedef	struct solutiondata {
+typedef struct solutiondata solutiondata;
+struct solutiondata {
     char       *pool;		/* the found filenames, pooled together */
     int		allocated;	/* number of bytes allocated for the pool */
     int		count;		/* number of filenames in the pool */
     char const *prefix;		/* the filename prefix to seek */
     int		prefixlen;	/* length of the filename prefix */
-} solutiondata;
+};
 
 /* If the given file starts with the prefix stored in the solutiondata
  * structure, then add it to the pool of filenames, prefixed with
