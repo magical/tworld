@@ -4,7 +4,7 @@
  * License. No warranty. See COPYING for details.
  */
 
-/* 
+/*
  * This module is not here because I don't trust the C library's
  * random-number generator. (In fact, this module uses the linear
  * congruential generator, which is hardly impressive. But this isn't

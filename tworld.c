@@ -42,7 +42,7 @@ typedef struct startupdata startupdata;
 struct startupdata {
     char       *filename;	/* which data file to use */
     char       *savefilename;	/* an alternate solution file */
-    int		levelnum;	/* a selected initial level */ 
+    int		levelnum;	/* a selected initial level */
     int		listdirs;	/* TRUE if directories should be listed */
     int		listseries;	/* TRUE if the files should be listed */
     int		listscores;	/* TRUE if the scores should be listed */

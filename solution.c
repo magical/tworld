@@ -142,7 +142,7 @@ static int const idxdir8[8] = {
 #define	isdirectmove(dir)	(directionalcmd(dir))
 #define	ismousemove(dir)	(!isdirectmove(dir))
 #define	isdiagonal(dir)		(isdirectmove(dir) && diridx8[dir] > 3)
-#define isorthogonal(dir)	(isdirectmove(dir) && diridx8[dir] <= 3)
+#define	isorthogonal(dir)	(isdirectmove(dir) && diridx8[dir] <= 3)
 #define	dirtoindex(dir)		(diridx8[dir])
 #define	indextodir(dir)		(idxdir8[dir])
 
