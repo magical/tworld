@@ -21,10 +21,6 @@
 #include	"cmdline.h"
 #include	"ver.h"
 
-/* Bell-ringing macro.
- */
-#define	bell()	(silence ? (void)0 : ding())
-
 enum { Play_None, Play_Normal, Play_Back, Play_Verify };
 
 /* The data needed to identify what level is being played.
@@ -98,6 +94,10 @@ static int	volumelevel = -1;
 /* The top of the stack of subtitles.
  */
 static void   **subtitlestack = NULL;
+
+/* Bell-ringing helper.
+ */
+static void bell(void) { if (!silence) ding(); }
 
 /*
  * Text-mode output functions.
