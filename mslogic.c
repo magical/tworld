@@ -83,29 +83,6 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
  * macros can be used as an lvalue.
  */
 
-#define	getchip()		(creatures()[0])
-#define	chippos()		(getchip()->pos)
-#define	chipdir()		(getchip()->dir)
-
-#define	chipsneeded()		(state->chipsneeded)
-
-#define	clonerlist()		(state->cloners)
-#define	clonerlistsize()	(state->clonercount)
-#define	traplist()		(state->traps)
-#define	traplistsize()		(state->trapcount)
-
-#define	timelimit()		(state->timelimit)
-#define	timeoffset()		(state->timeoffset)
-#define	stepping()		(state->stepping)
-#define	currenttime()		(state->currenttime)
-#define	currentinput()		(state->currentinput)
-#define	xviewpos()		(state->xviewpos)
-#define	yviewpos()		(state->yviewpos)
-
-#define	mainprng()		(&state->mainprng)
-
-#define	lastmove()		(state->lastmove)
-
 #define	addsoundeffect(sfx)	(state->soundeffects |= 1 << (sfx))
 
 #define	cellat(pos)		(&state->map[pos])
@@ -143,6 +120,13 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
 #define	slips()			(getmsstate()->slips)
 #define	slipcount()		(getmsstate()->slipcount)
 #define	slipsallocated()	(getmsstate()->slipsallocated)
+
+static creature *getchip(gamestate *state) {
+    return getmsstate()->creatures[0];
+}
+
+static int chippos(gamestate *state) { return getchip(state)->pos; }
+static int chipdir(gamestate *state) { return getchip(state)->dir; }
 
 #define	possession(obj)	(*_possession(state, obj))
 static short *_possession(gamestate *state, int obj)
@@ -399,7 +383,7 @@ static int getslidedir(gamestate *state, int floor)
       case Slide_West:		return WEST;
       case Slide_South:		return SOUTH;
       case Slide_East:		return EAST;
-      case Slide_Random:	return 1 << random4(mainprng());
+      case Slide_Random:	return 1 << random4(&state->mainprng);
     }
     return NIL;
 }
@@ -428,8 +412,8 @@ static int trapfrombutton(gamestate *state, int pos)
     xyconn     *traps;
     int		i;
 
-    traps = traplist();
-    for (i = traplistsize() ; i ; ++traps, --i)
+    traps = state->traps;
+    for (i = state->trapcount ; i ; ++traps, --i)
 	if (traps->from == pos)
 	    return traps->to;
     return -1;
@@ -442,8 +426,8 @@ static int clonerfrombutton(gamestate *state, int pos)
     xyconn     *cloners;
     int		i;
 
-    cloners = clonerlist();
-    for (i = clonerlistsize() ; i ; ++cloners, --i)
+    cloners = state->cloners;
+    for (i = state->clonercount ; i ; ++cloners, --i)
 	if (cloners->from == pos)
 	    return cloners->to;
     return -1;
@@ -526,8 +510,8 @@ static int istrapopen(gamestate *state, int pos, int skippos)
     xyconn     *traps;
     int		i;
 
-    traps = traplist();
-    for (i = traplistsize() ; i ; ++traps, --i)
+    traps = state->traps;
+    for (i = state->trapcount ; i ; ++traps, --i)
 	if (traps->to == pos && traps->from != skippos
 			     && istrapbuttondown(state, traps->from))
 	    return TRUE;
@@ -618,8 +602,8 @@ static creature *lookupblock(gamestate *state, int pos)
 	_assert(!"lookupblock() called on blockless location");
 
     if (cellat(pos)->bot.id == Beartrap) {
-	for (n = 0 ; n < traplistsize() ; ++n) {
-	    if (traplist()[n].to == cr->pos) {
+	for (n = 0 ; n < state->trapcount ; ++n) {
+	    if (state->traps[n].to == cr->pos) {
 		cr->state |= CS_RELEASED;
 		break;
 	    }
@@ -911,7 +895,7 @@ static int pushblock(gamestate *state, int pos, int dir, int flags)
 
     cr = lookupblock(state, pos);
     if (!cr) {
-	warn("%d: attempt to push disembodied block!", currenttime());
+	warn("%d: attempt to push disembodied block!", state->currenttime);
 	return FALSE;
     }
     if (cr->state & (CS_SLIP | CS_SLIDE)) {
@@ -985,7 +969,7 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
 	floor = floorat(state, to);
 	if (!(movelaws[floor].chip & dir))
 	    return FALSE;
-	if (floor == Socket && chipsneeded() > 0)
+	if (floor == Socket && state->chipsneeded > 0)
 	    return FALSE;
 	if (isdoor(floor) && !possession(floor))
 	    return FALSE;
@@ -1070,10 +1054,10 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 	return;
     if (cr->id == Block)
 	return;
-    if (currenttime() & 2)
+    if (state->currenttime & 2)
 	return;
     if (cr->id == Teeth || cr->id == Blob) {
-	if ((currenttime() + stepping()) & 4)
+	if ((state->currenttime + state->stepping) & 4)
 	    return;
     }
     if (cr->state & CS_TURNING) {
@@ -1105,7 +1089,7 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 	    choices[1] = left(dir);
 	    choices[2] = back(dir);
 	    choices[3] = right(dir);
-	    randomp4(mainprng(), choices);
+	    randomp4(&state->mainprng, choices);
 	    break;
 	  case Bug:
 	  case Paramecium:
@@ -1145,14 +1129,14 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 	    choices[1] = left(dir);
 	    choices[2] = back(dir);
 	    choices[3] = right(dir);
-	    randomp3(mainprng(), choices + 1);
+	    randomp3(&state->mainprng, choices + 1);
 	    break;
 	  case Blob:
 	    choices[0] = dir;
 	    choices[1] = left(dir);
 	    choices[2] = back(dir);
 	    choices[3] = right(dir);
-	    randomp4(mainprng(), choices);
+	    randomp4(&state->mainprng, choices);
 	    break;
 	  case Bug:
 	    choices[0] = left(dir);
@@ -1167,8 +1151,8 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 	    choices[3] = back(dir);
 	    break;
 	  case Teeth:
-	    y = chippos() / CXGRID - cr->pos / CXGRID;
-	    x = chippos() % CXGRID - cr->pos % CXGRID;
+	    y = chippos(state) / CXGRID - cr->pos / CXGRID;
+	    x = chippos(state) % CXGRID - cr->pos % CXGRID;
 	    n = y < 0 ? NORTH : y > 0 ? SOUTH : NIL;
 	    if (y < 0)
 		y = -y;
@@ -1217,7 +1201,7 @@ static int chipmovetogoalpos(gamestate *state)
 
     if (!hasgoal())
 	return NIL;
-    cr = getchip();
+    cr = getchip(state);
     if (goalpos() == cr->pos) {
 	cancelgoal();
 	return NIL;
@@ -1250,8 +1234,8 @@ static int makemouserelative(gamestate *state, int abspos)
 {
     int	x, y;
 
-    x = abspos % CXGRID - chippos() % CXGRID;
-    y = abspos / CXGRID - chippos() / CXGRID;
+    x = abspos % CXGRID - chippos(state) % CXGRID;
+    y = abspos / CXGRID - chippos(state) / CXGRID;
     _assert(x >= MOUSERANGEMIN && x <= MOUSERANGEMAX);
     _assert(y >= MOUSERANGEMIN && y <= MOUSERANGEMAX);
     return (y - MOUSERANGEMIN) * MOUSERANGE + (x - MOUSERANGEMIN);
@@ -1265,7 +1249,7 @@ static int makemouseabsolute(gamestate *state, int relpos)
 
     x = relpos % MOUSERANGE + MOUSERANGEMIN;
     y = relpos / MOUSERANGE + MOUSERANGEMIN;
-    return chippos() + y * CXGRID + x;
+    return chippos(state) + y * CXGRID + x;
 }
 
 /* Determine the direction of Chip's next move. If discard is TRUE,
@@ -1281,39 +1265,39 @@ static void choosechipmove(gamestate *state, creature *cr, int discard)
     if (cr->hidden)
 	return;
 
-    if (!(currenttime() & 3))
+    if (!(state->currenttime & 3))
 	cr->state &= ~CS_HASMOVED;
     if (cr->state & CS_HASMOVED) {
-	if (currentinput() != NIL && hasgoal()) {
+	if (state->currentinput != NIL && hasgoal()) {
 	    cancelgoal();
-	    lastmove() = CmdMoveNop;
+	    state->lastmove = CmdMoveNop;
 	}
 	return;
     }
 
-    dir = currentinput();
-    currentinput() = NIL;
+    dir = state->currentinput;
+    state->currentinput = NIL;
     if (discard || ((cr->state & CS_SLIDE) && dir == cr->dir)) {
-	if (currenttime() && !(currenttime() & 1))
+	if (state->currenttime && !(state->currenttime & 1))
 	    cancelgoal();
 	return;
     }
 
     if (dir >= CmdAbsMouseMoveFirst && dir <= CmdAbsMouseMoveLast) {
 	goalpos() = dir - CmdAbsMouseMoveFirst;
-	lastmove() = CmdMouseMoveFirst + makemouserelative(state, goalpos());
+	state->lastmove = CmdMouseMoveFirst + makemouserelative(state, goalpos());
 	dir = NIL;
     } else if (dir >= CmdMouseMoveFirst && dir <= CmdMouseMoveLast) {
-	lastmove() = dir;
+	state->lastmove = dir;
 	goalpos() = makemouseabsolute(state, dir - CmdMouseMoveFirst);
 	dir = NIL;
     } else {
 	if ((dir & (NORTH | SOUTH)) && (dir & (EAST | WEST)))
 	    dir &= NORTH | SOUTH;
-	lastmove() = dir;
+	state->lastmove = dir;
     }
 
-    if (dir == NIL && hasgoal() && currenttime() && !(currenttime() & 1))
+    if (dir == NIL && hasgoal() && state->currenttime && !(state->currenttime & 1))
 	dir = chipmovetogoalpos(state);
 
     cr->tdir = dir;
@@ -1330,7 +1314,7 @@ static int teleportcreature(gamestate *state, creature *cr, int start)
     _assert(!cr->hidden);
     if (cr->dir == NIL) {
 	warn("%d: directionless creature %02X on teleport at (%d %d)",
-	     currenttime(), cr->id, cr->pos % CXGRID, cr->pos / CXGRID);
+	     state->currenttime, cr->id, cr->pos % CXGRID, cr->pos / CXGRID);
 	return NIL;
     }
 
@@ -1598,13 +1582,13 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    addsoundeffect(SND_BOOTS_STOLEN);
 	    break;
 	  case ICChip:
-	    if (chipsneeded())
-		--chipsneeded();
+	    if (state->chipsneeded)
+		--state->chipsneeded;
 	    poptile(state, newpos);
 	    addsoundeffect(SND_IC_COLLECTED);
 	    break;
 	  case Socket:
-	    _assert(chipsneeded() == 0);
+	    _assert(state->chipsneeded == 0);
 	    poptile(state, newpos);
 	    addsoundeffect(SND_SOCKET_OPENED);
 	    break;
@@ -1734,8 +1718,8 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	if (istrapopen(state, newpos, oldpos))
 	    cr->state |= CS_RELEASED;
     } else if (cellat(newpos)->bot.id == Beartrap) {
-	for (i = 0 ; i < traplistsize() ; ++i) {
-	    if (traplist()[i].to == newpos) {
+	for (i = 0 ; i < state->trapcount ; ++i) {
+	    if (state->traps[i].to == newpos) {
 		cr->state |= CS_RELEASED;
 		break;
 	    }
@@ -1991,18 +1975,18 @@ static void initialhousekeeping(gamestate *state)
     int	n;
 
 #ifndef NDEBUG
-    if (currentinput() == CmdDebugCmd2) {
+    if (state->currentinput == CmdDebugCmd2) {
 	dumpmap(state);
 	exit(0);
-    } else if (currentinput() == CmdDebugCmd1) {
+    } else if (state->currentinput == CmdDebugCmd1) {
 	static int mark = 0;
-	warn("Mark %d (%d).", ++mark, currenttime());
-	currentinput() = NIL;
+	warn("Mark %d (%d).", ++mark, state->currenttime);
+	state->currentinput = NIL;
     }
     verifymap(state);
 
-    if (currentinput() >= CmdCheatNorth && currentinput() <= CmdCheatICChip) {
-	switch (currentinput()) {
+    if (state->currentinput >= CmdCheatNorth && state->currentinput <= CmdCheatICChip) {
+	switch (state->currentinput) {
 	  case CmdCheatNorth:		--yviewoffset();		break;
 	  case CmdCheatWest:		--xviewoffset();		break;
 	  case CmdCheatSouth:		++yviewoffset();		break;
@@ -2016,17 +2000,17 @@ static void initialhousekeeping(gamestate *state)
 	  case CmdCheatBootsSlide:	++possession(Boots_Slide);	break;
 	  case CmdCheatBootsFire:	++possession(Boots_Fire);	break;
 	  case CmdCheatBootsWater:	++possession(Boots_Water);	break;
-	  case CmdCheatICChip:	if (chipsneeded()) --chipsneeded();	break;
+	  case CmdCheatICChip:	if (state->chipsneeded) --state->chipsneeded;	break;
 	}
-	currentinput() = NIL;
+	state->currentinput = NIL;
 	setnosaving();
     }
 #endif
 
-    if (currenttime() == 0)
-	laststepping() = stepping();
+    if (state->currenttime == 0)
+	laststepping() = state->stepping;
 
-    if (!(currenttime() & 3)) {
+    if (!(state->currenttime & 3)) {
 	for (n = 1 ; n < creaturecount() ; ++n) {
 	    if (creatures()[n]->state & CS_TURNING) {
 		creatures()[n]->state &= ~(CS_TURNING | CS_HASMOVED);
@@ -2036,8 +2020,8 @@ static void initialhousekeeping(gamestate *state)
 	++chipwait();
 	if (chipwait() > 3) {
 	    chipwait() = 3;
-	    getchip()->dir = SOUTH;
-	    updatecreature(state, getchip());
+	    getchip(state)->dir = SOUTH;
+	    updatecreature(state, getchip(state));
 	}
     }
 }
@@ -2053,14 +2037,14 @@ static void preparedisplay(gamestate *state)
 {
     int	pos;
 
-    pos = chippos();
+    pos = chippos(state);
     if (cellat(pos)->bot.id == HintButton)
 	showhint();
     else
 	hidehint();
 
-    xviewpos() = (pos % CXGRID) * 8 + xviewoffset() * 8;
-    yviewpos() = (pos / CYGRID) * 8 + yviewoffset() * 8;
+    state->xviewpos = (pos % CXGRID) * 8 + xviewoffset() * 8;
+    state->yviewpos = (pos / CYGRID) * 8 + yviewoffset() * 8;
 }
 
 /*
@@ -2149,9 +2133,9 @@ static int initgame(gamelogic *logic)
 			  = possession(Boots_Fire)
 			  = possession(Boots_Water) = 0;
 
-    xy = traplist();
-    for (n = traplistsize(), xy = traplist() ; n ; --n, ++xy)
-	if (istrapbuttondown(state, xy->from) || xy->to == chippos())
+    xy = state->traps;
+    for (n = state->trapcount, xy = state->traps ; n ; --n, ++xy)
+	if (istrapbuttondown(state, xy->from) || xy->to == chippos(state))
 	    springtrap(state, xy->from);
 
     chipwait() = 0;
@@ -2159,7 +2143,7 @@ static int initgame(gamelogic *logic)
     chipstatus() = CHIP_OKAY;
     controllerdir() = NIL;
     lastslipdir() = NIL;
-    stepping() = laststepping();
+    state->stepping = laststepping();
     cancelgoal();
     xviewoffset() = 0;
     yviewoffset() = 0;
@@ -2179,10 +2163,10 @@ static int advancegame(gamelogic *logic)
 
     state = logic->state;
 
-    timeoffset() = -1;
+    state->timeoffset = -1;
     initialhousekeeping(state);
 
-    if (currenttime() && !(currenttime() & 1)) {
+    if (state->currenttime && !(state->currenttime & 1)) {
 	controllerdir() = NIL;
 	for (n = 0 ; n < creaturecount() ; ++n) {
 	    cr = creatures()[n];
@@ -2196,25 +2180,25 @@ static int advancegame(gamelogic *logic)
 	    goto done;
     }
 
-    if (currenttime() && !(currenttime() & 1)) {
+    if (state->currenttime && !(state->currenttime & 1)) {
 	floormovements(state);
 	if ((r = checkforending(state)))
 	    goto done;
     }
     updatesliplist(state);
 
-    timeoffset() = 0;
-    if (timelimit()) {
-	if (currenttime() >= timelimit()) {
+    state->timeoffset = 0;
+    if (state->timelimit) {
+	if (state->currenttime >= state->timelimit) {
 	    chipstatus() = CHIP_OUTOFTIME;
 	    addsoundeffect(SND_TIME_OUT);
 	    return -1;
-	} else if (timelimit() - currenttime() <= 15 * TICKS_PER_SECOND
-				&& currenttime() % TICKS_PER_SECOND == 0)
+	} else if (state->timelimit - state->currenttime <= 15 * TICKS_PER_SECOND
+				&& state->currenttime % TICKS_PER_SECOND == 0)
 	    addsoundeffect(SND_TIME_LOW);
     }
 
-    cr = getchip();
+    cr = getchip(state);
     choosemove(state, cr);
     if (cr->tdir != NIL) {
 	if (advancecreature(state, cr, cr->tdir))
