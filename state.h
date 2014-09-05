@@ -193,11 +193,83 @@ struct creature {
 };
 #endif
 
-/*
- * The game state structure proper.
+/* A list of ways for Chip to lose.
  */
+enum {
+    CHIP_OKAY = 0,
+    CHIP_DROWNED, CHIP_BURNED, CHIP_BOMBED, CHIP_OUTOFTIME, CHIP_COLLIDED,
+    CHIP_NOTOKAY
+};
 
-/* Ideally, everything that the gameplay module, the display module,
+/* The data associated with a sliding object.
+ */
+typedef struct slipper slipper;
+struct slipper {
+    creature   *cr;
+    int		dir;
+};
+
+/* Status information specific to the MS game logic.
+ */
+struct msstate {
+    unsigned char	chipwait;	/* ticks since Chip's last movement */
+    unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
+    unsigned char	controllerdir;	/* current controller direction */
+    unsigned char	lastslipdir;	/* Chip's last involuntary movement */
+    unsigned char	completed;	/* level completed successfully */
+    short		goalpos;	/* mouse spot to move Chip towards */
+    signed char		xviewoffset;	/* offset of map view center */
+    signed char		yviewoffset;	/*   position from position of Chip */
+    signed char		laststepping;	/* most recent stepping phase used */
+
+    /* The linked list of creature pools, forming the creature arena.
+     */
+    creature	       *creaturepool;
+    void	       *creaturepoolend;
+
+    /* The list of active creatures.
+     */
+    creature	      **creatures;
+    int			creaturecount;
+    int			creaturesallocated;
+
+    /* The list of "active" blocks.
+     */
+    creature	      **blocks;
+    int			blockcount;
+    int			blocksallocated;
+
+    /* The list of sliding creatures.
+     */
+    slipper	       *slips;
+    int			slipcount;
+    int			slipsallocated;
+};
+
+/* Status information specific to the Lynx game logic.
+ */
+struct lxstate {
+    creature	       *chiptocr;	/* is Chip colliding with a creature */
+    creature	       *crend;		/* near the end of the creature list */
+    short		chiptopos;	/*   just starting to move itself? */
+    unsigned char	prng1;		/* the values used to make the */
+    unsigned char	prng2;		/*   pseudorandom number sequence */
+    signed char		xviewoffset;	/* offset of map view center */
+    signed char		yviewoffset;	/*   position from position of Chip */
+    unsigned char	endgametimer;	/* end-game countdown timer */
+    unsigned char	togglestate;	/* extra state of the toggle walls */
+    unsigned char	completed;	/* level completed successfully */
+    unsigned char	stuck;		/* Chip is stuck on a teleport */
+    unsigned char	pushing;	/* Chip is pushing against something */
+    unsigned char	couldntmove;	/* can't-move sound has been played */
+    unsigned char	mapbreached;	/* Border of map has been breached */
+};
+
+
+/**
+ * The game state structure proper.
+ *
+ * Ideally, everything that the gameplay module, the display module,
  * and both logic modules need to know about a game in progress is
  * in here.
  */
@@ -231,7 +303,10 @@ struct gamestate {
     short		crlist[256];		/* list of creatures */
     char		hinttext[256];		/* text of the hint */
     mapcell		map[CXGRID * CYGRID];	/* the game's map */
-    unsigned char	localstateinfo[256];	/* rule-specific state data */
+
+    /* rule-specific state data */
+    struct msstate	ms;
+    struct lxstate	lx;
 };
 
 /* General status flags.
