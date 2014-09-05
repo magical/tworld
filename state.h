@@ -220,7 +220,6 @@ struct msstate {
     short		goalpos;	/* mouse spot to move Chip towards */
     signed char		xviewoffset;	/* offset of map view center */
     signed char		yviewoffset;	/*   position from position of Chip */
-    signed char		laststepping;	/* most recent stepping phase used */
 
     /* The linked list of creature pools, forming the creature arena.
      */
@@ -291,6 +290,7 @@ struct gamestate {
     short		lastmove;		/* most recent move */
     unsigned char	initrndslidedir;	/* initial random-slide dir */
     signed char		stepping;		/* initial timer offset 0-7 */
+    signed char		laststepping;		/* last used stepping phase */
     unsigned long	soundeffects;		/* the latest sound effects */
     actlist		moves;			/* the list of moves */
     prng		mainprng;		/* the main PRNG */
