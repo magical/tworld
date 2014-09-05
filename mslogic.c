@@ -20,60 +20,6 @@
 				        " breadbox@muppetlabs.com", #test), 0))
 #endif
 
-/* A list of ways for Chip to lose.
- */
-enum {
-    CHIP_OKAY = 0,
-    CHIP_DROWNED, CHIP_BURNED, CHIP_BOMBED, CHIP_OUTOFTIME, CHIP_COLLIDED,
-    CHIP_NOTOKAY
-};
-
-/* The data associated with a sliding object.
- */
-typedef struct slipper slipper;
-struct slipper {
-    creature   *cr;
-    int		dir;
-};
-
-
-/* Status information specific to the MS game logic.
- */
-struct msstate {
-    unsigned char	chipwait;	/* ticks since Chip's last movement */
-    unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
-    unsigned char	controllerdir;	/* current controller direction */
-    unsigned char	lastslipdir;	/* Chip's last involuntary movement */
-    unsigned char	completed;	/* level completed successfully */
-    short		goalpos;	/* mouse spot to move Chip towards */
-    signed char		xviewoffset;	/* offset of map view center */
-    signed char		yviewoffset;	/*   position from position of Chip */
-    signed char		laststepping;	/* most recent stepping phase used */
-
-    /* The linked list of creature pools, forming the creature arena.
-     */
-    creature	       *creaturepool;
-    void	       *creaturepoolend;
-
-    /* The list of active creatures.
-     */
-    creature	      **creatures;
-    int			creaturecount;
-    int			creaturesallocated;
-
-    /* The list of "active" blocks.
-     */
-    creature	      **blocks;
-    int			blockcount;
-    int			blocksallocated;
-
-    /* The list of sliding creatures.
-     */
-    slipper	       *slips;
-    int			slipcount;
-    int			slipsallocated;
-};
-
 /* Forward declaration of a central function.
  */
 static int advancecreature(gamestate *state, creature *cr, int dir);
@@ -91,7 +37,7 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
 #define	hidehint()		(state->statusflags &= ~SF_SHOWHINT)
 
-#define	getmsstate()		((struct msstate*)state->localstateinfo)
+#define	getmsstate()		(&state->ms)
 
 #define	completed()		(getmsstate()->completed)
 #define	chipstatus()		(getmsstate()->chipstatus)

@@ -40,33 +40,6 @@ enum { BLOB_TURN   = NORTH | SOUTH | WEST };
 				        " breadbox@muppetlabs.com", #test), 0))
 #endif
 
-/* A list of ways for Chip to lose.
- */
-enum {
-    CHIP_OKAY = 0,
-    CHIP_DROWNED, CHIP_BURNED, CHIP_BOMBED, CHIP_OUTOFTIME, CHIP_COLLIDED,
-    CHIP_NOTOKAY
-};
-
-/* Status information specific to the Lynx game logic.
- */
-struct lxstate {
-    creature	       *chiptocr;	/* is Chip colliding with a creature */
-    creature	       *crend;		/* near the end of the creature list */
-    short		chiptopos;	/*   just starting to move itself? */
-    unsigned char	prng1;		/* the values used to make the */
-    unsigned char	prng2;		/*   pseudorandom number sequence */
-    signed char		xviewoffset;	/* offset of map view center */
-    signed char		yviewoffset;	/*   position from position of Chip */
-    unsigned char	endgametimer;	/* end-game countdown timer */
-    unsigned char	togglestate;	/* extra state of the toggle walls */
-    unsigned char	completed;	/* level completed successfully */
-    unsigned char	stuck;		/* Chip is stuck on a teleport */
-    unsigned char	pushing;	/* Chip is pushing against something */
-    unsigned char	couldntmove;	/* can't-move sound has been played */
-    unsigned char	mapbreached;	/* Border of map has been breached */
-};
-
 /* Pedantic mode flag. (Having this variable defined here is a hack,
  * but this is the only module that actually uses it.)
  */
@@ -137,7 +110,7 @@ static gamestate       *state;
 #define	traplist()		(state->traps)
 #define	traplistsize()		(state->trapcount)
 
-#define	getlxstate()		((struct lxstate*)state->localstateinfo)
+#define	getlxstate()		(&state->lx)
 
 #define	completed()		(getlxstate()->completed)
 #define	togglestate()		(getlxstate()->togglestate)
