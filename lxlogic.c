@@ -83,15 +83,7 @@ static gamestate       *state;
 
 #define	mainprng()		(&state->mainprng)
 
-#define	timelimit()		(state->timelimit)
-#define	timeoffset()		(state->timeoffset)
-#define	currenttime()		(state->currenttime)
-#define	currentinput()		(state->currentinput)
-#define	lastmove()		(state->lastmove)
-#define	stepping()		(state->stepping)
 #define	rndslidedir()		(state->initrndslidedir)
-#define	xviewpos()		(state->xviewpos)
-#define	yviewpos()		(state->yviewpos)
 
 #define	setnosaving()		(state->statusflags |= SF_NOSAVING)
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
@@ -402,7 +394,7 @@ static void removecreature(creature *cr, int animationid)
     if (cr->state & CS_PUSHED)
 	stopsoundeffect(SND_BLOCK_MOVING);
     cr->id = animationid;
-    cr->frame = ((currenttime() + stepping()) & 1) ? 12 : 11;
+    cr->frame = ((state->currenttime + state->stepping) & 1) ? 12 : 11;
     --cr->frame;
     cr->hidden = FALSE;
     cr->state = 0;
@@ -475,7 +467,7 @@ static void removechip(int reason, creature *also)
 
     resetfloorsounds(FALSE);
     startendgametimer();
-    timeoffset() = 1;
+    state->timeoffset = 1;
 }
 
 /*
@@ -878,7 +870,7 @@ static void choosecreaturemove(creature *cr)
 	choices[0] = BLOB_TURN;
 	break;
       case Teeth:
-	if ((currenttime() + stepping()) & 4)
+	if ((state->currenttime + state->stepping) & 4)
 	    return;
 	if (getchip()->hidden)
 	    return;
@@ -931,8 +923,8 @@ static void choosechipmove(creature *cr, int discard)
 
     chippushing() = FALSE;
 
-    dir = currentinput();
-    currentinput() = NIL;
+    dir = state->currentinput;
+    state->currentinput = NIL;
     if (!directionalcmd(dir))
 	dir = NIL;
 
@@ -941,7 +933,7 @@ static void choosechipmove(creature *cr, int discard)
 	return;
     }
 
-    lastmove() = dir;
+    state->lastmove = dir;
     cr->tdir = dir;
 
     if (cr->tdir != NIL)
@@ -984,7 +976,7 @@ static int getforcedmove(creature *cr)
 
     floor = floorat(cr->pos);
 
-    if (currenttime() == 0)
+    if (state->currenttime == 0)
 	return FALSE;
 
     if (isice(floor)) {
@@ -1512,11 +1504,11 @@ static void verifymap(void)
     for (pos = 0 ; pos < CXGRID * CYGRID ; ++pos) {
 	if (state->map[pos].top.id >= 0x40)
 	    warn("%d: Undefined floor %d at (%d %d)",
-		 currenttime(), state->map[pos].top.id,
+		 state->currenttime, state->map[pos].top.id,
 		 pos % CXGRID, pos / CXGRID);
 	if (state->map[pos].top.state & 0x80)
 	    warn("%d: Undefined floor state %02X at (%d %d)",
-		 currenttime(), state->map[pos].top.id,
+		 state->currenttime, state->map[pos].top.id,
 		 pos % CXGRID, pos / CXGRID);
     }
 
@@ -1524,31 +1516,31 @@ static void verifymap(void)
 	if (isanimation(state->map[cr->pos].top.id)) {
 	    if (cr->moving > 12)
 		warn("%d: Too-large animation frame %02X at (%d %d)",
-		     currenttime(), cr->moving,
+		     state->currenttime, cr->moving,
 		     cr->pos % CXGRID, cr->pos / CXGRID);
 	    continue;
 	}
 	if (cr->id < 0x40 || cr->id >= 0x80)
 	    warn("%d: Undefined creature %d:%d at (%d %d)",
-		 currenttime(), cr - creaturelist(), cr->id,
+		 state->currenttime, cr - creaturelist(), cr->id,
 		 cr->pos % CXGRID, cr->pos / CXGRID);
 	if (cr->pos < 0 || cr->pos >= CXGRID * CYGRID)
 	    warn("%d: Creature %d:%d has left the map: %04X",
-		 currenttime(), cr - creaturelist(), cr->id, cr->pos);
+		 state->currenttime, cr - creaturelist(), cr->id, cr->pos);
 	if (isanimation(cr->id))
 	    continue;
 	if (cr->dir > EAST && (cr->dir != NIL || cr->id != Block))
 	    warn("%d: Creature %d:%d moving in illegal direction (%d)",
-		 currenttime(), cr - creaturelist(), cr->id, cr->dir);
+		 state->currenttime, cr - creaturelist(), cr->id, cr->dir);
 	if (cr->dir == NIL)
 	    warn("%d: Creature %d:%d lacks direction",
-		 currenttime(), cr - creaturelist(), cr->id);
+		 state->currenttime, cr - creaturelist(), cr->id);
 	if (cr->moving > 8)
 	    warn("%d: Creature %d:%d has a moving time of %d",
-		 currenttime(), cr - creaturelist(), cr->id, cr->moving);
+		 state->currenttime, cr - creaturelist(), cr->id, cr->moving);
 	if (cr->moving < 0)
 	    warn("%d: Creature %d:%d has a negative moving time: %d",
-		 currenttime(), cr - creaturelist(), cr->id, cr->moving);
+		 state->currenttime, cr - creaturelist(), cr->id, cr->moving);
     }
 }
 
@@ -1570,9 +1562,9 @@ static void initialhousekeeping(void)
     verifymap();
 #endif
 
-    if (currenttime() == 0) {
+    if (state->currenttime == 0) {
 	lastrndslidedir = rndslidedir();
-	state->laststepping = stepping();
+	state->laststepping = state->stepping;
     }
 
     chip = getchip();
@@ -1582,8 +1574,8 @@ static void initialhousekeeping(void)
     if (!inendgame()) {
 	if (completed()) {
 	    startendgametimer();
-	    timeoffset() = 1;
-	} else if (timelimit() && currenttime() >= timelimit()) {
+	    state->timeoffset = 1;
+	} else if (state->timelimit && state->currenttime >= state->timelimit) {
 	    removechip(CHIP_OUTOFTIME, NULL);
 	}
     }
@@ -1616,17 +1608,17 @@ static void initialhousekeeping(void)
     }
 
 #ifndef NDEBUG
-    if (currentinput() == CmdDebugCmd2) {
+    if (state->currentinput == CmdDebugCmd2) {
 	dumpmap();
 	exit(0);
-	currentinput() = NIL;
-    } else if (currentinput() == CmdDebugCmd1) {
+	state->currentinput = NIL;
+    } else if (state->currentinput == CmdDebugCmd1) {
 	static int mark = 0;
-	warn("Mark %d (%d).", ++mark, currenttime());
-	currentinput() = NIL;
+	warn("Mark %d (%d).", ++mark, state->currenttime);
+	state->currentinput = NIL;
     }
-    if (currentinput() >= CmdCheatNorth && currentinput() <= CmdCheatICChip) {
-	switch (currentinput()) {
+    if (state->currentinput >= CmdCheatNorth && state->currentinput <= CmdCheatICChip) {
+	switch (state->currentinput) {
 	  case CmdCheatNorth:		--yviewoffset();		break;
 	  case CmdCheatWest:		--xviewoffset();		break;
 	  case CmdCheatSouth:		++yviewoffset();		break;
@@ -1642,7 +1634,7 @@ static void initialhousekeeping(void)
 	  case CmdCheatBootsWater:	++possession(Boots_Water);	break;
 	  case CmdCheatICChip:	if (chipsneeded()) --chipsneeded();	break;
 	}
-	currentinput() = NIL;
+	state->currentinput = NIL;
 	setnosaving();
     }
 #endif
@@ -1668,14 +1660,14 @@ static void preparedisplay(void)
     chip = getchip();
     floor = floorat(chip->pos);
 
-    xviewpos() = (chip->pos % CXGRID) * 8 + xviewoffset() * 8;
-    yviewpos() = (chip->pos / CXGRID) * 8 + yviewoffset() * 8;
+    state->xviewpos = (chip->pos % CXGRID) * 8 + xviewoffset() * 8;
+    state->yviewpos = (chip->pos / CXGRID) * 8 + yviewoffset() * 8;
     if (chip->moving) {
 	switch (chip->dir) {
-	  case NORTH:	yviewpos() += chip->moving;	break;
-	  case WEST:	xviewpos() += chip->moving;	break;
-	  case SOUTH:	yviewpos() -= chip->moving;	break;
-	  case EAST:	xviewpos() -= chip->moving;	break;
+	  case NORTH:	state->yviewpos += chip->moving;	break;
+	  case WEST:	state->xviewpos += chip->moving;	break;
+	  case SOUTH:	state->yviewpos -= chip->moving;	break;
+	  case EAST:	state->xviewpos -= chip->moving;	break;
 	}
     }
 
@@ -1854,7 +1846,7 @@ static int initgame(gamelogic *logic)
     prngvalue1() = 0;
     prngvalue2() = 0;
     rndslidedir() = lastrndslidedir;
-    stepping() = state->laststepping;
+    state->stepping = state->laststepping;
     xviewoffset() = 0;
     yviewoffset() = 0;
 
@@ -1918,7 +1910,7 @@ static int advancegame(gamelogic *logic)
     preparedisplay();
 
     if (inendgame()) {
-	--timeoffset();
+	--state->timeoffset;
 	if (!decrendgametimer()) {
 	    resetfloorsounds(TRUE);
 	    return completed() ? +1 : -1;
