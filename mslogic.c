@@ -46,7 +46,6 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
 #define	lastslipdir()		(getmsstate()->lastslipdir)
 #define	xviewoffset()		(getmsstate()->xviewoffset)
 #define	yviewoffset()		(getmsstate()->yviewoffset)
-#define	laststepping()		(getmsstate()->laststepping)
 
 #define	goalpos()		(getmsstate()->goalpos)
 #define	hasgoal()		(goalpos() >= 0)
@@ -1954,7 +1953,7 @@ static void initialhousekeeping(gamestate *state)
 #endif
 
     if (state->currenttime == 0)
-	laststepping() = state->stepping;
+	state->laststepping = state->stepping;
 
     if (!(state->currenttime & 3)) {
 	for (n = 1 ; n < creaturecount() ; ++n) {
@@ -2089,7 +2088,8 @@ static int initgame(gamelogic *logic)
     chipstatus() = CHIP_OKAY;
     controllerdir() = NIL;
     lastslipdir() = NIL;
-    state->stepping = laststepping();
+    // BUG: state->laststepping is never initialized
+    state->stepping = state->laststepping;
     cancelgoal();
     xviewoffset() = 0;
     yviewoffset() = 0;

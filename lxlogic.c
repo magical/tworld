@@ -59,10 +59,6 @@ static int const	delta[] = { 0, -CXGRID, -1, 0, +CXGRID, 0, 0, 0, +1 };
  */
 static int		lastrndslidedir = NORTH;
 
-/* The most recently used stepping phase value.
- */
-static int		laststepping = 0;
-
 /* The memory used to hold the list of creatures.
  */
 static creature	       *creaturearray = NULL;
@@ -1576,7 +1572,7 @@ static void initialhousekeeping(void)
 
     if (currenttime() == 0) {
 	lastrndslidedir = rndslidedir();
-	laststepping = stepping();
+	state->laststepping = stepping();
     }
 
     chip = getchip();
@@ -1858,7 +1854,7 @@ static int initgame(gamelogic *logic)
     prngvalue1() = 0;
     prngvalue2() = 0;
     rndslidedir() = lastrndslidedir;
-    stepping() = laststepping;
+    stepping() = state->laststepping;
     xviewoffset() = 0;
     yviewoffset() = 0;
 
@@ -1960,7 +1956,6 @@ gamelogic *lynxlogicstartup(void)
     if (!creaturearray)
 	memerrexit();
     lastrndslidedir = NORTH;
-    laststepping = 0;
 
     logic.ruleset = Ruleset_Lynx;
     logic.initgame = initgame;
