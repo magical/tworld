@@ -14,7 +14,7 @@ typedef	unsigned long	_ulong;
 #undef ulong
 #define ulong		_ulong
 
-#define	DEFAULTDIR	"/usr/local/share/tworld/sets/"
+#define	DEFAULTDIR	"/usr/share/games/tworld/sets/"
 
 #define	readval(var)	(fread(&(var), sizeof(var), 1, fp) == 1)
 
@@ -80,22 +80,22 @@ static char const *objects[] = {
 /* 03 water			*/	"\033[36;44m=\033[0m",
 /* 04 fire			*/	"\033[31mx\033[0m",
 /* 05 invisible wall, perm.	*/	"\033[7mx\033[0m",
-/* 06 blocked north		*/	"\033(0o\033(B",
-/* 07 blocked west		*/	"(", /* "\033(U\335\033(B", */
-/* 08 blocked south		*/	"_",
-/* 09 blocked east		*/	")", /* "\033(U\336\033(B", */
+/* 06 blocked north		*/	"\342\226\224",
+/* 07 blocked west		*/	"\342\226\217",
+/* 08 blocked south		*/	"\342\226\201",
+/* 09 blocked east		*/	"\342\226\225",
 /* 0A block			*/	"O",
 /* 0B dirt			*/	"\033[33m\033(0a\033(B\033[0m",
 /* 0C ice			*/	"\033[36m\033(0a\033(B\033[0m",
-/* 0D force south		*/	"\033[32mv\033[0m",
+/* 0D force south		*/	"\033[32m\342\207\243\033[0m",
 /* 0E cloning block north	*/	"O",
 /* 0F cloning block west	*/	"O",
 /* 10 cloning block south	*/	"O",
 /* 11 cloning block east	*/	"O",
-/* 12 force north		*/	"\033[32m^\033[0m",
-/* 13 force east		*/	"\033[32m\273\033[0m",
-/* 14 force west		*/	"\033[32m\253\033[0m",
-/* 15 exit			*/	"\033[44m@\033[0m",
+/* 12 force north		*/	"\033[32m\342\207\241\033[0m",
+/* 13 force east		*/	"\033[32m\342\207\242\033[0m",
+/* 14 force west		*/	"\033[32m\342\207\240\033[0m",
+/* 15 exit			*/	"\033[34;46m\342\226\253\033[0m",
 /* 16 blue door			*/	"\033[36m0\033[0m",
 /* 17 red door			*/	"\033[31m0\033[0m",
 /* 18 green door		*/	"\033[32m0\033[0m",
@@ -111,14 +111,14 @@ static char const *objects[] = {
 /* 22 socket			*/	"H",
 /* 23 green button		*/	"\033[32m.\033[0m",
 /* 24 red button		*/	"\033[31m.\033[0m",
-/* 25 switch block, closed	*/	"\033[7;32mO\033[0m",
-/* 26 switch block, open	*/	"\033[32mO\033[0m",
+/* 25 switch block, closed	*/	"\033[7;32m\342\254\232\033[0m",
+/* 26 switch block, open	*/	"\033[32m\342\254\232\033[0m",
 /* 27 brown button		*/	"\033[33m.\033[0m",
 /* 28 blue button		*/	"\033[1;34m.\033[0m",
 /* 29 teleport			*/	"\033[36m*\033[0m",
-/* 2A bomb			*/	"\033[1;31m\362\033[0m",
+/* 2A bomb			*/	"\033[1;31m\303\262\033[0m",
 /* 2B trap			*/	"\033[31m*\033[0m",
-/* 2C invisible wall, temp.	*/	"\033[7m\327\033[0m",
+/* 2C invisible wall, temp.	*/	"\033[7mx\033[0m",
 /* 2D gravel			*/	"\033(0a\033(B",
 /* 2E pass once			*/	"*",
 /* 2F hint			*/	"?",
@@ -126,18 +126,18 @@ static char const *objects[] = {
 /* 31 cloning machine		*/	"C",
 /* 32 force all directions	*/	"\033[32m+\033[0m",
 /* 33 drowning Chip		*/	"\033[36;44m*\033[0m",
-/* 34 burned Chip		*/	"\033[1;31m\251\033[0m",
-/* 35 burned Chip		*/	"\033[31m\251\033[0m",
+/* 34 burned Chip		*/	"\033[1;31m\302\251\033[0m",
+/* 35 burned Chip		*/	"\033[31m\302\251\033[0m",
 /* 36 not used			*/	"\033[1;31m?\033[0m",
 /* 37 not used			*/	"\033[1;31m?\033[0m",
 /* 38 not used			*/	"\033[36mO\033[0m",
-/* 39 Chip in exit		*/	"\033[1;37;44m\251\033[0m",
+/* 39 Chip in exit		*/	"\033[1;37;44m\302\251\033[0m",
 /* 3A exit - end game		*/	"\033[1;37;44m@\033[0m",
 /* 3B exit - end game		*/	"\033[1;37;44m@\033[0m",
-/* 3C Chip swimming north	*/	"\033[36;44m\251\033[0m",
-/* 3D Chip swimming west	*/	"\033[36;44m\251\033[0m",
-/* 3E Chip swimming south	*/	"\033[36;44m\251\033[0m",
-/* 3F Chip swimming east	*/	"\033[36;44m\251\033[0m",
+/* 3C Chip swimming north	*/	"\033[36;44m\302\251\033[0m",
+/* 3D Chip swimming west	*/	"\033[36;44m\302\251\033[0m",
+/* 3E Chip swimming south	*/	"\033[36;44m\302\251\033[0m",
+/* 3F Chip swimming east	*/	"\033[36;44m\302\251\033[0m",
 /* 40 Bug N			*/	"\033[35mB\033[0m",
 /* 41 Bug W			*/	"\033[35mB\033[0m",
 /* 42 Bug S			*/	"\033[35mB\033[0m",
@@ -174,18 +174,18 @@ static char const *objects[] = {
 /* 61 Paramecium W		*/	"\033[35mP\033[0m",
 /* 62 Paramecium S		*/	"\033[35mP\033[0m",
 /* 63 Paramecium E		*/	"\033[35mP\033[0m",
-/* 64 Blue key			*/	"\033[36m\245\033[0m",
-/* 65 Red key			*/	"\033[31m\245\033[0m",
-/* 66 Green key			*/	"\033[32m\245\033[0m",
-/* 67 Yellow key		*/	"\033[1;33m\245\033[0m",
-/* 68 Flippers			*/	"\033[34m\244\033[0m",
-/* 69 Fire boots		*/	"\033[31m\244\033[0m",
-/* 6A Ice skates		*/	"\033[36m\244\033[0m",
-/* 6B Suction boots		*/	"\033[32m\244\033[0m",
-/* 6C Chip N			*/	"\251",
-/* 6D Chip W			*/	"\251",
-/* 6E Chip S			*/	"\251",
-/* 6F Chip E			*/	"\251",
+/* 64 Blue key			*/	"\033[36m\302\245\033[0m",
+/* 65 Red key			*/	"\033[31m\302\245\033[0m",
+/* 66 Green key			*/	"\033[32m\302\245\033[0m",
+/* 67 Yellow key		*/	"\033[1;33m\302\245\033[0m",
+/* 68 Flippers			*/	"\033[34m\302\244\033[0m",
+/* 69 Fire boots		*/	"\033[31m\302\244\033[0m",
+/* 6A Ice skates		*/	"\033[36m\302\244\033[0m",
+/* 6B Suction boots		*/	"\033[32m\302\244\033[0m",
+/* 6C Chip N			*/	"\302\251",
+/* 6D Chip W			*/	"\302\251",
+/* 6E Chip S			*/	"\302\251",
+/* 6F Chip E			*/	"\302\251",
 /* 70 Hiding space		*/	"]",
 /* 71 Working trap		*/	"\033[33m*\033[0m",
 };
@@ -245,21 +245,23 @@ static int readlevel(FILE *fp, cclevelhead *lhead, field fields[16])
     fields[1].type = 1;
     fields[1].size = off;
     fields[1].data = malloc(off);
-    fread(fields[1].data, off, 1, fp);
+    if (fread(fields[1].data, off, 1, fp) != 1)
+	return 4;
     n -= sizeof fieldnum + sizeof off + off;
     if (!readval(off))
-	return 4;
+	return 5;
     fields[2].type = 2;
     fields[2].size = off;
     fields[2].data = malloc(off);
-    fread(fields[2].data, off, 1, fp);
+    if (fread(fields[2].data, off, 1, fp) != 1)
+	return 6;
     n -= sizeof off + off;
 
     if (!readval(off))
-	return 5;
+	return 7;
     n -= sizeof off;
     if (off != n)
-	return 6;
+	return 8;
 
     while (n > 0) {
 	fieldnum = (unsigned char)fgetc(fp);
@@ -267,11 +269,12 @@ static int readlevel(FILE *fp, cclevelhead *lhead, field fields[16])
 	fields[fieldnum].type = fieldnum;
 	fields[fieldnum].size = off;
 	fields[fieldnum].data = malloc(off);
-	fread(fields[fieldnum].data, off, 1, fp);
+	if (fread(fields[fieldnum].data, off, 1, fp) != 1)
+	    return 9;
 	n -= 2 + off;
     }
     if (n < 0)
-	return 7;
+	return 10;
 
     return 0;
 }
@@ -531,6 +534,7 @@ int main(int argc, char *argv[])
     cclevelhead	lhead;
     field	fields[16];
     ushrt	levelcount;
+    int		floor, object;
     int		from = 0, to = 0;
     int		i, x, y;
 
@@ -548,7 +552,9 @@ int main(int argc, char *argv[])
 	to = atoi(argv[3]);
     }
 
-    chdir(DEFAULTDIR);
+    if (!strchr(argv[1], '/'))
+	if (chdir(DEFAULTDIR))
+	    fprintf(stderr, "warn: data directory missing: %s\n", DEFAULTDIR);
     fp = fopen(argv[1], "r");
     if (!fp)
 	return 1;
@@ -580,8 +586,15 @@ int main(int argc, char *argv[])
 	if (level.num >= from && level.num <= to) {
 	    for (y = 0 ; y < 32 ; ++y) {
 		for (x = 0 ; x < 32 ; ++x) {
-		    fputs(objects[level.map[y][x].floor], stdout);
-		    fputs(objects[level.map[y][x].object], stdout);
+		    floor = level.map[y][x].floor;
+		    object = level.map[y][x].object;
+		    if (object == 0) {
+			fputs(objects[floor], stdout);
+			fputs(" ", stdout);
+		    } else {
+			fputs(objects[object], stdout);
+			fputs(objects[floor], stdout);
+		    }
 		}
 		if (y < level.trapcount)
 		    printf(" %02d %02d -> %02d %02d",

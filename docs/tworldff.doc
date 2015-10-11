@@ -29,6 +29,13 @@ following lines:
 This line permits password-checking to be enabled/disabled when
 playing the levels in the set. The default is <y>.
 
+<messages =>%TEXTFILE%
+
+This line allows for the addition of short textual messages to be
+displayed in between levels during the game. %TEXTFILE% names a
+messages file placed in the data directory. See #The Messages File#
+for more information about this file.
+
 <ruleset = >%ms|lynx%
 
 This line allows the configuration file to override the ruleset
@@ -56,6 +63,56 @@ is obtained. (The changes made in the MS version were: an extra level
 was added; four passwords were garbled; and four or five levels' maps
 had minor alterations.)
 
+.Section The Messages File
+
+A messages file is a plain text file that contains (usually short)
+paragraphs of text that are meant to be displayed in between levels.
+The original game displayed messages after every ten levels (thus they
+are sometimes referred to as "decade messaegs"). These messages were
+not stored in the data file, however, so a separate file must be used
+to define them.
+
+Each message text is a sequence of paragraphs, with paragraphs
+separated from each other by a blank line. Line breaks within a
+paragraph are converted to spaces, and when the text is actually
+displayed to the user, it will be wrapped to fit the display. (To
+embed an actual line break within a text, end a line with two spaces
+before the line break.) A given message can contain any number of
+paragraphs.
+
+Each message text should be preceded by a line of the form
+
+<[>%N%<]>
+
+which associates the following paragraphs with that level number. If
+%N% is negative, i.e. preceded by a %-% character, then the message
+will be displayed before the level, when it is initially visited.
+Otherwise, when %N% is positive, the message will be displayed at the
+successful completion of the level, before proceeding to the next
+level. (Positive values can be prefixed with a %+% character, but this
+is not required.)
+
+Messages can appear in any order in the messages file.
+
+.Section The User Configuration File
+
+Tile World stores a couple of user-controlled configuration values in
+a text file, to be used as default settings on the next invocation of
+the program. Each entry in this file is a single line of the form
+%NAME%_<=>_%VALUE% and %NAME% typically matches the name of the
+equivalent command-line option.
+
+There are currently two possible values in this file:
+
+<volume = >%N%
+
+This line sets the initial volume level. %N% can be any integer between 0 and
+10.
+
+<initial-levelset = >%LEVELSET%
+
+This line identifies a particular level set to be selected at startup.
+
 .Section The Solution File
 
 Tile World saves its solutions in binary files, typically named with
@@ -71,8 +128,7 @@ A solution file begins with the following eight-byte header:
 c      l
  0-3   the 32-bit signature, always equal to <0x999B3335>.
   4    the ruleset of the solutions: 1 for Lynx, 2 for MS.
-  5    other options: currently always zero.
-  6    other options: currently always zero.
+ 5-6   the number of the most recently visited level.
   7    count of bytes in remainder of header (currently always zero).
 
 When reading a solution file, a program should always read byte 7 and

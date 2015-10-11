@@ -211,7 +211,7 @@ sub mkgrid($$)
 sub tohtml($)
 {
     my $htmltop =
-	"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 3.0//EN\">\n"
+	"<!DOCTYPE html>\n"
       . "<html>\n<head>\n<title>\@title\@</title>\n</head>\n"
       . "<body bgcolor=\"#FFFFFF\" text=\"#000000\">\n"
       . "<p align=center>\n<center>\n<h1>\@title\@</h1>\n</center>\n<p>\n";
@@ -225,8 +225,7 @@ sub tohtml($)
     s{%([^%]+)%}{<i>$1</i>}g;
     s{!([^!]+)!}{<strong>$1</strong>}g;
 
-    s/\n\.section\s+([^\n]+)\n/item$1/eg;
-    s/\n\.Section\s+([^\n]+)\n/"\n\n<hr>".item$1/eg;
+    s/\n\.([Ss])ection\s+([^\n]+)\n/("S"eq$1?"\n\n<hr>":"").item$2/eg;
     s/\#([^\#]+)\#/itemlkup$1/eg;
     s{\n\.indent((?:\n[^\n]+)+)\n\n}{\n<blockquote>$1\n</blockquote>\n\n}g;
 

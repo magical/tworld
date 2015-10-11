@@ -209,6 +209,22 @@ struct slipper {
     int		dir;
 };
 
+/* The creature pool is a linked list of lumps, each lump holding this
+ * many creatures.
+ */
+#define	crpoollumpsize	256
+
+/* The data that makes up one lump of the creature pool.
+ */
+typedef struct crpoollump crpoollump;
+struct crpoollump {
+    int		count;			/* number of unused creatures */
+    crpoollump *prev;			/* the previously allocated lump */
+    crpoollump *next;			/* the next lump after this one */
+    creature	lump[crpoollumpsize];	/* the lump proper */
+};
+
+
 /* Status information specific to the MS game logic.
  */
 struct msstate {
@@ -223,8 +239,7 @@ struct msstate {
 
     /* The linked list of creature pools, forming the creature arena.
      */
-    creature	       *creaturepool;
-    void	       *creaturepoolend;
+    crpoollump	       *currentcrpoollump;
 
     /* The list of active creatures.
      */
@@ -245,6 +260,11 @@ struct msstate {
     int			slipsallocated;
 };
 
+/* A number well above the maximum number of creatures that could possibly
+ * exist simultaneously.
+ */
+enum { LYNX_MAX_CREATURES = 2 * CXGRID * CYGRID };
+
 /* Status information specific to the Lynx game logic.
  */
 struct lxstate {
@@ -262,6 +282,7 @@ struct lxstate {
     unsigned char	pushing;	/* Chip is pushing against something */
     unsigned char	couldntmove;	/* can't-move sound has been played */
     unsigned char	mapbreached;	/* Border of map has been breached */
+    creature		creaturearray[LYNX_MAX_CREATURES + 1];  /* all creatures */
 };
 
 
@@ -317,7 +338,8 @@ enum {
     SF_BADTILES		= 0x0004,		/* map has undefined tiles */
     SF_SHOWHINT		= 0x0008,		/* display the hint text */
     SF_NOANIMATION	= 0x0010,		/* suppress tile animation */
-    SF_SHUTTERED	= 0x0020		/* hide map view */
+    SF_SHUTTERED	= 0x0020,		/* hide map view */
+    SF_PEDANTIC		= 0x0040		/* use pedantic ruleset */
 };
 
 /* Macros for the keys and boots.
