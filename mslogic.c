@@ -29,9 +29,9 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
  * macros can be used as an lvalue.
  */
 
-#define	addsoundeffect(sfx)	(state->soundeffects |= 1 << (sfx))
+#define	addsoundeffect(state, sfx)	(state->soundeffects |= 1 << (sfx))
 
-#define	cellat(pos)		(&state->map[pos])
+#define	cellat(state, pos)	(&state->map[pos])
 
 #define	setnosaving()		(state->statusflags |= SF_NOSAVING)
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
@@ -375,7 +375,7 @@ static int floorat(gamestate *state, int pos)
 {
     mapcell    *cell;
 
-    cell = cellat(pos);
+    cell = cellat(state, pos);
     if (!iskey(cell->top.id) && !isboots(cell->top.id)
 			     && !iscreature(cell->top.id))
 	return cell->top.id;
@@ -392,7 +392,7 @@ static maptile *getfloorat(gamestate *state, int pos)
 {
     mapcell    *cell;
 
-    cell = cellat(pos);
+    cell = cellat(state, pos);
     if (!iskey(cell->top.id) && !isboots(cell->top.id)
 			     && !iscreature(cell->top.id))
 	return &cell->top;
@@ -408,7 +408,7 @@ static maptile *getfloorat(gamestate *state, int pos)
 static int istrapbuttondown(gamestate *state, int pos)
 {
     return pos >= 0 && pos < CXGRID * CYGRID
-		    && cellat(pos)->top.id != Button_Brown;
+		    && cellat(state, pos)->top.id != Button_Brown;
 }
 
 /* Place a new tile at the given location, causing the current upper
@@ -418,7 +418,7 @@ static void pushtile(gamestate *state, int pos, maptile tile)
 {
     mapcell    *cell;
 
-    cell = cellat(pos);
+    cell = cellat(state, pos);
     cell->bot = cell->top;
     cell->top = tile;
 }
@@ -431,7 +431,7 @@ static maptile poptile(gamestate *state, int pos)
     maptile	tile;
     mapcell    *cell;
 
-    cell = cellat(pos);
+    cell = cellat(state, pos);
     tile = cell->top;
     cell->top = cell->bot;
     cell->bot.id = Empty;
@@ -462,7 +462,7 @@ static void togglewalls(gamestate *state)
     int		pos;
 
     for (pos = 0 ; pos < CXGRID * CYGRID ; ++pos) {
-	cell = cellat(pos);
+	cell = cellat(state, pos);
 	if ((cell->top.id == SwitchWall_Open
 				|| cell->top.id == SwitchWall_Closed)
 			&& !(cell->top.state & FS_BROKEN))
@@ -527,7 +527,7 @@ static creature *lookupblock(gamestate *state, int pos)
     cr = allocatecreature(state);
     cr->id = Block;
     cr->pos = pos;
-    id = cellat(pos)->top.id;
+    id = cellat(state, pos)->top.id;
     if (id == Block_Static)
 	cr->dir = NIL;
     else if (creatureid(id) == Block)
@@ -548,7 +548,7 @@ static void updatecreature(gamestate *state, creature const *cr)
 
     if (cr->hidden)
 	return;
-    tile = &cellat(cr->pos)->top;
+    tile = &cellat(state, cr->pos)->top;
     id = cr->id;
     if (id == Block) {
 	tile->id = Block_Static;
@@ -561,7 +561,7 @@ static void updatecreature(gamestate *state, creature const *cr)
 	      case CHIP_BURNED:		tile->id = Burned_Chip;		return;
 	      case CHIP_DROWNED:	tile->id = Drowned_Chip;	return;
 	    }
-	} else if (cellat(cr->pos)->bot.id == Water) {
+	} else if (cellat(state, cr->pos)->bot.id == Water) {
 	    id = Swimming_Chip;
 	}
     }
@@ -593,7 +593,7 @@ static creature *awakencreature(gamestate *state, int pos)
     creature   *new;
     int		tileid;
 
-    tileid = cellat(pos)->top.id;
+    tileid = cellat(state, pos)->top.id;
     if (!iscreature(tileid) || creatureid(tileid) == Chip)
 	return NULL;
     new = allocatecreature(state);
@@ -629,7 +629,7 @@ static void turntanks(gamestate *state, creature const *inmidmove)
 	if (!(creatures()[n]->state & CS_TURNING))
 	    creatures()[n]->state |= CS_TURNING | CS_HASMOVED;
 	if (creatures()[n] != inmidmove) {
-	    if (creatureid(cellat(creatures()[n]->pos)->top.id) == Tank) {
+	    if (creatureid(cellat(state, creatures()[n]->pos)->top.id) == Tank) {
 		updatecreature(state, creatures()[n]);
 	    } else {
 		if (creatures()[n]->state & CS_TURNING) {
@@ -817,7 +817,7 @@ static int pushblock(gamestate *state, int pos, int dir, int flags)
     creature   *cr;
     int		slipdir, r;
 
-    _assert(cellat(pos)->top.id == Block_Static);
+    _assert(cellat(state, pos)->top.id == Block_Static);
     _assert(dir != NIL);
 
     cr = lookupblock(state, pos);
@@ -832,8 +832,8 @@ static int pushblock(gamestate *state, int pos, int dir, int flags)
 		return FALSE;
     }
 
-    if (!(flags & CMM_TELEPORTPUSH) && cellat(pos)->bot.id == Block_Static)
-	cellat(pos)->bot.id = Empty;
+    if (!(flags & CMM_TELEPORTPUSH) && cellat(state, pos)->bot.id == Block_Static)
+	cellat(state, pos)->bot.id = Empty;
     if (!(flags & CMM_NODEFERBUTTONS))
 	cr->state |= CS_DEFERPUSH;
     r = advancecreature(state, cr, dir);
@@ -866,7 +866,7 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
     to = y * CXGRID + x;
 
     if (!(flags & CMM_NOLEAVECHECK)) {
-	switch (cellat(cr->pos)->bot.id) {
+	switch (cellat(state, cr->pos)->bot.id) {
 	  case Wall_North: 	if (dir == NORTH) return FALSE;		break;
 	  case Wall_West: 	if (dir == WEST)  return FALSE;		break;
 	  case Wall_South: 	if (dir == SOUTH) return FALSE;		break;
@@ -887,8 +887,8 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
 	    return FALSE;
 	if (isdoor(floor) && !possession(floor))
 	    return FALSE;
-	if (iscreature(cellat(to)->top.id)) {
-	    id = creatureid(cellat(to)->top.id);
+	if (iscreature(cellat(state, to)->top.id)) {
+	    id = creatureid(cellat(state, to)->top.id);
 	    if (id == Chip || id == Swimming_Chip || id == Block)
 		return FALSE;
 	}
@@ -903,12 +903,12 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
 	    else if (flags & CMM_NOPUSHING)
 		return FALSE;
 	    if ((flags & CMM_TELEPORTPUSH) && floorat(state, to) == Block_Static
-					   && cellat(to)->bot.id == Empty)
+					   && cellat(state, to)->bot.id == Empty)
 		return TRUE;
 	    return canmakemove(state, cr, dir, flags | CMM_NOPUSHING);
 	}
     } else if (cr->id == Block) {
-	floor = cellat(to)->top.id;
+	floor = cellat(state, to)->top.id;
 	if (iscreature(floor)) {
 	    id = creatureid(floor);
 	    return id == Chip || id == Swimming_Chip;
@@ -916,11 +916,11 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
 	if (!(movelaws[floor].block & dir))
 	    return FALSE;
     } else {
-	floor = cellat(to)->top.id;
+	floor = cellat(state, to)->top.id;
 	if (iscreature(floor)) {
 	    id = creatureid(floor);
 	    if (id == Chip || id == Swimming_Chip) {
-		floor = cellat(to)->bot.id;
+		floor = cellat(state, to)->bot.id;
 		if (iscreature(floor)) {
 		    id = creatureid(floor);
 		    return id == Chip || id == Swimming_Chip;
@@ -940,7 +940,7 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
 		return FALSE;
     }
 
-    if (cellat(to)->bot.id == CloneMachine)
+    if (cellat(state, to)->bot.id == CloneMachine)
 	return FALSE;
 
     return TRUE;
@@ -1242,7 +1242,7 @@ static int teleportcreature(gamestate *state, creature *cr, int start)
 	    dest += CXGRID * CYGRID;
 	if (dest == start)
 	    break;
-	tile = &cellat(dest)->top;
+	tile = &cellat(state, dest)->top;
 	if (tile->id != Teleport || (tile->state & FS_BROKEN))
 	    continue;
 	cr->pos = dest;
@@ -1283,7 +1283,7 @@ static void activatecloner(gamestate *state, int buttonpos)
     pos = clonerfrombutton(state, buttonpos);
     if (pos < 0 || pos >= CXGRID * CYGRID)
 	return;
-    tileid = cellat(pos)->top.id;
+    tileid = cellat(state, pos)->top.id;
     if (!iscreature(tileid) || creatureid(tileid) == Chip)
 	return;
     if (creatureid(tileid) == Block) {
@@ -1291,7 +1291,7 @@ static void activatecloner(gamestate *state, int buttonpos)
 	if (cr->dir != NIL)
 	    advancecreature(state, cr, cr->dir);
     } else {
-	if (cellat(pos)->bot.state & FS_CLONING)
+	if (cellat(state, pos)->bot.state & FS_CLONING)
 	    return;
 	memset(&dummy, 0, sizeof dummy);
 	dummy.id = creatureid(tileid);
@@ -1303,8 +1303,8 @@ static void activatecloner(gamestate *state, int buttonpos)
 	if (!cr)
 	    return;
 	cr->state |= CS_CLONING;
-	if (cellat(pos)->bot.id == CloneMachine)
-	    cellat(pos)->bot.state |= FS_CLONING;
+	if (cellat(state, pos)->bot.id == CloneMachine)
+	    cellat(state, pos)->bot.state |= FS_CLONING;
     }
 }
 
@@ -1323,8 +1323,8 @@ static void springtrap(gamestate *state, int buttonpos)
 	     pos % CXGRID, pos / CXGRID);
 	return;
     }
-    id = cellat(pos)->top.id;
-    if (id == Block_Static || (cellat(pos)->bot.state & FS_HASMUTANT)) {
+    id = cellat(state, pos)->top.id;
+    if (id == Block_Static || (cellat(state, pos)->bot.state & FS_HASMUTANT)) {
 	cr = lookupblock(state, pos);
 	if (cr)
 	    cr->state |= CS_RELEASED;
@@ -1342,8 +1342,8 @@ static void resetbuttons(gamestate *state)
     int	pos;
 
     for (pos = 0 ; pos < CXGRID * CYGRID ; ++pos) {
-	cellat(pos)->top.state &= ~FS_BUTTONDOWN;
-	cellat(pos)->bot.state &= ~FS_BUTTONDOWN;
+	cellat(state, pos)->top.state &= ~FS_BUTTONDOWN;
+	cellat(state, pos)->bot.state &= ~FS_BUTTONDOWN;
     }
 }
 
@@ -1354,18 +1354,18 @@ static void handlebuttons(gamestate *state)
     int	pos, id;
 
     for (pos = 0 ; pos < CXGRID * CYGRID ; ++pos) {
-	if (cellat(pos)->top.state & FS_BUTTONDOWN) {
-	    cellat(pos)->top.state &= ~FS_BUTTONDOWN;
-	    id = cellat(pos)->top.id;
-	} else if (cellat(pos)->bot.state & FS_BUTTONDOWN) {
-	    cellat(pos)->bot.state &= ~FS_BUTTONDOWN;
-	    id = cellat(pos)->bot.id;
+	if (cellat(state, pos)->top.state & FS_BUTTONDOWN) {
+	    cellat(state, pos)->top.state &= ~FS_BUTTONDOWN;
+	    id = cellat(state, pos)->top.id;
+	} else if (cellat(state, pos)->bot.state & FS_BUTTONDOWN) {
+	    cellat(state, pos)->bot.state &= ~FS_BUTTONDOWN;
+	    id = cellat(state, pos)->bot.id;
 	} else {
 	    continue;
 	}
 	switch (id) {
 	  case Button_Blue:
-	    addsoundeffect(SND_BUTTON_PUSHED);
+	    addsoundeffect(state, SND_BUTTON_PUSHED);
 	    turntanks(state, NULL);
 	    break;
 	  case Button_Green:
@@ -1373,11 +1373,11 @@ static void handlebuttons(gamestate *state)
 	    break;
 	  case Button_Red:
 	    activatecloner(state, pos);
-	    addsoundeffect(SND_BUTTON_PUSHED);
+	    addsoundeffect(state, SND_BUTTON_PUSHED);
 	    break;
 	  case Button_Brown:
 	    springtrap(state, pos);
-	    addsoundeffect(SND_BUTTON_PUSHED);
+	    addsoundeffect(state, SND_BUTTON_PUSHED);
 	    break;
 	  default:
 	    warn("Fooey! Tile %02X is not a button!", id);
@@ -1400,7 +1400,7 @@ static int startmovement(gamestate *state, creature *cr, int dir)
 
     _assert(dir != NIL);
 
-    floor = cellat(cr->pos)->bot.id;
+    floor = cellat(state, cr->pos)->bot.id;
     if (!canmakemove(state, cr, dir, 0)) {
 	if (cr->id == Chip || (floor != Beartrap && floor != CloneMachine
 						 && !(cr->state & CS_SLIP))) {
@@ -1413,7 +1413,7 @@ static int startmovement(gamestate *state, creature *cr, int dir)
     if (floor == Beartrap) {
 	_assert(cr->state & CS_RELEASED);
 	if (cr->state & CS_MUTANT)
-	    cellat(cr->pos)->bot.state &= ~FS_HASMUTANT;
+	    cellat(state, cr->pos)->bot.state &= ~FS_HASMUTANT;
     }
     cr->state &= ~CS_RELEASED;
 
@@ -1440,7 +1440,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
     oldpos = cr->pos;
     newpos = cr->pos + delta[dir];
 
-    cell = cellat(newpos);
+    cell = cellat(state, newpos);
     tile = &cell->top;
     floor = tile->id;
 
@@ -1474,7 +1474,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    if (floor != Door_Green)
 		--possession(floor);
 	    poptile(state, newpos);
-	    addsoundeffect(SND_DOOR_OPENED);
+	    addsoundeffect(state, SND_DOOR_OPENED);
 	    break;
 	  case Boots_Ice:
 	  case Boots_Slide:
@@ -1488,29 +1488,29 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 		chipstatus() = CHIP_COLLIDED;
 	    ++possession(floor);
 	    poptile(state, newpos);
-	    addsoundeffect(SND_ITEM_COLLECTED);
+	    addsoundeffect(state, SND_ITEM_COLLECTED);
 	    break;
 	  case Burglar:
 	    possession(Boots_Ice) = 0;
 	    possession(Boots_Slide) = 0;
 	    possession(Boots_Fire) = 0;
 	    possession(Boots_Water) = 0;
-	    addsoundeffect(SND_BOOTS_STOLEN);
+	    addsoundeffect(state, SND_BOOTS_STOLEN);
 	    break;
 	  case ICChip:
 	    if (state->chipsneeded)
 		--state->chipsneeded;
 	    poptile(state, newpos);
-	    addsoundeffect(SND_IC_COLLECTED);
+	    addsoundeffect(state, SND_IC_COLLECTED);
 	    break;
 	  case Socket:
 	    _assert(state->chipsneeded == 0);
 	    poptile(state, newpos);
-	    addsoundeffect(SND_SOCKET_OPENED);
+	    addsoundeffect(state, SND_SOCKET_OPENED);
 	    break;
 	  case Bomb:
 	    chipstatus() = CHIP_BOMBED;
-	    addsoundeffect(SND_BOMB_EXPLODES);
+	    addsoundeffect(state, SND_BOMB_EXPLODES);
 	    break;
 	  default:
 	    if (iscreature(floor))
@@ -1525,19 +1525,19 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	  case Water:
 	    tile->id = Dirt;
 	    dead = TRUE;
-	    addsoundeffect(SND_WATER_SPLASH);
+	    addsoundeffect(state, SND_WATER_SPLASH);
 	    break;
 	  case Bomb:
 	    tile->id = Empty;
 	    dead = TRUE;
-	    addsoundeffect(SND_BOMB_EXPLODES);
+	    addsoundeffect(state, SND_BOMB_EXPLODES);
 	    break;
 	  case Teleport:
 	    if (!(tile->state & FS_BROKEN))
 		newpos = teleportcreature(state, cr, newpos);
 	    break;
 	}
-	id = cellat(oldpos)->top.id;
+	id = cellat(state, oldpos)->top.id;
 	if (iscreature(id) && creatureid(id) == Chip)
 	    cr->state |= CS_MUTANT;
     } else {
@@ -1557,7 +1557,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	  case Bomb:
 	    cell->top.id = Empty;
 	    dead = TRUE;
-	    addsoundeffect(SND_BOMB_EXPLODES);
+	    addsoundeffect(state, SND_BOMB_EXPLODES);
 	    break;
 	  case Teleport:
 	    if (!(tile->state & FS_BROKEN))
@@ -1566,12 +1566,12 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	}
     }
 
-    if (cellat(oldpos)->bot.id != CloneMachine || cr->id == Chip)
+    if (cellat(state, oldpos)->bot.id != CloneMachine || cr->id == Chip)
 	poptile(state, oldpos);
     if (dead) {
 	removecreature(state, cr);
-	if (cellat(oldpos)->bot.id == CloneMachine)
-	    cellat(oldpos)->bot.state &= ~FS_CLONING;
+	if (cellat(state, oldpos)->bot.id == CloneMachine)
+	    cellat(state, oldpos)->bot.state &= ~FS_CLONING;
 	return;
     }
 
@@ -1579,7 +1579,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	i = newpos;
 	newpos = teleportcreature(state, cr, newpos);
 	if (newpos != i) {
-	    addsoundeffect(SND_TELEPORTING);
+	    addsoundeffect(state, SND_TELEPORTING);
 	    if (floorat(state, newpos) == Block_Static) {
 		if (lastslipdir() == NIL) {
 		    cr->dir = NORTH;
@@ -1602,7 +1602,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    tile->state |= FS_BUTTONDOWN;
 	else
 	    turntanks(state, cr);
-	addsoundeffect(SND_BUTTON_PUSHED);
+	addsoundeffect(state, SND_BUTTON_PUSHED);
 	break;
       case Button_Green:
 	if (cr->state & CS_DEFERPUSH)
@@ -1615,26 +1615,26 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    tile->state |= FS_BUTTONDOWN;
 	else
 	    activatecloner(state, newpos);
-	addsoundeffect(SND_BUTTON_PUSHED);
+	addsoundeffect(state, SND_BUTTON_PUSHED);
 	break;
       case Button_Brown:
 	if (cr->state & CS_DEFERPUSH)
 	    tile->state |= FS_BUTTONDOWN;
 	else
 	    springtrap(state, newpos);
-	addsoundeffect(SND_BUTTON_PUSHED);
+	addsoundeffect(state, SND_BUTTON_PUSHED);
 	break;
     }
 
     cr->pos = newpos;
 
-    if (cellat(oldpos)->bot.id == CloneMachine)
-	cellat(oldpos)->bot.state &= ~FS_CLONING;
+    if (cellat(state, oldpos)->bot.id == CloneMachine)
+	cellat(state, oldpos)->bot.state &= ~FS_CLONING;
 
     if (floor == Beartrap) {
 	if (istrapopen(state, newpos, oldpos))
 	    cr->state |= CS_RELEASED;
-    } else if (cellat(newpos)->bot.id == Beartrap) {
+    } else if (cellat(state, newpos)->bot.id == Beartrap) {
 	for (i = 0 ; i < state->trapcount ; ++i) {
 	    if (state->traps[i].to == newpos) {
 		cr->state |= CS_RELEASED;
@@ -1693,7 +1693,7 @@ static int advancecreature(gamestate *state, creature *cr, int dir)
 
     if (!startmovement(state, cr, dir)) {
 	if (cr->id == Chip) {
-	    addsoundeffect(SND_CANT_MOVE);
+	    addsoundeffect(state, SND_CANT_MOVE);
 	    resetbuttons(state);
 	    cancelgoal();
 	}
@@ -1712,11 +1712,11 @@ static int advancecreature(gamestate *state, creature *cr, int dir)
 static int checkforending(gamestate *state)
 {
     if (chipstatus() != CHIP_OKAY) {
-	addsoundeffect(SND_CHIP_LOSES);
+	addsoundeffect(state, SND_CHIP_LOSES);
 	return -1;
     }
     if (completed()) {
-	addsoundeffect(SND_CHIP_WINS);
+	addsoundeffect(state, SND_CHIP_WINS);
 	return +1;
     }
     return 0;
@@ -1750,7 +1750,7 @@ static void floormovements(gamestate *state)
 	    if (cr->id == Chip)
 		cr->state &= ~CS_HASMOVED;
 	} else {
-	    floor = cellat(cr->pos)->bot.id;
+	    floor = cellat(state, cr->pos)->bot.id;
 	    if (isslide(floor)) {
 		if (cr->id == Chip)
 		    cr->state &= ~CS_HASMOVED;
@@ -1770,7 +1770,7 @@ static void floormovements(gamestate *state)
 	    }
 	    if (cr->state & (CS_SLIP | CS_SLIDE)) {
 		endfloormovement(state, cr);
-		startfloormovement(state, cr, cellat(cr->pos)->bot.id);
+		startfloormovement(state, cr, cellat(state, cr->pos)->bot.id);
 	    }
 	}
 	if (checkforending(state))
@@ -1801,15 +1801,18 @@ static void createclones(gamestate *state)
 static void dumpmap(gamestate *state)
 {
     creature   *cr;
+    mapcell    *cell;
     int		y, x;
 
     for (y = 0 ; y < CXGRID * CYGRID ; y += CXGRID) {
-	for (x = 0 ; x < CXGRID ; ++x)
+	for (x = 0 ; x < CXGRID ; ++x) {
+	    cell = cellat(state, y + x);
 	    fprintf(stderr, "%c%02x%02X%c",
-		    (cellat(y + x)->top.state ? ':' : '.'),
-		    cellat(y + x)->top.id,
-		    cellat(y + x)->bot.id,
-		    (cellat(y + x)->bot.state ? ':' : '.'));
+		    (cell->top.state ? ':' : '.'),
+		    cell->top.id,
+		    cell->bot.id,
+		    (cell->bot.state ? ':' : '.'));
+	}
 	fputc('\n', stderr);
     }
     fputc('\n', stderr);
@@ -1958,6 +1961,7 @@ static void initialhousekeeping(gamestate *state)
  */
 static void finalhousekeeping(gamestate *state)
 {
+    (void)state;
     return;
 }
 
@@ -1966,7 +1970,7 @@ static void preparedisplay(gamestate *state)
     int	pos;
 
     pos = chippos(state);
-    if (cellat(pos)->bot.id == HintButton)
+    if (cellat(state, pos)->bot.id == HintButton)
 	showhint();
     else
 	hidehint();
@@ -2020,7 +2024,7 @@ static int initgame(gamelogic *logic)
 		 num, pos % CXGRID, pos / CXGRID);
 	    continue;
 	}
-	cell = cellat(pos);
+	cell = cellat(state, pos);
 	if (!iscreature(cell->top.id)) {
 	    warn("level %d: no creature at location (%d %d)",
 		 num, pos % CXGRID, pos / CXGRID);
@@ -2063,7 +2067,7 @@ static int initgame(gamelogic *logic)
 
     xy = state->traps;
     for (n = state->trapcount, xy = state->traps ; n ; --n, ++xy) {
-	if (xy->to == chippos(state) || cellat(xy->to)->top.id == Block_Static
+	if (xy->to == chippos(state) || cellat(state, xy->to)->top.id == Block_Static
 				     || istrapbuttondown(state, xy->from))
 	    springtrap(state, xy->from);
     }
@@ -2122,11 +2126,11 @@ static int advancegame(gamelogic *logic)
     if (state->timelimit) {
 	if (state->currenttime >= state->timelimit) {
 	    chipstatus() = CHIP_OUTOFTIME;
-	    addsoundeffect(SND_TIME_OUT);
+	    addsoundeffect(state, SND_TIME_OUT);
 	    return -1;
 	} else if (state->timelimit - state->currenttime <= 15 * TICKS_PER_SECOND
 				&& state->currenttime % TICKS_PER_SECOND == 0)
-	    addsoundeffect(SND_TIME_LOW);
+	    addsoundeffect(state, SND_TIME_LOW);
     }
 
     cr = getchip(state);
