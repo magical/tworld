@@ -29,7 +29,9 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
  * macros can be used as an lvalue.
  */
 
-#define	addsoundeffect(state, sfx)	(state->soundeffects |= 1 << (sfx))
+static void addsoundeffect(gamestate *state, int sfx) {
+	state->soundeffects |= 1 << (sfx);
+}
 
 #define	cellat(state, pos)	(&state->map[pos])
 
