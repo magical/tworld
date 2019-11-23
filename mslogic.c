@@ -69,7 +69,6 @@ static creature *getchip(gamestate *state) {
 static int chippos(gamestate *state) { return getchip(state)->pos; }
 static int chipdir(gamestate *state) { return getchip(state)->dir; }
 
-#define	possession(obj)	(*_possession(state, obj))
 static short *_possession(gamestate *state, int obj)
 {
     switch (obj) {
@@ -102,6 +101,11 @@ static short *_possession(gamestate *state, int obj)
     _assert(!"possession() called with an invalid object");
     return NULL;
 }
+
+static int haspossession(gamestate *state, int obj) { return *_possession(state, obj) != 0; }
+static void incpossession(gamestate *state, int obj) { ++*_possession(state, obj); }
+static void decpossession(gamestate *state, int obj) { --*_possession(state, obj); }
+static void clearpossession(gamestate *state, int obj) { *_possession(state, obj) = 0; }
 
 /*
  * Memory allocation functions for the various arenas.
@@ -884,7 +888,7 @@ static int canmakemove(gamestate *state, creature const *cr, int dir, int flags)
 	    return FALSE;
 	if (floor == Socket && state->chipsneeded > 0)
 	    return FALSE;
-	if (isdoor(floor) && !possession(floor))
+	if (isdoor(floor) && !haspossession(state, floor))
 	    return FALSE;
 	if (iscreature(cellat(state, to)->top.id)) {
 	    id = creatureid(cellat(state, to)->top.id);
@@ -1449,11 +1453,11 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    poptile(state, newpos);
 	    break;
 	  case Water:
-	    if (!possession(Boots_Water))
+	    if (!haspossession(state, Boots_Water))
 		state->ms.chipstatus = CHIP_DROWNED;
 	    break;
 	  case Fire:
-	    if (!possession(Boots_Fire))
+	    if (!haspossession(state, Boots_Fire))
 		state->ms.chipstatus = CHIP_BURNED;
 	    break;
 	  case Dirt:
@@ -1469,9 +1473,9 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	  case Door_Blue:
 	  case Door_Yellow:
 	  case Door_Green:
-	    _assert(possession(floor));
+	    _assert(haspossession(state, floor));
 	    if (floor != Door_Green)
-		--possession(floor);
+		decpossession(state, floor);
 	    poptile(state, newpos);
 	    addsoundeffect(state, SND_DOOR_OPENED);
 	    break;
@@ -1485,15 +1489,15 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	  case Key_Green:
 	    if (iscreature(cell->bot.id))
 		state->ms.chipstatus = CHIP_COLLIDED;
-	    ++possession(floor);
+	    incpossession(state, floor);
 	    poptile(state, newpos);
 	    addsoundeffect(state, SND_ITEM_COLLECTED);
 	    break;
 	  case Burglar:
-	    possession(Boots_Ice) = 0;
-	    possession(Boots_Slide) = 0;
-	    possession(Boots_Fire) = 0;
-	    possession(Boots_Water) = 0;
+	    clearpossession(state, Boots_Ice);
+	    clearpossession(state, Boots_Slide);
+	    clearpossession(state, Boots_Fire);
+	    clearpossession(state, Boots_Water);
 	    addsoundeffect(state, SND_BOOTS_STOLEN);
 	    break;
 	  case ICChip:
@@ -1665,9 +1669,9 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 
     if (floor == Teleport)
 	startfloormovement(state, cr, floor);
-    else if (isice(floor) && (cr->id != Chip || !possession(Boots_Ice)))
+    else if (isice(floor) && (cr->id != Chip || !haspossession(state, Boots_Ice)))
 	startfloormovement(state, cr, floor);
-    else if (isslide(floor) && (cr->id != Chip || !possession(Boots_Slide)))
+    else if (isslide(floor) && (cr->id != Chip || !haspossession(state, Boots_Slide)))
 	startfloormovement(state, cr, floor);
     else if (floor == Beartrap && cr->id == Block && wasslipping) {
 	startfloormovement(state, cr, floor);
@@ -1921,14 +1925,14 @@ static void initialhousekeeping(gamestate *state)
 	  case CmdCheatEast:		++xviewoffset();		break;
 	  case CmdCheatHome:		xviewoffset()=yviewoffset()=0;	break;
 	  case CmdCheatStuff:
-	    possession(Key_Red) = 127;
-	    possession(Key_Blue) = 127;
-	    possession(Key_Yellow) = 127;
-	    possession(Key_Green) = 127;
-	    possession(Boots_Ice) = 127;
-	    possession(Boots_Slide) = 127;
-	    possession(Boots_Fire) = 127;
-	    possession(Boots_Water) = 127;
+	    *_possession(state, Key_Red) = 127;
+	    *_possession(state, Key_Blue) = 127;
+	    *_possession(state, Key_Yellow) = 127;
+	    *_possession(state, Key_Green) = 127;
+	    *_possession(state, Boots_Ice) = 127;
+	    *_possession(state, Boots_Slide) = 127;
+	    *_possession(state, Boots_Fire) = 127;
+	    *_possession(state, Boots_Water) = 127;
 	    state->chipsneeded = state->chipsneeded ? 0 : 1;
 	    break;
 	}
@@ -2057,12 +2061,14 @@ static int initgame(gamelogic *logic)
     state->creatures = &dummycrlist;
     state->initrndslidedir = NORTH;
 
-    possession(Key_Red) = possession(Key_Blue)
-			= possession(Key_Yellow)
-			= possession(Key_Green) = 0;
-    possession(Boots_Ice) = possession(Boots_Slide)
-			  = possession(Boots_Fire)
-			  = possession(Boots_Water) = 0;
+    clearpossession(state, Key_Red);
+    clearpossession(state, Key_Blue);
+    clearpossession(state, Key_Yellow);
+    clearpossession(state, Key_Green);
+    clearpossession(state, Boots_Ice);
+    clearpossession(state, Boots_Slide);
+    clearpossession(state, Boots_Fire);
+    clearpossession(state, Boots_Water);
 
     xy = state->traps;
     for (n = state->trapcount, xy = state->traps ; n ; --n, ++xy) {
