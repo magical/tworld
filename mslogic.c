@@ -43,6 +43,8 @@ static void hidehint(gamestate *state)		{ state->statusflags &= ~SF_SHOWHINT; }
 
 #define	getmsstate()		(&state->ms)
 
+#define	laststepping()		(getmsstate()->laststepping)
+
 #define	goalpos()		(getmsstate()->goalpos)
 #define	hasgoal()		(goalpos() >= 0)
 #define	cancelgoal()		(goalpos() = -1)
@@ -1942,7 +1944,7 @@ static void initialhousekeeping(gamestate *state)
 #endif
 
     if (state->currenttime == 0)
-	state->laststepping = state->stepping;
+	laststepping() = state->stepping;
 
     if (!(state->currenttime & 3)) {
 	for (n = 1 ; n < creaturecount() ; ++n) {
@@ -2082,8 +2084,7 @@ static int initgame(gamelogic *logic)
     state->ms.chipstatus = CHIP_OKAY;
     state->ms.controllerdir = NIL;
     state->ms.lastslipdir = NIL;
-    // BUG: state->laststepping is never initialized
-    state->stepping = state->laststepping;
+    state->stepping = laststepping();
     cancelgoal();
     state->ms.xviewoffset = 0;
     state->ms.yviewoffset = 0;

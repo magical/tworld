@@ -49,6 +49,10 @@ static int const	delta[] = { 0, -CXGRID, -1, 0, +CXGRID, 0, 0, 0, +1 };
  */
 static int		lastrndslidedir = NORTH;
 
+/* The most recently used stepping phase value.
+ */
+static int		laststepping = 0;
+
 /*
  * Accessor macros for various fields in the game state. Many of the
  * macros can be used as an lvalue.
@@ -1452,7 +1456,7 @@ static void initialhousekeeping(gamestate *state)
 
     if (state->currenttime == 0) {
 	lastrndslidedir = rndslidedir();
-	state->laststepping = state->stepping;
+	laststepping = state->stepping;
     }
 
     chip = getchip(state);
@@ -1739,7 +1743,7 @@ static int initgame(gamelogic *logic)
     prngvalue1() = 0;
     prngvalue2() = 0;
     rndslidedir() = lastrndslidedir;
-    state->stepping = state->laststepping;
+    state->stepping = laststepping;
     xviewoffset() = 0;
     yviewoffset() = 0;
 
@@ -1837,6 +1841,7 @@ gamelogic *lynxlogicstartup(void)
     static gamelogic	logic;
 
     lastrndslidedir = NORTH;
+    laststepping = 0;
 
     logic.ruleset = Ruleset_Lynx;
     logic.initgame = initgame;
