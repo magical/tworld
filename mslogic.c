@@ -41,11 +41,6 @@ static void hidehint(gamestate *state)		{ state->statusflags &= ~SF_SHOWHINT; }
 
 #define	getmsstate()		(&state->ms)
 
-#define	completed()		(getmsstate()->completed)
-#define	chipstatus()		(getmsstate()->chipstatus)
-#define	chipwait()		(getmsstate()->chipwait)
-#define	controllerdir()		(getmsstate()->controllerdir)
-#define	lastslipdir()		(getmsstate()->lastslipdir)
 #define	xviewoffset()		(getmsstate()->xviewoffset)
 #define	yviewoffset()		(getmsstate()->yviewoffset)
 
@@ -558,8 +553,8 @@ static void updatecreature(gamestate *state, creature const *cr)
 	    tile->id = crtile(Chip, NORTH);
 	return;
     } else if (id == Chip) {
-	if (chipstatus()) {
-	    switch (chipstatus()) {
+	if (state->ms.chipstatus) {
+	    switch (state->ms.chipstatus) {
 	      case CHIP_BURNED:		tile->id = Burned_Chip;		return;
 	      case CHIP_DROWNED:	tile->id = Drowned_Chip;	return;
 	    }
@@ -611,8 +606,8 @@ static void removecreature(gamestate *state, creature *cr)
 {
     cr->state &= ~(CS_SLIP | CS_SLIDE);
     if (cr->id == Chip) {
-	if (chipstatus() == CHIP_OKAY)
-	    chipstatus() = CHIP_NOTOKAY;
+	if (state->ms.chipstatus == CHIP_OKAY)
+	    state->ms.chipstatus = CHIP_NOTOKAY;
     } else
 	cr->hidden = TRUE;
 }
@@ -982,7 +977,7 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 	updatecreature(state, cr);
     }
     if (cr->state & CS_HASMOVED) {
-	controllerdir() = NIL;
+	state->ms.controllerdir = NIL;
 	return;
     }
     if (cr->state & (CS_SLIP | CS_SLIDE))
@@ -1011,8 +1006,8 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 	  case Bug:
 	  case Paramecium:
 	  case Teeth:
-	    choices[0] = controllerdir();
-	    cr->tdir = controllerdir();
+	    choices[0] = state->ms.controllerdir;
+	    cr->tdir = state->ms.controllerdir;
 	    return;
 	    break;
 	  default:
@@ -1094,7 +1089,7 @@ static void choosecreaturemove(gamestate *state, creature *cr)
 
     for (n = 0 ; n < 4 && choices[n] != NIL ; ++n) {
 	cr->tdir = choices[n];
-	controllerdir() = cr->tdir;
+	state->ms.controllerdir = cr->tdir;
 	if (canmakemove(state, cr, choices[n], 0))
 	    return;
     }
@@ -1453,11 +1448,11 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    break;
 	  case Water:
 	    if (!possession(Boots_Water))
-		chipstatus() = CHIP_DROWNED;
+		state->ms.chipstatus = CHIP_DROWNED;
 	    break;
 	  case Fire:
 	    if (!possession(Boots_Fire))
-		chipstatus() = CHIP_BURNED;
+		state->ms.chipstatus = CHIP_BURNED;
 	    break;
 	  case Dirt:
 	    poptile(state, newpos);
@@ -1487,7 +1482,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	  case Key_Yellow:
 	  case Key_Green:
 	    if (iscreature(cell->bot.id))
-		chipstatus() = CHIP_COLLIDED;
+		state->ms.chipstatus = CHIP_COLLIDED;
 	    ++possession(floor);
 	    poptile(state, newpos);
 	    addsoundeffect(state, SND_ITEM_COLLECTED);
@@ -1511,12 +1506,12 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	    addsoundeffect(state, SND_SOCKET_OPENED);
 	    break;
 	  case Bomb:
-	    chipstatus() = CHIP_BOMBED;
+	    state->ms.chipstatus = CHIP_BOMBED;
 	    addsoundeffect(state, SND_BOMB_EXPLODES);
 	    break;
 	  default:
 	    if (iscreature(floor))
-		chipstatus() = CHIP_COLLIDED;
+		state->ms.chipstatus = CHIP_COLLIDED;
 	    break;
 	}
     } else if (cr->id == Block) {
@@ -1583,11 +1578,11 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	if (newpos != i) {
 	    addsoundeffect(state, SND_TELEPORTING);
 	    if (floorat(state, newpos) == Block_Static) {
-		if (lastslipdir() == NIL) {
+		if (state->ms.lastslipdir == NIL) {
 		    cr->dir = NORTH;
 		    floor = Empty;
 		} else {
-		    cr->dir = lastslipdir();
+		    cr->dir = state->ms.lastslipdir;
 		}
 	    }
 	}
@@ -1648,17 +1643,17 @@ static void endmovement(gamestate *state, creature *cr, int dir)
     if (cr->id == Chip) {
 	if (goalpos() == cr->pos)
 	    cancelgoal();
-	if (chipstatus() != CHIP_OKAY)
+	if (state->ms.chipstatus != CHIP_OKAY)
 	    return;
 	if (cell->bot.id == Exit) {
-	    completed() = TRUE;
+	    state->ms.completed = TRUE;
 	    return;
 	}
     } else {
 	if (iscreature(cell->bot.id)) {
 	    if (creatureid(cell->bot.id) == Chip
 			|| creatureid(cell->bot.id) == Swimming_Chip) {
-		chipstatus() = CHIP_COLLIDED;
+		state->ms.chipstatus = CHIP_COLLIDED;
 		return;
 	    }
 	}
@@ -1680,7 +1675,7 @@ static void endmovement(gamestate *state, creature *cr, int dir)
 	cr->state &= ~(CS_SLIP | CS_SLIDE);
 
     if (!wasslipping && (cr->state & (CS_SLIP | CS_SLIDE)) && cr->id != Chip)
-	controllerdir() = getslipdir(state, cr);
+	state->ms.controllerdir = getslipdir(state, cr);
 }
 
 /* Move the given creature in the given direction.
@@ -1691,7 +1686,7 @@ static int advancecreature(gamestate *state, creature *cr, int dir)
 	return TRUE;
 
     if (cr->id == Chip)
-	chipwait() = 0;
+	state->ms.chipwait = 0;
 
     if (!startmovement(state, cr, dir)) {
 	if (cr->id == Chip) {
@@ -1713,11 +1708,11 @@ static int advancecreature(gamestate *state, creature *cr, int dir)
  */
 static int checkforending(gamestate *state)
 {
-    if (chipstatus() != CHIP_OKAY) {
+    if (state->ms.chipstatus != CHIP_OKAY) {
 	addsoundeffect(state, SND_CHIP_LOSES);
 	return -1;
     }
-    if (completed()) {
+    if (state->ms.completed) {
 	addsoundeffect(state, SND_CHIP_WINS);
 	return +1;
     }
@@ -1747,7 +1742,7 @@ static void floormovements(gamestate *state)
 	if (slipdir == NIL)
 	    continue;
 	if (cr->id == Chip)
-	    lastslipdir() = slipdir;
+	    state->ms.lastslipdir = slipdir;
 	if (advancecreature(state, cr, slipdir)) {
 	    if (cr->id == Chip)
 		cr->state &= ~CS_HASMOVED;
@@ -1759,13 +1754,13 @@ static void floormovements(gamestate *state)
 	    } else if (isice(floor)) {
 		slipdir = icewallturn(floor, back(slipdir));
 		if (cr->id == Chip)
-		    lastslipdir() = slipdir;
+		    state->ms.lastslipdir = slipdir;
 		if (advancecreature(state, cr, slipdir))
 		    if (cr->id == Chip)
 			cr->state &= ~CS_HASMOVED;
 	    } else if (cr->id == Chip) {
 		if (floor == Teleport || floor == Block_Static) {
-		    lastslipdir() = slipdir = back(slipdir);
+		    state->ms.lastslipdir = slipdir = back(slipdir);
 		    if (advancecreature(state, cr, slipdir))
 			cr->state &= ~CS_HASMOVED;
 		}
@@ -1950,9 +1945,9 @@ static void initialhousekeeping(gamestate *state)
 		updatecreature(state, creatures()[n]);
 	    }
 	}
-	++chipwait();
-	if (chipwait() > 3) {
-	    chipwait() = 3;
+	++state->ms.chipwait;
+	if (state->ms.chipwait > 3) {
+	    state->ms.chipwait = 3;
 	    getchip(state)->dir = SOUTH;
 	    updatecreature(state, getchip(state));
 	}
@@ -2074,11 +2069,11 @@ static int initgame(gamelogic *logic)
 	    springtrap(state, xy->from);
     }
 
-    chipwait() = 0;
-    completed() = FALSE;
-    chipstatus() = CHIP_OKAY;
-    controllerdir() = NIL;
-    lastslipdir() = NIL;
+    state->ms.chipwait = 0;
+    state->ms.completed = FALSE;
+    state->ms.chipstatus = CHIP_OKAY;
+    state->ms.controllerdir = NIL;
+    state->ms.lastslipdir = NIL;
     // BUG: state->laststepping is never initialized
     state->stepping = state->laststepping;
     cancelgoal();
@@ -2104,7 +2099,7 @@ static int advancegame(gamelogic *logic)
     initialhousekeeping(state);
 
     if (state->currenttime && !(state->currenttime & 1)) {
-	controllerdir() = NIL;
+	state->ms.controllerdir = NIL;
 	for (n = 0 ; n < creaturecount() ; ++n) {
 	    cr = creatures()[n];
 	    if (cr->hidden || (cr->state & CS_CLONING) || cr->id == Chip)
@@ -2127,7 +2122,7 @@ static int advancegame(gamelogic *logic)
     state->timeoffset = 0;
     if (state->timelimit) {
 	if (state->currenttime >= state->timelimit) {
-	    chipstatus() = CHIP_OUTOFTIME;
+	    state->ms.chipstatus = CHIP_OUTOFTIME;
 	    addsoundeffect(state, SND_TIME_OUT);
 	    return -1;
 	} else if (state->timelimit - state->currenttime <= 15 * TICKS_PER_SECOND
