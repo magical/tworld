@@ -1994,17 +1994,17 @@ static void preparedisplay(gamestate *state)
  * clone machines, and active creatures are drawn up, and other
  * miscellaneous initializations are performed.
  */
-static int initgame(gamelogic *logic)
+static int initgame(gamelogic *logic, gamestate *state)
 {
     static creature	dummycrlist;
-    gamestate	       *state;
     mapcell	       *cell;
     xyconn	       *xy;
     creature	       *cr;
     creature	       *chip;
     int			pos, num, n;
 
-    state = logic->state;
+    (void)logic;
+
     num = state->game->number;
     state->statusflags &= ~SF_BADTILES;
     state->statusflags |= SF_NOANIMATION;
@@ -2095,14 +2095,13 @@ static int initgame(gamelogic *logic)
 
 /* Advance the game state by one tick.
  */
-static int advancegame(gamelogic *logic)
+static int advancegame(gamelogic *logic, gamestate *state)
 {
-    gamestate	*state;
     creature   *cr;
     int		r = 0;
     int		n;
 
-    state = logic->state;
+    (void)logic;
 
     state->timeoffset = -1;
     initialhousekeeping(state);
@@ -2158,21 +2157,21 @@ static int advancegame(gamelogic *logic)
 
 /* Free resources associated with the current game state.
  */
-static int endgame(gamelogic *logic)
+static int endgame(gamelogic *logic, gamestate *state)
 {
-    resetcreaturepool(logic->state);
-    resetcreaturelist(logic->state);
-    resetblocklist(logic->state);
-    resetsliplist(logic->state);
+    (void)logic;
+    resetcreaturepool(state);
+    resetcreaturelist(state);
+    resetblocklist(state);
+    resetsliplist(state);
     return TRUE;
 }
 
 /* Free all allocated resources for this module.
  */
-static void shutdown(gamelogic *logic)
+static void shutdown(gamelogic *logic, gamestate *state)
 {
-    gamestate *state = logic->state;
-
+    (void)logic;
     free(creatures());
     creatures() = NULL;
     creaturecount() = 0;

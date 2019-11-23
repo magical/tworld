@@ -59,7 +59,7 @@ static int setrulesetbehavior(int ruleset, int withgui)
     if (logic) {
 	if (ruleset == logic->ruleset)
 	    return TRUE;
-	(*logic->shutdown)(logic);
+	(*logic->shutdown)(logic, &state);
 	logic = NULL;
     }
     if (ruleset == Ruleset_None)
@@ -92,7 +92,6 @@ static int setrulesetbehavior(int ruleset, int withgui)
 	}
     }
 
-    logic->state = &state;
     return TRUE;
 }
 
@@ -125,7 +124,7 @@ int initgamestate(gamesetup *game, int ruleset, int withgui)
     if (!expandleveldata(&state))
 	return FALSE;
 
-    return (*logic->initgame)(logic);
+    return (*logic->initgame)(logic, &state);
 }
 
 /* Change the current state to run from the recorded solution.
@@ -299,7 +298,7 @@ int doturn(int cmd)
 	}
     }
 
-    n = (*logic->advancegame)(logic);
+    n = (*logic->advancegame)(logic, &state);
 
     if (state.replay < 0 && state.lastmove) {
 	act.when = state.currenttime;
@@ -361,7 +360,7 @@ int quitgamestate(void)
 int endgamestate(void)
 {
     setsoundeffects(-1);
-    return (*logic->endgame)(logic);
+    return (*logic->endgame)(logic, &state);
 }
 
 /* Close up shop.
@@ -386,7 +385,7 @@ void setenddisplay(void)
     state.statusflags = 0;
     state.soundeffects = 0;
     getenddisplaysetup(&state);
-    (*logic->initgame)(logic);
+    (*logic->initgame)(logic, &state);
 }
 
 /*

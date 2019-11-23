@@ -14,12 +14,11 @@
 typedef	struct gamelogic gamelogic;
 struct gamelogic {
     int		ruleset;		  /* the ruleset */
-    gamestate  *state;			  /* ptr to the current game state */
     int		localstateinfosize;	  /* how big to make localstateinfo */
-    int	      (*initgame)(gamelogic*);	  /* prepare to play a game */
-    int	      (*advancegame)(gamelogic*); /* advance the game one tick */
-    int	      (*endgame)(gamelogic*);	  /* clean up after the game is done */
-    void      (*shutdown)(gamelogic*);	  /* turn off the logic engine */
+    int	      (*initgame)(gamelogic*, gamestate*);	  /* prepare to play a game */
+    int	      (*advancegame)(gamelogic*, gamestate*);	  /* advance the game one tick */
+    int	      (*endgame)(gamelogic*, gamestate*);	  /* clean up after the game is done */
+    void      (*shutdown)(gamelogic*, gamestate*);	  /* turn off the logic engine */
 };
 
 /* The available game logic engines.

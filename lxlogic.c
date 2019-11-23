@@ -1606,16 +1606,16 @@ static void preparedisplay(gamestate *state)
  * The level map is decoded and assembled, the list of creatures is
  * drawn up, and other miscellaneous initializations are performed.
  */
-static int initgame(gamelogic *logic)
+static int initgame(gamelogic *logic, gamestate *state)
 {
-    gamestate 	       *state;
     creature		crtemp;
     creature	       *cr;
     mapcell	       *cell;
     xyconn	       *xy;
     int			pos, num, n;
 
-    state = logic->state;
+    (void)logic;
+
     num = state->game->number;
     creaturelist() = creaturearray() + 1;
     cr = creaturelist();
@@ -1753,12 +1753,11 @@ static int initgame(gamelogic *logic)
 
 /* Advance the game state by one tick.
  */
-static int advancegame(gamelogic *logic)
+static int advancegame(gamelogic *logic, gamestate *state)
 {
-    gamestate  *state;
     creature   *cr;
 
-    state = logic->state;
+    (void)logic;
 
     initialhousekeeping(state);
 
@@ -1820,17 +1819,19 @@ static int advancegame(gamelogic *logic)
 
 /* Free resources associated with the current game state.
  */
-static int endgame(gamelogic *logic)
+static int endgame(gamelogic *logic, gamestate *state)
 {
     (void)logic;
+    (void)state;
     return TRUE;
 }
 
 /* Free all allocated resources for this module.
  */
-static void shutdown(gamelogic *logic)
+static void shutdown(gamelogic *logic, gamestate *state)
 {
     (void)logic;
+    (void)state;
 }
 
 /* The exported function: Initialize and return the module's gamelogic
