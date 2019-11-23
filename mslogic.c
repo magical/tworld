@@ -33,7 +33,9 @@ static void addsoundeffect(gamestate *state, int sfx) {
 	state->soundeffects |= 1 << (sfx);
 }
 
-#define	cellat(state, pos)	(&state->map[pos])
+static mapcell *cellat(gamestate *state, int pos) {
+	return &state->map[pos];
+}
 
 static void setnosaving(gamestate *state)	{ state->statusflags |= SF_NOSAVING; }
 static void showhint(gamestate *state)		{ state->statusflags |= SF_SHOWHINT; }
