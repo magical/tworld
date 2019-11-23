@@ -43,9 +43,6 @@ static void hidehint(gamestate *state)		{ state->statusflags &= ~SF_SHOWHINT; }
 
 #define	getmsstate()		(&state->ms)
 
-#define	xviewoffset()		(getmsstate()->xviewoffset)
-#define	yviewoffset()		(getmsstate()->yviewoffset)
-
 #define	goalpos()		(getmsstate()->goalpos)
 #define	hasgoal()		(goalpos() >= 0)
 #define	cancelgoal()		(goalpos() = -1)
@@ -1919,11 +1916,14 @@ static void initialhousekeeping(gamestate *state)
 
     if (state->currentinput >= CmdCheatNorth && state->currentinput <= CmdCheatStuff) {
 	switch (state->currentinput) {
-	  case CmdCheatNorth:		--yviewoffset();		break;
-	  case CmdCheatWest:		--xviewoffset();		break;
-	  case CmdCheatSouth:		++yviewoffset();		break;
-	  case CmdCheatEast:		++xviewoffset();		break;
-	  case CmdCheatHome:		xviewoffset()=yviewoffset()=0;	break;
+	  case CmdCheatNorth:		--state->ms.yviewoffset;	break;
+	  case CmdCheatWest:		--state->ms.xviewoffset;	break;
+	  case CmdCheatSouth:		++state->ms.yviewoffset;	break;
+	  case CmdCheatEast:		++state->ms.xviewoffset;	break;
+	  case CmdCheatHome:
+	    state->ms.xviewoffset = 0;
+	    state->ms.yviewoffset = 0;
+	    break;
 	  case CmdCheatStuff:
 	    *_possession(state, Key_Red) = 127;
 	    *_possession(state, Key_Blue) = 127;
@@ -1978,8 +1978,8 @@ static void preparedisplay(gamestate *state)
     else
 	hidehint(state);
 
-    state->xviewpos = (pos % CXGRID) * 8 + xviewoffset() * 8;
-    state->yviewpos = (pos / CYGRID) * 8 + yviewoffset() * 8;
+    state->xviewpos = (pos % CXGRID) * 8 + state->ms.xviewoffset * 8;
+    state->yviewpos = (pos / CYGRID) * 8 + state->ms.yviewoffset * 8;
 }
 
 /*
@@ -2085,8 +2085,8 @@ static int initgame(gamelogic *logic)
     // BUG: state->laststepping is never initialized
     state->stepping = state->laststepping;
     cancelgoal();
-    xviewoffset() = 0;
-    yviewoffset() = 0;
+    state->ms.xviewoffset = 0;
+    state->ms.yviewoffset = 0;
 
     preparedisplay(state);
     return TRUE;
