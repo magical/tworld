@@ -33,9 +33,9 @@ static int advancecreature(gamestate *state, creature *cr, int dir);
 
 #define	cellat(state, pos)	(&state->map[pos])
 
-#define	setnosaving()		(state->statusflags |= SF_NOSAVING)
-#define	showhint()		(state->statusflags |= SF_SHOWHINT)
-#define	hidehint()		(state->statusflags &= ~SF_SHOWHINT)
+static void setnosaving(gamestate *state)	{ state->statusflags |= SF_NOSAVING; }
+static void showhint(gamestate *state)		{ state->statusflags |= SF_SHOWHINT; }
+static void hidehint(gamestate *state)		{ state->statusflags &= ~SF_SHOWHINT; }
 
 #define	getmsstate()		(&state->ms)
 
@@ -1934,7 +1934,7 @@ static void initialhousekeeping(gamestate *state)
 	    break;
 	}
 	state->currentinput = NIL;
-	setnosaving();
+	setnosaving(state);
     }
 #endif
 
@@ -1971,9 +1971,9 @@ static void preparedisplay(gamestate *state)
 
     pos = chippos(state);
     if (cellat(state, pos)->bot.id == HintButton)
-	showhint();
+	showhint(state);
     else
-	hidehint();
+	hidehint(state);
 
     state->xviewpos = (pos % CXGRID) * 8 + xviewoffset() * 8;
     state->yviewpos = (pos / CYGRID) * 8 + yviewoffset() * 8;
