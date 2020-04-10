@@ -1039,6 +1039,55 @@ static int initlargetileset(SDL_Surface *tiles)
 }
 
 /*
+ * Reading the CC2 format.
+ */
+
+/* Transfer the tiles to the tileptr array, using tileidmap to
+ * identify and locate the individual tile images.
+ */
+static int initcc2tileset(SDL_Surface *tiles)
+{
+    SDL_Surface	       *s;
+    Uint32		transpclr;
+    int			id, n;
+
+    transpclr = pixelat(tiles, 0, 0);
+    if (!settilesize(32, 32))
+    	return FALSE;
+
+    for (n = 0 ; n < (int)(sizeof tileidmap / sizeof *tileidmap) ; ++n) {
+    	id = tileidmap[n].id;
+    	tileptr[id].opaque[0] = NULL;
+    	tileptr[id].transp[0] = NULL;
+    	tileptr[id].celcount = 0;
+    	tileptr[id].transpsize = 0;
+    	if (tileidmap[n].xtransp >= 0) {
+    	    s = extractkeyedtile(tiles, tileidmap[n].xopaque * sdlg.wtile,
+    					tileidmap[n].yopaque * sdlg.htile,
+    					sdlg.wtile, sdlg.htile, transpclr);
+    	    if (!s)
+        		return FALSE;
+    	    remembersurface(s);
+    	    tileptr[id].celcount = 1;
+    	    tileptr[id].opaque[0] = NULL;
+    	    tileptr[id].transp[0] = s;
+    	} else if (tileidmap[n].xopaque >= 0) {
+    	    s = extractopaquetile(tiles, tileidmap[n].xopaque * sdlg.wtile,
+    					 tileidmap[n].yopaque * sdlg.htile,
+    					 sdlg.wtile, sdlg.htile);
+    	    if (!s)
+        		return FALSE;
+    	    remembersurface(s);
+    	    tileptr[id].celcount = 1;
+    	    tileptr[id].opaque[0] = s;
+    	    tileptr[id].transp[0] = NULL;
+    	}
+    }
+
+    return TRUE;
+}
+
+/*
  * The exported functions.
  */
 
@@ -1096,6 +1145,9 @@ int loadtileset(char const *filename, int complain)
 	h = tiles->h / 16;
 	freetileset();
 	f = settilesize(w, h) && initsmalltileset(tiles);
+    } else if (tiles->w == 512 && tiles->h == 1024) {
+        freetileset();
+        f = initcc2tileset(tiles);
     } else {
 	if (complain)
 	    errmsg(filename, "image file has invalid dimensions (%dx%d)",

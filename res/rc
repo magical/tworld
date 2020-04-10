@@ -14,7 +14,7 @@ BombSound=bomb.wav
 SplashSound=splash.wav
 
 [MS]
-TileImages=tiles.bmp
+TileImages=chips2.bmp
 ChipDeathSound=death.wav
 ChipDeathByTimeSound=ding.wav
 TickSound=tick.wav
@@ -23,7 +23,7 @@ BlockedMoveSound=oof.wav
 SocketSound=socket.wav
 
 [Lynx]
-TileImages=atiles.bmp
+TileImages=chips2.bmp
 ChipDeathSound=derezz.wav
 PickupChipSound=ting.wav
 BlockedMoveSound=bump.wav
