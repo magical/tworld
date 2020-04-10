@@ -222,12 +222,12 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Wall_South,		 0,  8, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_East,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_Southeast,		 3,  0, -1, -1, TILEIMG_OPAQUECELS },
-    { SwitchWall_Open,		 2,  6, -1, -1, TILEIMG_OPAQUECELS },
-    { SwitchWall_Closed,	 2,  5, -1, -1, TILEIMG_OPAQUECELS },
     { HiddenWall_Perm,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
     { HiddenWall_Temp,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
     { BlueWall_Real,		 0, 10, -1, -1, TILEIMG_OPAQUECELS },//
     { BlueWall_Fake,		 0, 10, -1, -1, TILEIMG_IMPLICIT },//
+    { SwitchWall_Open,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },//
+    { SwitchWall_Closed,	 0,  9,  8,  9, TILEIMG_OPAQUECELS },//
     { PopupWall,		 2, 14, -1, -1, TILEIMG_OPAQUECELS },
     { CloneMachine,		 3,  1, -1, -1, TILEIMG_OPAQUECELS },
     { Door_Red,			 0,  1, -1, -1, TILEIMG_OPAQUECELS },//
@@ -593,6 +593,42 @@ static SDL_Surface *extractkeyedtile(SDL_Surface *src,
     if (!dest)
 	die("%s", SDL_GetError());
     SDL_SetAlpha(dest, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+    return dest;
+}
+
+/* Create a new surface containing a single tile. Pixels with the
+ * given transparent color are replaced with the corresponding pixels
+ * from the given base tile.
+ */
+static SDL_Surface *extractcompoundtile(SDL_Surface *src,
+				     int ximg, int yimg, int wimg, int himg,
+                     int xbase, int ybase,
+				     Uint32 transpclr)
+{
+    SDL_Surface	       *dest;
+    SDL_Surface	       *temp;
+    SDL_Rect		rect;
+
+    dest = newsurface(wimg, himg, FALSE);
+
+    rect.x = xbase;
+    rect.y = ybase;
+    rect.w = dest->w;
+    rect.h = dest->h;
+    SDL_BlitSurface(src, &rect, dest, NULL);
+    SDL_SetColorKey(src, SDL_SRCCOLORKEY, transpclr);
+    rect.x = ximg;
+    rect.y = yimg;
+    rect.w = dest->w;
+    rect.h = dest->h;
+    SDL_BlitSurface(src, &rect, dest, NULL);
+    SDL_SetColorKey(src, 0, 0);
+
+    temp = dest;
+    dest = SDL_DisplayFormat(temp);
+    SDL_FreeSurface(temp);
+    if (!dest)
+	die("%s", SDL_GetError());
     return dest;
 }
 
@@ -1180,7 +1216,21 @@ static int initcc2tileset(SDL_Surface *tiles)
     	tileptr[id].transp[0] = NULL;
     	tileptr[id].celcount = 0;
     	tileptr[id].transpsize = 0;
-    	if (cc2tileidmap[n].xtransp >= 0) {
+        if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
+    	    s = extractcompoundtile(tiles,
+                        cc2tileidmap[n].xtransp * sdlg.wtile,
+                        cc2tileidmap[n].ytransp * sdlg.htile,
+    					sdlg.wtile, sdlg.htile,
+                        cc2tileidmap[n].xopaque * sdlg.wtile,
+    					cc2tileidmap[n].yopaque * sdlg.htile,
+                        transpclr);
+    	    if (!s)
+        		return FALSE;
+    	    remembersurface(s);
+    	    tileptr[id].celcount = 1;
+    	    tileptr[id].opaque[0] = s;
+    	    tileptr[id].transp[0] = NULL;
+    	} else if (cc2tileidmap[n].xtransp >= 0) {
     	    s = extractkeyedtile(tiles, cc2tileidmap[n].xopaque * sdlg.wtile,
     					cc2tileidmap[n].yopaque * sdlg.htile,
     					sdlg.wtile, sdlg.htile, transpclr);
