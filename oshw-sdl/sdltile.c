@@ -252,7 +252,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Burned_Chip,		 3,  4, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Bombed_Chip,		 3,  5, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exited_Chip,		 3,  9, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Drowned_Chip,		 3,  3, -1, -1, TILEIMG_SINGLEOPAQUE },
+    { Drowned_Chip,		12, 24,  5,  5, TILEIMG_SINGLEOPAQUE },//
     { Swimming_Chip _NORTH,	 3, 12, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Swimming_Chip _WEST,	 3, 13, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Swimming_Chip _SOUTH,	 3, 14, -1, -1, TILEIMG_SINGLEOPAQUE },
