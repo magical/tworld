@@ -216,18 +216,18 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Button_Red,		 2,  4, -1, -1, TILEIMG_OPAQUECELS },
     { Button_Brown,		 2,  7, -1, -1, TILEIMG_OPAQUECELS },
     { Teleport,			 2,  9, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall,			 2,  0, -1, -1, TILEIMG_OPAQUECELS },//
+    { Wall,			     1,  2, -1, -1, TILEIMG_OPAQUECELS },//
     { Wall_North,		 0,  6, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_West,		 0,  7, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_South,		 0,  8, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_East,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_Southeast,		 3,  0, -1, -1, TILEIMG_OPAQUECELS },
-    { HiddenWall_Perm,		 0,  5, -1, -1, TILEIMG_IMPLICIT },
-    { HiddenWall_Temp,		 2, 12, -1, -1, TILEIMG_IMPLICIT },
-    { BlueWall_Real,		 1, 14, -1, -1, TILEIMG_OPAQUECELS },
-    { BlueWall_Fake,		 1, 15, -1, -1, TILEIMG_IMPLICIT },
     { SwitchWall_Open,		 2,  6, -1, -1, TILEIMG_OPAQUECELS },
     { SwitchWall_Closed,	 2,  5, -1, -1, TILEIMG_OPAQUECELS },
+    { HiddenWall_Perm,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
+    { HiddenWall_Temp,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
+    { BlueWall_Real,		 0, 10, -1, -1, TILEIMG_OPAQUECELS },//
+    { BlueWall_Fake,		 0, 10, -1, -1, TILEIMG_IMPLICIT },//
     { PopupWall,		 2, 14, -1, -1, TILEIMG_OPAQUECELS },
     { CloneMachine,		 3,  1, -1, -1, TILEIMG_OPAQUECELS },
     { Door_Red,			 1,  7, -1, -1, TILEIMG_OPAQUECELS },
