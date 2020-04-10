@@ -192,122 +192,122 @@ static tileidinfo const tileidmap[NTILES] = {
 };
 
 static tileidinfo const cc2tileidmap[NTILES] = {
-    { Empty,			 0,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
-    { Slide_North,		 0, 19, -1, -1, TILEIMG_OPAQUECELS },//
-    { Slide_West,		 2, 20, -1, -1, TILEIMG_OPAQUECELS },//
-    { Slide_South,		 1, 20, -1, -1, TILEIMG_OPAQUECELS },//
-    { Slide_East,		 3, 19, -1, -1, TILEIMG_OPAQUECELS },//
-    { Slide_Random,		 0, 21, -1, -1, TILEIMG_OPAQUECELS },//
-    { Ice,			    10,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { IceWall_Southeast,	14,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { IceWall_Southwest,	13,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { IceWall_Northeast,	12,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { IceWall_Northwest,	11,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { Gravel,			 9, 10, -1, -1, TILEIMG_OPAQUECELS },//
-    { Dirt,			     4, 31, -1, -1, TILEIMG_OPAQUECELS },//
-    { Water,			12, 24, -1, -1, TILEIMG_OPAQUECELS },//
-    { Fire,			    12, 29, -1, -1, TILEIMG_OPAQUECELS },//
-    { Bomb,			     5,  4,  7,  4, TILEIMG_OPAQUECELS },// TODO: tileimg
-    { Beartrap,			 9,  9, -1, -1, TILEIMG_OPAQUECELS },// TODO: closed beartrap
-    { Burglar,			 3,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { HintButton,		 5,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { Button_Blue,		 8,  6, -1, -1, TILEIMG_OPAQUECELS },//
-    { Button_Green,		 9,  6, -1, -1, TILEIMG_OPAQUECELS },//
-    { Button_Red,		10,  6, -1, -1, TILEIMG_OPAQUECELS },//
-    { Button_Brown,		11,  6, -1, -1, TILEIMG_OPAQUECELS },//
-    { Teleport,			 0,  2, 4,  10, TILEIMG_OPAQUECELS },//
-    { Wall,			     1,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { Wall_North,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_West,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_South,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_East,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_Southeast,	    1,  10, -1, -1, TILEIMG_OPAQUECELS },
-    { HiddenWall_Perm,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
-    { HiddenWall_Temp,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
-    { BlueWall_Real,		 0, 10, -1, -1, TILEIMG_OPAQUECELS },//
-    { BlueWall_Fake,		 0, 10, -1, -1, TILEIMG_IMPLICIT },//
-    { SwitchWall_Open,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },//
-    { SwitchWall_Closed,	 0,  9,  8,  9, TILEIMG_OPAQUECELS },//
-    { PopupWall,		 8, 10, -1, -1, TILEIMG_OPAQUECELS },//
-    { CloneMachine,		15,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { Door_Red,			 0,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { Door_Blue,		 1,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { Door_Yellow,		 2,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { Door_Green,		 3,  1, -1, -1, TILEIMG_OPAQUECELS },//
-    { Socket,			 4,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { Exit,			     9,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { ICChip,			 0,  2, 11,  3, TILEIMG_OPAQUECELS },//
-    { Key_Red,			-1, -1,  4,  1, TILEIMG_TRANSPCELS },//
-    { Key_Blue,			-1, -1,  5,  1, TILEIMG_TRANSPCELS },//
-    { Key_Yellow,		-1, -1,  6,  1, TILEIMG_TRANSPCELS },//
-    { Key_Green,		-1, -1,  7,  1, TILEIMG_TRANSPCELS },//
-    { Boots_Ice,		-1, -1,  2,  6, TILEIMG_TRANSPCELS },//
-    { Boots_Slide,		-1, -1,  3,  6, TILEIMG_TRANSPCELS },//
-    { Boots_Fire,		-1, -1,  1,  6, TILEIMG_TRANSPCELS },//
-    { Boots_Water,		-1, -1,  0,  6, TILEIMG_TRANSPCELS },//
-    { Block_Static,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
-    { Overlay_Buffer,	 0,  2, -1, -1, TILEIMG_IMPLICIT },//
-    { Exit_Extra_1,		 7,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
-    { Exit_Extra_2,		 8,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
-    { Burned_Chip,		12, 29,  0,  5, TILEIMG_SINGLEOPAQUE },//
-    { Bombed_Chip,		 0,  2,  1,  5, TILEIMG_SINGLEOPAQUE },//
-    { Exited_Chip,		 9,  2,  0, 23, TILEIMG_SINGLEOPAQUE },//
-    { Drowned_Chip,		12, 24,  5,  5, TILEIMG_SINGLEOPAQUE },//
-    { Swimming_Chip _NORTH, 12, 24,  0, 24, TILEIMG_SINGLEOPAQUE },//
-    { Swimming_Chip _WEST,	12, 24,  6, 24, TILEIMG_SINGLEOPAQUE },//
-    { Swimming_Chip _SOUTH,	12, 24,  4, 24, TILEIMG_SINGLEOPAQUE },//
-    { Swimming_Chip _EAST,	12, 24,  2, 24, TILEIMG_SINGLEOPAQUE },//
-    { Chip _NORTH,		-1, -1,  0, 22, TILEIMG_CREATURE },//
-    { Chip _WEST,		-1, -1,  8, 23, TILEIMG_IMPLICIT },//
-    { Chip _SOUTH,		-1, -1,  0, 23, TILEIMG_IMPLICIT },//
-    { Chip _EAST,		-1, -1,  8, 22, TILEIMG_IMPLICIT },//
-    { Pushing_Chip _NORTH,	-1, -1,  8, 24, TILEIMG_CREATURE },//
-    { Pushing_Chip _WEST,	-1, -1, 11, 24, TILEIMG_IMPLICIT },//
-    { Pushing_Chip _SOUTH,	-1, -1, 10, 24, TILEIMG_IMPLICIT },//
-    { Pushing_Chip _EAST,	-1, -1,  9, 24, TILEIMG_IMPLICIT },//
-    { Block _NORTH,		 8,  1, -1, -1, TILEIMG_CREATURE },//
-    { Block _WEST,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
-    { Block _SOUTH,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
-    { Block _EAST,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
-    { Tank _NORTH,		-1, -1,  0,  8, TILEIMG_CREATURE },//
-    { Tank _WEST,		-1, -1,  6,  8, TILEIMG_IMPLICIT },//
-    { Tank _SOUTH,		-1, -1,  4,  8, TILEIMG_IMPLICIT },//
-    { Tank _EAST,		-1, -1,  2,  8, TILEIMG_IMPLICIT },//
-    { Ball _NORTH,		-1, -1, 12, 10, TILEIMG_CREATURE },//
-    { Ball _WEST,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
-    { Ball _SOUTH,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
-    { Ball _EAST,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
-    { Glider _NORTH,	    -1, -1,  8,  8, TILEIMG_CREATURE },//
-    { Glider _WEST,		    -1, -1, 14,  8, TILEIMG_IMPLICIT },//
-    { Glider _SOUTH,		-1, -1, 12,  8, TILEIMG_IMPLICIT },//
-    { Glider _EAST,		    -1, -1, 10,  8, TILEIMG_IMPLICIT },//
-    { Fireball _NORTH,		-1, -1, 12,  9, TILEIMG_CREATURE },//
-    { Fireball _WEST,		-1, -1, 12,  9, TILEIMG_IMPLICIT },//
-    { Fireball _SOUTH,		-1, -1, 12,  9, TILEIMG_IMPLICIT },//
-    { Fireball _EAST,		-1, -1, 12,  9, TILEIMG_IMPLICIT },//
-    { Bug _NORTH,		-1, -1,  0,  7, TILEIMG_CREATURE },
-    { Bug _WEST,		-1, -1, 12,  7, TILEIMG_IMPLICIT },
-    { Bug _SOUTH,		-1, -1,  8,  7, TILEIMG_IMPLICIT },
-    { Bug _EAST,		-1, -1,  4,  7, TILEIMG_IMPLICIT },
-    { Paramecium _NORTH,	-1, -1,  0, 12, TILEIMG_CREATURE },
-    { Paramecium _WEST,		-1, -1,  9, 12, TILEIMG_IMPLICIT },
-    { Paramecium _SOUTH,	-1, -1,  6, 12, TILEIMG_IMPLICIT },
-    { Paramecium _EAST,		-1, -1,  3, 12, TILEIMG_IMPLICIT },
-    { Teeth _NORTH,		-1, -1,  0, 11, TILEIMG_CREATURE },
-    { Teeth _WEST,		-1, -1,  6, 11, TILEIMG_IMPLICIT },
-    { Teeth _SOUTH,		-1, -1,  0, 11, TILEIMG_IMPLICIT },
-    { Teeth _EAST,		-1, -1,  3, 11, TILEIMG_IMPLICIT },
-    { Blob _NORTH,		-1, -1,  0, 15, TILEIMG_CREATURE },
-    { Blob _WEST,		-1, -1,  0, 15, TILEIMG_IMPLICIT },
-    { Blob _SOUTH,		-1, -1,  0, 15, TILEIMG_IMPLICIT },
-    { Blob _EAST,		-1, -1,  0, 15, TILEIMG_IMPLICIT },
-    { Walker _NORTH,		-1, -1,  0, 13, TILEIMG_CREATURE },
-    { Walker _WEST,		-1, -1,  0, 13, TILEIMG_IMPLICIT },
-    { Walker _SOUTH,		-1, -1,  0, 13, TILEIMG_IMPLICIT },
-    { Walker _EAST,		-1, -1,  0, 13, TILEIMG_IMPLICIT },
-    { Water_Splash,		-1, -1,  5,  5, TILEIMG_ANIMATION },
-    { Bomb_Explosion,		-1, -1,  2,  5, TILEIMG_ANIMATION },
-    { Entity_Explosion,		-1, -1,  0,  5, TILEIMG_ANIMATION }
+    { Empty,			 0,  2, -1, -1, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Slide_North,		 0, 19, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Slide_West,		 2, 20, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Slide_South,		 1, 20, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Slide_East,		 3, 19, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Slide_Random,		 0, 21, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Ice,			    10,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { IceWall_Southeast,	14,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { IceWall_Southwest,	13,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { IceWall_Northeast,	12,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { IceWall_Northwest,	11,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Gravel,			 9, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Dirt,			     4, 31, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Water,			12, 24, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Fire,			    12, 29, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Bomb,			     5,  4,  7,  4, 0 }, //TILEIMG_OPAQUECELS },// TODO: tileimg
+    { Beartrap,			 9,  9, -1, -1, 0 }, //TILEIMG_OPAQUECELS },// TODO: closed beartrap
+    { Burglar,			 3,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { HintButton,		 5,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Button_Blue,		 8,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Button_Green,		 9,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Button_Red,		10,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Button_Brown,		11,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Teleport,			 0,  2, 4,  10, 0 }, //TILEIMG_OPAQUECELS },
+    { Wall,			     1,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Wall_North,		 1, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Wall_West,		 1, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Wall_South,		 1, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Wall_East,		 1, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Wall_Southeast,	    1,  10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { HiddenWall_Perm,		 0,  2, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { HiddenWall_Temp,		 0,  2, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { BlueWall_Real,		 0, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { BlueWall_Fake,		 0, 10, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { SwitchWall_Open,		 0,  9, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { SwitchWall_Closed,	 0,  9,  8,  9, 0 }, //TILEIMG_OPAQUECELS },
+    { PopupWall,		 8, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { CloneMachine,		15,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Door_Red,			 0,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Door_Blue,		 1,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Door_Yellow,		 2,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Door_Green,		 3,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Socket,			 4,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Exit,			     9,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { ICChip,			 0,  2, 11,  3, 0 }, //TILEIMG_OPAQUECELS },
+    { Key_Red,			-1, -1,  4,  1, 0 }, //TILEIMG_TRANSPCELS },
+    { Key_Blue,			-1, -1,  5,  1, 0 }, //TILEIMG_TRANSPCELS },
+    { Key_Yellow,		-1, -1,  6,  1, 0 }, //TILEIMG_TRANSPCELS },
+    { Key_Green,		-1, -1,  7,  1, 0 }, //TILEIMG_TRANSPCELS },
+    { Boots_Ice,		-1, -1,  2,  6, 0 }, //TILEIMG_TRANSPCELS },
+    { Boots_Slide,		-1, -1,  3,  6, 0 }, //TILEIMG_TRANSPCELS },
+    { Boots_Fire,		-1, -1,  1,  6, 0 }, //TILEIMG_TRANSPCELS },
+    { Boots_Water,		-1, -1,  0,  6, 0 }, //TILEIMG_TRANSPCELS },
+    { Block_Static,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { Overlay_Buffer,	 0,  2, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { Exit_Extra_1,		 7,  2, -1, -1, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Exit_Extra_2,		 8,  2, -1, -1, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Burned_Chip,		12, 29,  0,  5, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Bombed_Chip,		 0,  2,  1,  5, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Exited_Chip,		 9,  2,  0, 23, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Drowned_Chip,		12, 24,  5,  5, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Swimming_Chip _NORTH, 12, 24,  0, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Swimming_Chip _WEST,	12, 24,  6, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Swimming_Chip _SOUTH,	12, 24,  4, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Swimming_Chip _EAST,	12, 24,  2, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Chip _NORTH,		-1, -1,  0, 22, 0 }, //TILEIMG_CREATURE },
+    { Chip _WEST,		-1, -1,  8, 23, 0 }, //TILEIMG_IMPLICIT },
+    { Chip _SOUTH,		-1, -1,  0, 23, 0 }, //TILEIMG_IMPLICIT },
+    { Chip _EAST,		-1, -1,  8, 22, 0 }, //TILEIMG_IMPLICIT },
+    { Pushing_Chip _NORTH,	-1, -1,  8, 24, 0 }, //TILEIMG_CREATURE },
+    { Pushing_Chip _WEST,	-1, -1, 11, 24, 0 }, //TILEIMG_IMPLICIT },
+    { Pushing_Chip _SOUTH,	-1, -1, 10, 24, 0 }, //TILEIMG_IMPLICIT },
+    { Pushing_Chip _EAST,	-1, -1,  9, 24, 0 }, //TILEIMG_IMPLICIT },
+    { Block _NORTH,		 8,  1, -1, -1, 0 }, //TILEIMG_CREATURE },
+    { Block _WEST,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { Block _SOUTH,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { Block _EAST,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
+    { Tank _NORTH,		-1, -1,  0,  8, 0 }, //TILEIMG_CREATURE },
+    { Tank _WEST,		-1, -1,  6,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Tank _SOUTH,		-1, -1,  4,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Tank _EAST,		-1, -1,  2,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Ball _NORTH,		-1, -1, 12, 10, 0 }, //TILEIMG_CREATURE },
+    { Ball _WEST,		-1, -1, 12, 10, 0 }, //TILEIMG_IMPLICIT },
+    { Ball _SOUTH,		-1, -1, 12, 10, 0 }, //TILEIMG_IMPLICIT },
+    { Ball _EAST,		-1, -1, 12, 10, 0 }, //TILEIMG_IMPLICIT },
+    { Glider _NORTH,	    -1, -1,  8,  8, 0 }, //TILEIMG_CREATURE },
+    { Glider _WEST,		    -1, -1, 14,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Glider _SOUTH,		-1, -1, 12,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Glider _EAST,		    -1, -1, 10,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Fireball _NORTH,		-1, -1, 12,  9, 0 }, //TILEIMG_CREATURE },
+    { Fireball _WEST,		-1, -1, 12,  9, 0 }, //TILEIMG_IMPLICIT },
+    { Fireball _SOUTH,		-1, -1, 12,  9, 0 }, //TILEIMG_IMPLICIT },
+    { Fireball _EAST,		-1, -1, 12,  9, 0 }, //TILEIMG_IMPLICIT },
+    { Bug _NORTH,		-1, -1,  0,  7, 0 }, //TILEIMG_CREATURE },
+    { Bug _WEST,		-1, -1, 12,  7, 0 }, //TILEIMG_IMPLICIT },
+    { Bug _SOUTH,		-1, -1,  8,  7, 0 }, //TILEIMG_IMPLICIT },
+    { Bug _EAST,		-1, -1,  4,  7, 0 }, //TILEIMG_IMPLICIT },
+    { Paramecium _NORTH,	-1, -1,  0, 12, 0 }, //TILEIMG_CREATURE },
+    { Paramecium _WEST,		-1, -1,  9, 12, 0 }, //TILEIMG_IMPLICIT },
+    { Paramecium _SOUTH,	-1, -1,  6, 12, 0 }, //TILEIMG_IMPLICIT },
+    { Paramecium _EAST,		-1, -1,  3, 12, 0 }, //TILEIMG_IMPLICIT },
+    { Teeth _NORTH,		-1, -1,  0, 11, 0 }, //TILEIMG_CREATURE },
+    { Teeth _WEST,		-1, -1,  6, 11, 0 }, //TILEIMG_IMPLICIT },
+    { Teeth _SOUTH,		-1, -1,  0, 11, 0 }, //TILEIMG_IMPLICIT },
+    { Teeth _EAST,		-1, -1,  3, 11, 0 }, //TILEIMG_IMPLICIT },
+    { Blob _NORTH,		-1, -1,  0, 15, 0 }, //TILEIMG_CREATURE },
+    { Blob _WEST,		-1, -1,  0, 15, 0 }, //TILEIMG_IMPLICIT },
+    { Blob _SOUTH,		-1, -1,  0, 15, 0 }, //TILEIMG_IMPLICIT },
+    { Blob _EAST,		-1, -1,  0, 15, 0 }, //TILEIMG_IMPLICIT },
+    { Walker _NORTH,		-1, -1,  0, 13, 0 }, //TILEIMG_CREATURE },
+    { Walker _WEST,		-1, -1,  0, 13, 0 }, //TILEIMG_IMPLICIT },
+    { Walker _SOUTH,		-1, -1,  0, 13, 0 }, //TILEIMG_IMPLICIT },
+    { Walker _EAST,		-1, -1,  0, 13, 0 }, //TILEIMG_IMPLICIT },
+    { Water_Splash,		-1, -1,  5,  5, 0 }, //TILEIMG_ANIMATION },
+    { Bomb_Explosion,		-1, -1,  2,  5, 0 }, //TILEIMG_ANIMATION },
+    { Entity_Explosion,		-1, -1,  0,  5, 0 }, //TILEIMG_ANIMATION }
 };
 
 /* The heap of remembered surfaces.
