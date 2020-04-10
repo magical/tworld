@@ -249,7 +249,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Overlay_Buffer,	 0,  2, -1, -1, TILEIMG_IMPLICIT },//
     { Exit_Extra_1,		 7,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
     { Exit_Extra_2,		 8,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
-    { Burned_Chip,		 3,  4, -1, -1, TILEIMG_SINGLEOPAQUE },
+    { Burned_Chip,		12, 29,  0,  5, TILEIMG_SINGLEOPAQUE },//
     { Bombed_Chip,		 0,  2,  1,  5, TILEIMG_SINGLEOPAQUE },//
     { Exited_Chip,		 9,  2,  0, 23, TILEIMG_SINGLEOPAQUE },//
     { Drowned_Chip,		12, 24,  5,  5, TILEIMG_SINGLEOPAQUE },//
