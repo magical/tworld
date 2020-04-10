@@ -205,17 +205,17 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { IceWall_Northwest,	11,  1, -1, -1, TILEIMG_OPAQUECELS },//
     { Gravel,			 9, 10, -1, -1, TILEIMG_OPAQUECELS },//
     { Dirt,			     4, 31, -1, -1, TILEIMG_OPAQUECELS },//
-    { Water,			 0,  3, -1, -1, TILEIMG_OPAQUECELS },
-    { Fire,			 0,  4, -1, -1, TILEIMG_OPAQUECELS },
-    { Bomb,			 2, 10, -1, -1, TILEIMG_OPAQUECELS },
-    { Beartrap,			 2, 11, -1, -1, TILEIMG_OPAQUECELS },
-    { Burglar,			 2,  1, -1, -1, TILEIMG_OPAQUECELS },
-    { HintButton,		 2, 15, -1, -1, TILEIMG_OPAQUECELS },
-    { Button_Blue,		 2,  8, -1, -1, TILEIMG_OPAQUECELS },
-    { Button_Green,		 2,  3, -1, -1, TILEIMG_OPAQUECELS },
-    { Button_Red,		 2,  4, -1, -1, TILEIMG_OPAQUECELS },
-    { Button_Brown,		 2,  7, -1, -1, TILEIMG_OPAQUECELS },
-    { Teleport,			 2,  9, -1, -1, TILEIMG_OPAQUECELS },
+    { Water,			12, 24, -1, -1, TILEIMG_OPAQUECELS },//
+    { Fire,			    12, 29, -1, -1, TILEIMG_OPAQUECELS },//
+    { Bomb,			     0,  2,  5,  4, TILEIMG_OPAQUECELS },// TODO: sparkle
+    { Beartrap,			 9,  9, -1, -1, TILEIMG_OPAQUECELS },// TODO: closed beartrap
+    { Burglar,			 3,  2, -1, -1, TILEIMG_OPAQUECELS },//
+    { HintButton,		 5,  2, -1, -1, TILEIMG_OPAQUECELS },//
+    { Button_Blue,		 8,  6, -1, -1, TILEIMG_OPAQUECELS },//
+    { Button_Green,		 9,  6, -1, -1, TILEIMG_OPAQUECELS },//
+    { Button_Red,		10,  6, -1, -1, TILEIMG_OPAQUECELS },//
+    { Button_Brown,		11,  6, -1, -1, TILEIMG_OPAQUECELS },//
+    { Teleport,			 0,  2, 4,  10, TILEIMG_OPAQUECELS },//
     { Wall,			     1,  2, -1, -1, TILEIMG_OPAQUECELS },//
     { Wall_North,		 0,  6, -1, -1, TILEIMG_OPAQUECELS },
     { Wall_West,		 0,  7, -1, -1, TILEIMG_OPAQUECELS },
