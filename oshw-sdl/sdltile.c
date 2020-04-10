@@ -217,11 +217,11 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Button_Brown,		11,  6, -1, -1, TILEIMG_OPAQUECELS },//
     { Teleport,			 0,  2, 4,  10, TILEIMG_OPAQUECELS },//
     { Wall,			     1,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { Wall_North,		 0,  6, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_West,		 0,  7, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_South,		 0,  8, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_East,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },
-    { Wall_Southeast,		 3,  0, -1, -1, TILEIMG_OPAQUECELS },
+    { Wall_North,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
+    { Wall_West,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
+    { Wall_South,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
+    { Wall_East,		 1, 10, -1, -1, TILEIMG_OPAQUECELS },
+    { Wall_Southeast,	    1,  10, -1, -1, TILEIMG_OPAQUECELS },
     { HiddenWall_Perm,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
     { HiddenWall_Temp,		 0,  2, -1, -1, TILEIMG_IMPLICIT },//
     { BlueWall_Real,		 0, 10, -1, -1, TILEIMG_OPAQUECELS },//
@@ -1249,6 +1249,69 @@ static int extractbombtileseq(SDL_Surface *src,
     return TRUE;
 }
 
+static SDL_Surface *extractthinwall(SDL_Surface *src,
+                int ximg, int yimg,
+                int wimg, int himg,
+                unsigned int dir,
+				Uint32 transpclr)
+{
+    SDL_Surface	       *dest;
+    SDL_Surface	       *temp;
+    SDL_Rect		rect;
+    SDL_Rect     dstrect;
+
+    dest = newsurface(wimg, himg, FALSE);
+    if (tileptr[Empty].opaque[0]) {
+    	SDL_BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
+    }
+    SDL_SetColorKey(src, SDL_SRCCOLORKEY, transpclr);
+    if (dir & NORTH) {
+        dstrect.x = 0;
+        dstrect.y = 0;
+        rect.w = dest->w;
+        rect.h = dest->h/2;
+        rect.x = ximg + dstrect.x;
+        rect.y = yimg + dstrect.y;
+        SDL_BlitSurface(src, &rect, dest, &dstrect);
+    }
+    if (dir & SOUTH) {
+        dstrect.x = 0;
+        dstrect.y = dest->h/2;
+        rect.w = dest->w;
+        rect.h = dest->h/2;
+        rect.x = ximg + dstrect.x;
+        rect.y = yimg + dstrect.y;
+        SDL_BlitSurface(src, &rect, dest, &dstrect);
+    }
+    if (dir & WEST) {
+        dstrect.x = 0;
+        dstrect.y = 0;
+        rect.w = dest->w/2;
+        rect.h = dest->h;
+        rect.x = ximg + dstrect.x + wimg;
+        rect.y = yimg + dstrect.y;
+        SDL_BlitSurface(src, &rect, dest, &dstrect);
+    }
+    if (dir & EAST) {
+        dstrect.x = dest->w/2;
+        dstrect.y = 0;
+        rect.w = dest->w/2;
+        rect.h = dest->h;
+        rect.x = ximg + dstrect.x + wimg;
+        rect.y = yimg + dstrect.y;
+        SDL_BlitSurface(src, &rect, dest, &dstrect);
+    }
+
+    temp = dest;
+    dest = SDL_DisplayFormat(temp);
+    SDL_FreeSurface(temp);
+    if (!dest) {
+    	die("%s", SDL_GetError());
+    }
+    SDL_SetColorKey(src, 0, 0);
+    return dest;
+}
+
 /* Transfer the tiles to the tileptr array, using cc2tileidmap to
  * identify and locate the individual tile images.
  */
@@ -1283,6 +1346,28 @@ static int initcc2tileset(SDL_Surface *tiles)
             }
             tileptr[id].celcount = 4;
             tileptr[id].transp[0] = NULL;
+        } else if (id == Wall_North || id == Wall_South || id == Wall_West || id == Wall_East || id == Wall_Southeast) {
+            int dir = 0;
+            switch (id) {
+                case Wall_North: dir = NORTH; break;
+                case Wall_South: dir = SOUTH; break;
+                case Wall_East: dir = EAST; break;
+                case Wall_West: dir = WEST; break;
+                case Wall_Southeast: dir = SOUTH|EAST; break;
+            }
+            s = extractthinwall(tiles,
+                    cc2tileidmap[n].xopaque * sdlg.wtile,
+                    cc2tileidmap[n].yopaque * sdlg.htile,
+                    sdlg.wtile, sdlg.htile,
+                    dir,
+                    transpclr);
+            if (!s) {
+                return FALSE;
+            }
+            remembersurface(s);
+    	    tileptr[id].celcount = 1;
+    	    tileptr[id].opaque[0] = s;
+    	    tileptr[id].transp[0] = NULL;
         } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
