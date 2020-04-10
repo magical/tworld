@@ -53,7 +53,7 @@ typedef	struct startupdata {
     char	       *filename;	/* which data file to use */
     char	       *selectfilename;	/* which data file to select */
     char	       *savefilename;	/* an alternate solution file */
-    int			levelnum;	/* a selected initial level */ 
+    int			levelnum;	/* a selected initial level */
     char const	       *resdir;		/* where the resources are */
     char const	       *seriesdir;	/* where the series files are */
     char const	       *seriesdatdir;	/* where the series data files are */
@@ -1498,14 +1498,7 @@ static void initdirs(char const *series, char const *seriesdat,
     setresdir(choosepath(root, "res", res));
     setseriesdir(choosepath(root, "sets", series));
     setseriesdatdir(choosepath(root, "data", seriesdat));
-#ifdef SAVEDIR
-    setsavedir(choosepath(SAVEDIR, ".", save));
-#else
-    if ((dir = getenv("HOME")) && *dir && strlen(dir) < maxpath - 8)
-	setsavedir(choosepath(dir, ".tworld", save));
-    else
 	setsavedir(choosepath(root, "save", save));
-#endif
 }
 
 /* Basic number-parsing function that silently clamps input to a valid
@@ -1858,6 +1851,10 @@ int tworld(int argc, char *argv[])
     char	lastseries[sizeof spec.series.filebase];
     int		f;
 
+    // for windows
+    freopen("CON", "w", stdout);
+    freopen("CON", "w", stderr);
+    
     if (!getsettings(argc, argv, &start))
 	return EXIT_FAILURE;
 

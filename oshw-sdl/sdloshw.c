@@ -20,7 +20,7 @@ oshwglobals	sdlg;
  */
 #include	"ccicon.c"
 
-/* Dispatch all events sitting in the SDL event queue. 
+/* Dispatch all events sitting in the SDL event queue.
  */
 static void _eventupdate(int wait)
 {
