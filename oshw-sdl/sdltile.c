@@ -253,18 +253,18 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Bombed_Chip,		 3,  5, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exited_Chip,		 3,  9, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Drowned_Chip,		12, 24,  5,  5, TILEIMG_SINGLEOPAQUE },//
-    { Swimming_Chip _NORTH,	 3, 12, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Swimming_Chip _WEST,	 3, 13, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Swimming_Chip _SOUTH,	 3, 14, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Swimming_Chip _EAST,	 3, 15, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Chip _NORTH,		 6, 12,  9, 12, TILEIMG_CREATURE },
-    { Chip _WEST,		 6, 13,  9, 13, TILEIMG_IMPLICIT },
-    { Chip _SOUTH,		 6, 14,  9, 14, TILEIMG_IMPLICIT },
-    { Chip _EAST,		 6, 15,  9, 15, TILEIMG_IMPLICIT },
-    { Pushing_Chip _NORTH,	 6, 12,  9, 12, TILEIMG_CREATURE },
-    { Pushing_Chip _WEST,	 6, 13,  9, 13, TILEIMG_IMPLICIT },
-    { Pushing_Chip _SOUTH,	 6, 14,  9, 14, TILEIMG_IMPLICIT },
-    { Pushing_Chip _EAST,	 6, 15,  9, 15, TILEIMG_IMPLICIT },
+    { Swimming_Chip _NORTH, 12, 24,  0, 24, TILEIMG_SINGLEOPAQUE },//
+    { Swimming_Chip _WEST,	12, 24,  6, 24, TILEIMG_SINGLEOPAQUE },//
+    { Swimming_Chip _SOUTH,	12, 24,  4, 24, TILEIMG_SINGLEOPAQUE },//
+    { Swimming_Chip _EAST,	12, 24,  2, 24, TILEIMG_SINGLEOPAQUE },//
+    { Chip _NORTH,		-1, -1,  0, 22, TILEIMG_CREATURE },//
+    { Chip _WEST,		-1, -1,  8, 23, TILEIMG_IMPLICIT },//
+    { Chip _SOUTH,		-1, -1,  0, 23, TILEIMG_IMPLICIT },//
+    { Chip _EAST,		-1, -1,  8, 22, TILEIMG_IMPLICIT },//
+    { Pushing_Chip _NORTH,	-1, -1,  8, 24, TILEIMG_CREATURE },//
+    { Pushing_Chip _WEST,	-1, -1, 11, 24, TILEIMG_IMPLICIT },//
+    { Pushing_Chip _SOUTH,	-1, -1, 10, 24, TILEIMG_IMPLICIT },//
+    { Pushing_Chip _EAST,	-1, -1,  9, 24, TILEIMG_IMPLICIT },//
     { Block _NORTH,		 8,  1, -1, -1, TILEIMG_CREATURE },//
     { Block _WEST,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
     { Block _SOUTH,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
