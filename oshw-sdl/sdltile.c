@@ -246,9 +246,9 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Boots_Fire,		-1, -1,  1,  6, TILEIMG_TRANSPCELS },//
     { Boots_Water,		-1, -1,  0,  6, TILEIMG_TRANSPCELS },//
     { Block_Static,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
-    { Overlay_Buffer,		 0,  2, -1, -1, TILEIMG_IMPLICIT },
-    { Exit_Extra_1,		 3, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Exit_Extra_2,		 3, 11, -1, -1, TILEIMG_SINGLEOPAQUE },
+    { Overlay_Buffer,	 0,  2, -1, -1, TILEIMG_IMPLICIT },//
+    { Exit_Extra_1,		 7,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
+    { Exit_Extra_2,		 8,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
     { Burned_Chip,		 3,  4, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Bombed_Chip,		 3,  5, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exited_Chip,		 3,  9, -1, -1, TILEIMG_SINGLEOPAQUE },
