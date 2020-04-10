@@ -207,7 +207,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Dirt,			     4, 31, -1, -1, TILEIMG_OPAQUECELS },//
     { Water,			12, 24, -1, -1, TILEIMG_OPAQUECELS },//
     { Fire,			    12, 29, -1, -1, TILEIMG_OPAQUECELS },//
-    { Bomb,			     0,  2,  5,  4, TILEIMG_OPAQUECELS },// TODO: sparkle
+    { Bomb,			     5,  4,  7,  4, TILEIMG_OPAQUECELS },// TODO: tileimg
     { Beartrap,			 9,  9, -1, -1, TILEIMG_OPAQUECELS },// TODO: closed beartrap
     { Burglar,			 3,  2, -1, -1, TILEIMG_OPAQUECELS },//
     { HintButton,		 5,  2, -1, -1, TILEIMG_OPAQUECELS },//
@@ -1197,6 +1197,58 @@ static int initlargetileset(SDL_Surface *tiles)
  * Reading the CC2 format.
  */
 
+static int extractbombtileseq(SDL_Surface *src,
+                int ximg, int yimg,
+                int wimg, int himg,
+                int xspark, int yspark,
+				SDL_Surface **ptrs,
+				Uint32 transpclr)
+{
+    int	n;
+
+    SDL_Surface	       *dest;
+    SDL_Surface	       *temp;
+    SDL_Rect		rect;
+    SDL_Rect     dstrect;
+
+    for (n = 0; n < 4 ; ++n) {
+        dest = newsurface(wimg, himg, FALSE);
+        if (tileptr[Empty].opaque[0]) {
+        	SDL_BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
+        }
+        SDL_SetColorKey(src, SDL_SRCCOLORKEY, transpclr);
+        rect.x = ximg;
+        rect.y = yimg;
+        rect.w = dest->w;
+        rect.h = dest->h;
+        SDL_BlitSurface(src, &rect, dest, NULL);
+        rect.x = xspark + (dest->w/2) * (n/2);
+        rect.y = yspark + (dest->h/2) * (n%2);
+        rect.w = dest->w/2;
+        rect.h = dest->h/2;
+        dstrect.x = dest->w/2;
+        dstrect.y = 0;
+        dstrect.w = dest->w/2;
+        dstrect.h = dest->h/2;
+        SDL_BlitSurface(src, &rect, dest, &dstrect);
+        SDL_SetColorKey(src, 0, 0);
+
+        temp = dest;
+        dest = SDL_DisplayFormat(temp);
+        SDL_FreeSurface(temp);
+        if (!dest) {
+        	die("%s", SDL_GetError());
+        }
+
+        ptrs[n] = dest;
+    	if (!ptrs[n]) {
+    	    return FALSE;
+        }
+    	remembersurface(ptrs[n]);
+    }
+    return TRUE;
+}
+
 /* Transfer the tiles to the tileptr array, using cc2tileidmap to
  * identify and locate the individual tile images.
  */
@@ -1205,6 +1257,7 @@ static int initcc2tileset(SDL_Surface *tiles)
     SDL_Surface	       *s;
     Uint32		transpclr;
     int			id, n;
+    int         f;
 
     transpclr = pixelat(tiles, 0, 0);
     if (!settilesize(32, 32))
@@ -1216,7 +1269,21 @@ static int initcc2tileset(SDL_Surface *tiles)
     	tileptr[id].transp[0] = NULL;
     	tileptr[id].celcount = 0;
     	tileptr[id].transpsize = 0;
-        if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
+        if (id == Bomb) {
+            f = extractbombtileseq(tiles,
+                cc2tileidmap[n].xopaque * sdlg.wtile,
+                cc2tileidmap[n].yopaque *sdlg.htile,
+                sdlg.wtile, sdlg.htile,
+                cc2tileidmap[n].xtransp * sdlg.wtile,
+                cc2tileidmap[n].ytransp *sdlg.htile,
+                tileptr[id].opaque,
+                transpclr);
+            if (!f) {
+                return FALSE;
+            }
+            tileptr[id].celcount = 4;
+            tileptr[id].transp[0] = NULL;
+        } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
                         cc2tileidmap[n].ytransp * sdlg.htile,
