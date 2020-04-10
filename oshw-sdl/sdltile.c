@@ -265,26 +265,26 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Pushing_Chip _WEST,	 6, 13,  9, 13, TILEIMG_IMPLICIT },
     { Pushing_Chip _SOUTH,	 6, 14,  9, 14, TILEIMG_IMPLICIT },
     { Pushing_Chip _EAST,	 6, 15,  9, 15, TILEIMG_IMPLICIT },
-    { Block _NORTH,		 0, 14, -1, -1, TILEIMG_CREATURE },
-    { Block _WEST,		 0, 15, -1, -1, TILEIMG_IMPLICIT },
-    { Block _SOUTH,		 1,  0, -1, -1, TILEIMG_IMPLICIT },
-    { Block _EAST,		 1,  1, -1, -1, TILEIMG_IMPLICIT },
-    { Tank _NORTH,		 4, 12,  7, 12, TILEIMG_CREATURE },
-    { Tank _WEST,		 4, 13,  7, 13, TILEIMG_IMPLICIT },
-    { Tank _SOUTH,		 4, 14,  7, 14, TILEIMG_IMPLICIT },
-    { Tank _EAST,		 4, 15,  7, 15, TILEIMG_IMPLICIT },
-    { Ball _NORTH,		 4,  8,  7,  8, TILEIMG_CREATURE },
-    { Ball _WEST,		 4,  9,  7,  9, TILEIMG_IMPLICIT },
-    { Ball _SOUTH,		 4, 10,  7, 10, TILEIMG_IMPLICIT },
-    { Ball _EAST,		 4, 11,  7, 11, TILEIMG_IMPLICIT },
-    { Glider _NORTH,		 5,  0,  8,  0, TILEIMG_CREATURE },
-    { Glider _WEST,		 5,  1,  8,  1, TILEIMG_IMPLICIT },
-    { Glider _SOUTH,		 5,  2,  8,  2, TILEIMG_IMPLICIT },
-    { Glider _EAST,		 5,  3,  8,  3, TILEIMG_IMPLICIT },
-    { Fireball _NORTH,		 4,  4,  7,  4, TILEIMG_CREATURE },
-    { Fireball _WEST,		 4,  5,  7,  5, TILEIMG_IMPLICIT },
-    { Fireball _SOUTH,		 4,  6,  7,  6, TILEIMG_IMPLICIT },
-    { Fireball _EAST,		 4,  7,  7,  7, TILEIMG_IMPLICIT },
+    { Block _NORTH,		 8,  1, -1, -1, TILEIMG_CREATURE },//
+    { Block _WEST,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
+    { Block _SOUTH,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
+    { Block _EAST,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
+    { Tank _NORTH,		-1, -1,  0,  8, TILEIMG_CREATURE },//
+    { Tank _WEST,		-1, -1,  2,  8, TILEIMG_IMPLICIT },//
+    { Tank _SOUTH,		-1, -1,  4,  8, TILEIMG_IMPLICIT },//
+    { Tank _EAST,		-1, -1,  6,  8, TILEIMG_IMPLICIT },//
+    { Ball _NORTH,		-1, -1, 12, 10, TILEIMG_CREATURE },//
+    { Ball _WEST,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
+    { Ball _SOUTH,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
+    { Ball _EAST,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
+    { Glider _NORTH,	    -1, -1,  8,  8, TILEIMG_CREATURE },//
+    { Glider _WEST,		    -1, -1, 14,  8, TILEIMG_IMPLICIT },//
+    { Glider _SOUTH,		-1, -1, 12,  8, TILEIMG_IMPLICIT },//
+    { Glider _EAST,		    -1, -1, 10,  8, TILEIMG_IMPLICIT },//
+    { Fireball _NORTH,		-1, -1, 12,  9, TILEIMG_CREATURE },//
+    { Fireball _WEST,		-1, -1, 12,  9, TILEIMG_IMPLICIT },//
+    { Fireball _SOUTH,		-1, -1, 12,  9, TILEIMG_IMPLICIT },//
+    { Fireball _EAST,		-1, -1, 12,  9, TILEIMG_IMPLICIT },//
     { Bug _NORTH,		 4,  0,  7,  0, TILEIMG_CREATURE },
     { Bug _WEST,		 4,  1,  7,  1, TILEIMG_IMPLICIT },
     { Bug _SOUTH,		 4,  2,  7,  2, TILEIMG_IMPLICIT },
