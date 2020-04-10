@@ -7,6 +7,6 @@
 comptime.h
 Makefile
 *.swp
-*.tws
+/save/*
 /stdout.txt
 /stderr.txt
