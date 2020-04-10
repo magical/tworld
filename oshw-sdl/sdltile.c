@@ -236,11 +236,11 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Door_Green,		 3,  1, -1, -1, TILEIMG_OPAQUECELS },//
     { Socket,			 4,  2, -1, -1, TILEIMG_OPAQUECELS },//
     { Exit,			     9,  2, -1, -1, TILEIMG_OPAQUECELS },//
-    { ICChip,			 0,  2, -1, -1, TILEIMG_OPAQUECELS },
-    { Key_Red,			 6,  5,  9,  5, TILEIMG_TRANSPCELS },
-    { Key_Blue,			 6,  4,  9,  4, TILEIMG_TRANSPCELS },
-    { Key_Yellow,		 6,  7,  9,  7, TILEIMG_TRANSPCELS },
-    { Key_Green,		 6,  6,  9,  6, TILEIMG_TRANSPCELS },
+    { ICChip,			 0,  2, 11,  3, TILEIMG_OPAQUECELS },//
+    { Key_Red,			-1, -1,  4,  1, TILEIMG_TRANSPCELS },//
+    { Key_Blue,			-1, -1,  5,  1, TILEIMG_TRANSPCELS },//
+    { Key_Yellow,		-1, -1,  6,  1, TILEIMG_TRANSPCELS },//
+    { Key_Green,		-1, -1,  7,  1, TILEIMG_TRANSPCELS },//
     { Boots_Ice,		 6, 10,  9, 10, TILEIMG_TRANSPCELS },
     { Boots_Slide,		 6, 11,  9, 11, TILEIMG_TRANSPCELS },
     { Boots_Fire,		 6,  9,  9,  9, TILEIMG_TRANSPCELS },
