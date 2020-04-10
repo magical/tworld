@@ -270,9 +270,9 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Block _SOUTH,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
     { Block _EAST,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
     { Tank _NORTH,		-1, -1,  0,  8, TILEIMG_CREATURE },//
-    { Tank _WEST,		-1, -1,  2,  8, TILEIMG_IMPLICIT },//
+    { Tank _WEST,		-1, -1,  6,  8, TILEIMG_IMPLICIT },//
     { Tank _SOUTH,		-1, -1,  4,  8, TILEIMG_IMPLICIT },//
-    { Tank _EAST,		-1, -1,  6,  8, TILEIMG_IMPLICIT },//
+    { Tank _EAST,		-1, -1,  2,  8, TILEIMG_IMPLICIT },//
     { Ball _NORTH,		-1, -1, 12, 10, TILEIMG_CREATURE },//
     { Ball _WEST,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
     { Ball _SOUTH,		-1, -1, 12, 10, TILEIMG_IMPLICIT },//
