@@ -1,0 +1,9 @@
+*.o
+/oshw/*
+*.a
+/tworld.exe
+/config.log
+/config.status
+comptime.h
+Makefile
+*.swp
