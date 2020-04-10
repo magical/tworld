@@ -241,11 +241,11 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Key_Blue,			-1, -1,  5,  1, TILEIMG_TRANSPCELS },//
     { Key_Yellow,		-1, -1,  6,  1, TILEIMG_TRANSPCELS },//
     { Key_Green,		-1, -1,  7,  1, TILEIMG_TRANSPCELS },//
-    { Boots_Ice,		 6, 10,  9, 10, TILEIMG_TRANSPCELS },
-    { Boots_Slide,		 6, 11,  9, 11, TILEIMG_TRANSPCELS },
-    { Boots_Fire,		 6,  9,  9,  9, TILEIMG_TRANSPCELS },
-    { Boots_Water,		 6,  8,  9,  8, TILEIMG_TRANSPCELS },
-    { Block_Static,		 0, 10, -1, -1, TILEIMG_IMPLICIT },
+    { Boots_Ice,		-1, -1,  2,  6, TILEIMG_TRANSPCELS },//
+    { Boots_Slide,		-1, -1,  3,  6, TILEIMG_TRANSPCELS },//
+    { Boots_Fire,		-1, -1,  1,  6, TILEIMG_TRANSPCELS },//
+    { Boots_Water,		-1, -1,  0,  6, TILEIMG_TRANSPCELS },//
+    { Block_Static,		 8,  1, -1, -1, TILEIMG_IMPLICIT },//
     { Overlay_Buffer,		 2,  0, -1, -1, TILEIMG_IMPLICIT },
     { Exit_Extra_1,		 3, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exit_Extra_2,		 3, 11, -1, -1, TILEIMG_SINGLEOPAQUE },
