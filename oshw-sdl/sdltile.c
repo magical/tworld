@@ -1231,8 +1231,8 @@ static int initcc2tileset(SDL_Surface *tiles)
     	    tileptr[id].opaque[0] = s;
     	    tileptr[id].transp[0] = NULL;
     	} else if (cc2tileidmap[n].xtransp >= 0) {
-    	    s = extractkeyedtile(tiles, cc2tileidmap[n].xopaque * sdlg.wtile,
-    					cc2tileidmap[n].yopaque * sdlg.htile,
+    	    s = extractkeyedtile(tiles, cc2tileidmap[n].xtransp * sdlg.wtile,
+    					cc2tileidmap[n].ytransp * sdlg.htile,
     					sdlg.wtile, sdlg.htile, transpclr);
     	    if (!s)
         		return FALSE;
