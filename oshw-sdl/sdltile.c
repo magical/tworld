@@ -305,9 +305,9 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Walker _WEST,		-1, -1,  0, 13, TILEIMG_IMPLICIT },
     { Walker _SOUTH,		-1, -1,  0, 13, TILEIMG_IMPLICIT },
     { Walker _EAST,		-1, -1,  0, 13, TILEIMG_IMPLICIT },
-    { Water_Splash,		 3,  3, -1, -1, TILEIMG_ANIMATION },
-    { Bomb_Explosion,		 3,  6, -1, -1, TILEIMG_ANIMATION },
-    { Entity_Explosion,		 3,  7, -1, -1, TILEIMG_ANIMATION }
+    { Water_Splash,		-1, -1,  5,  5, TILEIMG_ANIMATION },
+    { Bomb_Explosion,		-1, -1,  2,  5, TILEIMG_ANIMATION },
+    { Entity_Explosion,		-1, -1,  0,  5, TILEIMG_ANIMATION }
 };
 
 /* The heap of remembered surfaces.
