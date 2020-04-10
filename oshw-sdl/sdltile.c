@@ -193,18 +193,18 @@ static tileidinfo const tileidmap[NTILES] = {
 
 static tileidinfo const cc2tileidmap[NTILES] = {
     { Empty,			 0,  2, -1, -1, TILEIMG_SINGLEOPAQUE },//
-    { Slide_North,		 1,  2, -1, -1, TILEIMG_OPAQUECELS },
-    { Slide_West,		 1,  4, -1, -1, TILEIMG_OPAQUECELS },
-    { Slide_South,		 0, 13, -1, -1, TILEIMG_OPAQUECELS },
-    { Slide_East,		 1,  3, -1, -1, TILEIMG_OPAQUECELS },
-    { Slide_Random,		 3,  2, -1, -1, TILEIMG_OPAQUECELS },
-    { Ice,			 0, 12, -1, -1, TILEIMG_OPAQUECELS },
-    { IceWall_Northwest,	 1, 12, -1, -1, TILEIMG_OPAQUECELS },
-    { IceWall_Northeast,	 1, 13, -1, -1, TILEIMG_OPAQUECELS },
-    { IceWall_Southwest,	 1, 11, -1, -1, TILEIMG_OPAQUECELS },
-    { IceWall_Southeast,	 1, 10, -1, -1, TILEIMG_OPAQUECELS },
-    { Gravel,			 2, 13, -1, -1, TILEIMG_OPAQUECELS },
-    { Dirt,			 0, 11, -1, -1, TILEIMG_OPAQUECELS },
+    { Slide_North,		 0, 19, -1, -1, TILEIMG_OPAQUECELS },//
+    { Slide_West,		 2, 20, -1, -1, TILEIMG_OPAQUECELS },//
+    { Slide_South,		 1, 20, -1, -1, TILEIMG_OPAQUECELS },//
+    { Slide_East,		 3, 19, -1, -1, TILEIMG_OPAQUECELS },//
+    { Slide_Random,		 0, 21, -1, -1, TILEIMG_OPAQUECELS },//
+    { Ice,			    10,  1, -1, -1, TILEIMG_OPAQUECELS },//
+    { IceWall_Southeast,	14,  1, -1, -1, TILEIMG_OPAQUECELS },//
+    { IceWall_Southwest,	13,  1, -1, -1, TILEIMG_OPAQUECELS },//
+    { IceWall_Northeast,	12,  1, -1, -1, TILEIMG_OPAQUECELS },//
+    { IceWall_Northwest,	11,  1, -1, -1, TILEIMG_OPAQUECELS },//
+    { Gravel,			 9, 10, -1, -1, TILEIMG_OPAQUECELS },//
+    { Dirt,			     4, 31, -1, -1, TILEIMG_OPAQUECELS },//
     { Water,			 0,  3, -1, -1, TILEIMG_OPAQUECELS },
     { Fire,			 0,  4, -1, -1, TILEIMG_OPAQUECELS },
     { Bomb,			 2, 10, -1, -1, TILEIMG_OPAQUECELS },
