@@ -462,6 +462,8 @@ static SDL_Surface *_getcreatureimage(SDL_Rect *rect,
 	    rect->y -= sdlg.htile;
     }
 
+    // TODO: allow blobs to have more than four frames
+    //if (!isanimation(id)) { n = q->celcount * moving / 8; }
     n = q->celcount > 1 ? frame : 0;
     if (n >= q->celcount)
 	die("requested cel #%d from a %d-cel sequence (%d+%d)",
@@ -1420,6 +1422,23 @@ static int initcc2tileset(SDL_Surface *tiles)
     	    tileptr[id].transp[0] = NULL;
     	}
     }
+
+    // Notes:
+    // creatures have 1, 2, 4, or 8 frames of movement animation
+    // blobs and walkers are double-size
+    // teeth and centipedes have 3 frames but reuse the middle one
+    // check whether ants do anything like that
+    //    - looks like they probably just repeat the 4 frames twice
+    // teeth reuse south as north
+    // 2 frames: tanks, gliders, swimming chip
+    // "3" frames: teeth, centipedes
+    // 4 frames: ants
+    // fireballs and balls have only one direction
+    // balls have a time-symmetric animation
+
+    // TODO: force floors & random force floor
+    // force floors use a moving window over two tiles
+    // random force floor is 8 frames
 
     return TRUE;
 }
