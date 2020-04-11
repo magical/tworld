@@ -51,7 +51,9 @@ enum {
     TILEIMG_OPAQUECELS,		/* one or more opaque images */
     TILEIMG_TRANSPCELS,		/* one or more transparent images */
     TILEIMG_CREATURE,		/* one of the creature formats */
-    TILEIMG_ANIMATION		/* twelve transparent images */
+    TILEIMG_ANIMATION,		/* twelve transparent images */
+    /* CC2 shapes */
+    TILEIMG_FORCEFLOOR      /* two stacked images */
 };
 
 /* Structure indicating where to find the various tile images in a
@@ -193,10 +195,10 @@ static tileidinfo const tileidmap[NTILES] = {
 
 static tileidinfo const cc2tileidmap[NTILES] = {
     { Empty,			 0,  2, -1, -1, 0 }, //TILEIMG_SINGLEOPAQUE },
-    { Slide_North,		 0, 19, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Slide_West,		 2, 20, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Slide_South,		 1, 20, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Slide_East,		 3, 19, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Slide_North,		 0, 19, -1, -1, TILEIMG_FORCEFLOOR },
+    { Slide_West,		 2, 20, -1, -1, TILEIMG_FORCEFLOOR },
+    { Slide_South,		 1, 20, -1, -1, TILEIMG_FORCEFLOOR },
+    { Slide_East,		 3, 19, -1, -1, TILEIMG_FORCEFLOOR },
     { Slide_Random,		 0, 21, -1, -1, TILEIMG_OPAQUECELS },
     { Ice,			    10,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { IceWall_Southeast,	14,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
@@ -1314,6 +1316,25 @@ static SDL_Surface *extractthinwall(SDL_Surface *src,
     return dest;
 }
 
+static int extractforcefloorseq(SDL_Surface *src,
+                int ximg, int yimg,
+                int wimg, int himg,
+                int dx, int dy,
+				SDL_Surface **ptrs,
+				Uint32 transpclr)
+{
+    int i, x, y;
+
+    for (i = 0, x = ximg, y = yimg ; i < 4 ; i++, x += dx, y += dy) {
+        ptrs[i] = extractopaquetile(src, x, y, wimg, himg);
+        if (!ptrs[i]) {
+            return FALSE;
+        }
+        remembersurface(ptrs[i]);
+    }
+    return TRUE;
+}
+
 /* Transfer the tiles to the tileptr array, using cc2tileidmap to
  * identify and locate the individual tile images.
  */
@@ -1386,6 +1407,26 @@ static int initcc2tileset(SDL_Surface *tiles)
                 return FALSE;
             }
             // TODO: i think fire and water (at least) might be half the frame rate
+        } else if (cc2tileidmap[n].shape == TILEIMG_FORCEFLOOR) {
+            int dx = 0, dy = 0;
+            switch (id) {
+                case Slide_North: dy = 8; break;
+                case Slide_South: dy = -8; break;
+                case Slide_West: dx = 8; break;
+                case Slide_East: dx = -8; break;
+            }
+        	tileptr[id].transpsize = 0;
+        	tileptr[id].celcount = 4;
+            f = extractforcefloorseq(tiles,
+                    cc2tileidmap[n].xopaque * sdlg.wtile,
+                    cc2tileidmap[n].yopaque * sdlg.htile,
+                    sdlg.wtile, sdlg.htile,
+                    dx, dy,
+                    tileptr[id].opaque,
+                    transpclr);
+            if (!f) {
+                return FALSE;
+            }
         } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
