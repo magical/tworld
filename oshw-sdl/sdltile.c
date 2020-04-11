@@ -197,7 +197,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Slide_West,		 2, 20, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Slide_South,		 1, 20, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Slide_East,		 3, 19, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Slide_Random,		 0, 21, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Slide_Random,		 0, 21, -1, -1, TILEIMG_OPAQUECELS },
     { Ice,			    10,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { IceWall_Southeast,	14,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { IceWall_Southwest,	13,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
@@ -1376,7 +1376,10 @@ static int initcc2tileset(SDL_Surface *tiles)
             rect.h = sdlg.htile;
         	tileptr[id].transpsize = 0;
         	tileptr[id].celcount = 4;
-        	f = extractopaquetileseq(tiles, &rect, 4, tileptr[id].opaque, transpclr);
+            if (id == Slide_Random) {
+                tileptr[id].celcount = 8;
+            }
+        	f = extractopaquetileseq(tiles, &rect, tileptr[id].celcount, tileptr[id].opaque, transpclr);
             if (!f) {
                 return FALSE;
             }
