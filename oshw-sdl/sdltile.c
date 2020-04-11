@@ -228,7 +228,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { HiddenWall_Temp,		 0,  2, -1, -1, TILEIMG_SINGLEOPAQUE },
     { BlueWall_Real,		 0, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { BlueWall_Fake,		 0, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { SwitchWall_Open,		 0,  9, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { SwitchWall_Open,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },
     { SwitchWall_Closed,	 0,  9,  8,  9, 0 }, //TILEIMG_OPAQUECELS },
     { PopupWall,		 8, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { CloneMachine,		15,  1, -1, -1, TILEIMG_SINGLEOPAQUE },
