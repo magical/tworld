@@ -205,8 +205,8 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { IceWall_Northwest,	11,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Gravel,			 9, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Dirt,			     4, 31, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Water,			12, 24, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Fire,			    12, 29, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Water,			12, 24, -1, -1, TILEIMG_OPAQUECELS },
+    { Fire,			    12, 29, -1, -1, TILEIMG_OPAQUECELS },
     { Bomb,			     5,  4,  7,  4, 0 }, //TILEIMG_OPAQUECELS },// TODO: tileimg
     { Beartrap,			 9,  9, -1, -1, 0 }, //TILEIMG_OPAQUECELS },// TODO: closed beartrap
     { Burglar,			 3,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
@@ -215,7 +215,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Button_Green,		 9,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Button_Red,		10,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Button_Brown,		11,  6, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Teleport,			 0,  2, 4,  10, 0 }, //TILEIMG_OPAQUECELS },
+    { Teleport,			 4, 10, -1, -1, TILEIMG_OPAQUECELS },
     { Wall,			     1,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Wall_North,		 1, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Wall_West,		 1, 10, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
@@ -235,7 +235,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Door_Yellow,		 2,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Door_Green,		 3,  1, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
     { Socket,			 4,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
-    { Exit,			     9,  2, -1, -1, 0 }, //TILEIMG_OPAQUECELS },
+    { Exit,			     6,  2, -1, -1, TILEIMG_OPAQUECELS },
     { ICChip,			 0,  2, 11,  3, 0 }, //TILEIMG_OPAQUECELS },
     { Key_Red,			-1, -1,  4,  1, 0 }, //TILEIMG_TRANSPCELS },
     { Key_Blue,			-1, -1,  5,  1, 0 }, //TILEIMG_TRANSPCELS },
@@ -1368,6 +1368,19 @@ static int initcc2tileset(SDL_Surface *tiles)
     	    tileptr[id].celcount = 1;
     	    tileptr[id].opaque[0] = s;
     	    tileptr[id].transp[0] = NULL;
+        } else if (cc2tileidmap[n].shape == TILEIMG_OPAQUECELS) {
+            SDL_Rect rect;
+            rect.x = cc2tileidmap[n].xopaque * sdlg.wtile;
+            rect.y = cc2tileidmap[n].yopaque * sdlg.htile;
+            rect.w = sdlg.wtile;
+            rect.h = sdlg.htile;
+        	tileptr[id].transpsize = 0;
+        	tileptr[id].celcount = 4;
+        	f = extractopaquetileseq(tiles, &rect, 4, tileptr[id].opaque, transpclr);
+            if (!f) {
+                return FALSE;
+            }
+            // TODO: i think fire and water (at least) might be half the frame rate
         } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
