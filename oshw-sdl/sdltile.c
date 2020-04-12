@@ -265,10 +265,10 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Swimming_Chip _WEST,	12, 24,  6, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
     { Swimming_Chip _SOUTH,	12, 24,  4, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
     { Swimming_Chip _EAST,	12, 24,  2, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
-    { Chip _NORTH,		-1, -1,  0, 22, 0 }, //TILEIMG_CREATURE },
-    { Chip _WEST,		-1, -1,  8, 23, 0 }, //TILEIMG_IMPLICIT },
-    { Chip _SOUTH,		-1, -1,  0, 23, 0 }, //TILEIMG_IMPLICIT },
-    { Chip _EAST,		-1, -1,  8, 22, 0 }, //TILEIMG_IMPLICIT },
+    { Chip _NORTH,		-1, -1,  0, 22, TILEIMG_CREATURE_8 },
+    { Chip _WEST,		-1, -1,  8, 23, TILEIMG_CREATURE_8 },
+    { Chip _SOUTH,		-1, -1,  0, 23, TILEIMG_CREATURE_8 },
+    { Chip _EAST,		-1, -1,  8, 22, TILEIMG_CREATURE_8 },
     { Pushing_Chip _NORTH,	-1, -1,  8, 24, 0 }, //TILEIMG_CREATURE },
     { Pushing_Chip _WEST,	-1, -1, 11, 24, 0 }, //TILEIMG_IMPLICIT },
     { Pushing_Chip _SOUTH,	-1, -1, 10, 24, 0 }, //TILEIMG_IMPLICIT },
@@ -1465,6 +1465,28 @@ static int initcc2tileset(SDL_Surface *tiles)
                 tileptr[id].transp[2] = tileptr[id].transp[1];
                 tileptr[id].transp[1] = tileptr[id].transp[3];
             }
+        } else if (cc2tileidmap[n].shape == TILEIMG_CREATURE_8) {
+            SDL_Rect rect;
+            rect.x = cc2tileidmap[n].xtransp * sdlg.wtile;
+            rect.y = cc2tileidmap[n].ytransp * sdlg.htile;
+            rect.w = sdlg.wtile;
+            rect.h = sdlg.htile;
+        	tileptr[id].transpsize = 0;
+        	tileptr[id].celcount = 8;
+        	f = extracttransptileseq(tiles, &rect, 1, tileptr[id].transp, transpclr);
+            if (!f) {
+                return FALSE;
+            }
+            rect.x += sdlg.wtile;
+        	f = extracttransptileseq(tiles, &rect, 7, &tileptr[id].transp[1], transpclr);
+            if (!f) {
+                return FALSE;
+            }
+            // condense the animation down to 4 frames
+        	tileptr[id].celcount = 4;
+            tileptr[id].transp[1] = tileptr[id].transp[2];
+            tileptr[id].transp[2] = tileptr[id].transp[4];
+            tileptr[id].transp[3] = tileptr[id].transp[6];
         } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
