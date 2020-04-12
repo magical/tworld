@@ -53,7 +53,13 @@ enum {
     TILEIMG_CREATURE,		/* one of the creature formats */
     TILEIMG_ANIMATION,		/* twelve transparent images */
     /* CC2 shapes */
-    TILEIMG_FORCEFLOOR      /* two stacked images */
+    TILEIMG_FORCEFLOOR,      /* two stacked images */
+    TILEIMG_CREATURE_2, /* 2 frame creature */
+    TILEIMG_CREATURE_3, /* 3 frame creature */
+    TILEIMG_CREATURE_4, /* 4 frame creature */
+    TILEIMG_CREATURE_5, /* five images of an 8-frame time-symmetric animation */
+    TILEIMG_CREATURE_8, /* 8 frame creature */
+    TILEIMG_CREATURE_EXT /* double-size creature */
 };
 
 /* Structure indicating where to find the various tile images in a
@@ -271,30 +277,30 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Block _WEST,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
     { Block _SOUTH,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
     { Block _EAST,		 8,  1, -1, -1, 0 }, //TILEIMG_IMPLICIT },
-    { Tank _NORTH,		-1, -1,  0,  8, 0 }, //TILEIMG_CREATURE },
-    { Tank _WEST,		-1, -1,  6,  8, 0 }, //TILEIMG_IMPLICIT },
-    { Tank _SOUTH,		-1, -1,  4,  8, 0 }, //TILEIMG_IMPLICIT },
-    { Tank _EAST,		-1, -1,  2,  8, 0 }, //TILEIMG_IMPLICIT },
+    { Tank _NORTH,		-1, -1,  0,  8, TILEIMG_CREATURE_2 },
+    { Tank _WEST,		-1, -1,  6,  8, TILEIMG_CREATURE_2 },
+    { Tank _SOUTH,		-1, -1,  4,  8, TILEIMG_CREATURE_2 },
+    { Tank _EAST,		-1, -1,  2,  8, TILEIMG_CREATURE_2 },
     { Ball _NORTH,		-1, -1, 12, 10, 0 }, //TILEIMG_CREATURE },
     { Ball _WEST,		-1, -1, 12, 10, 0 }, //TILEIMG_IMPLICIT },
     { Ball _SOUTH,		-1, -1, 12, 10, 0 }, //TILEIMG_IMPLICIT },
     { Ball _EAST,		-1, -1, 12, 10, 0 }, //TILEIMG_IMPLICIT },
-    { Glider _NORTH,	    -1, -1,  8,  8, 0 }, //TILEIMG_CREATURE },
-    { Glider _WEST,		    -1, -1, 14,  8, 0 }, //TILEIMG_IMPLICIT },
-    { Glider _SOUTH,		-1, -1, 12,  8, 0 }, //TILEIMG_IMPLICIT },
-    { Glider _EAST,		    -1, -1, 10,  8, 0 }, //TILEIMG_IMPLICIT },
-    { Fireball _NORTH,		-1, -1, 12,  9, 0 }, //TILEIMG_CREATURE },
-    { Fireball _WEST,		-1, -1, 12,  9, 0 }, //TILEIMG_IMPLICIT },
-    { Fireball _SOUTH,		-1, -1, 12,  9, 0 }, //TILEIMG_IMPLICIT },
-    { Fireball _EAST,		-1, -1, 12,  9, 0 }, //TILEIMG_IMPLICIT },
-    { Bug _NORTH,		-1, -1,  0,  7, 0 }, //TILEIMG_CREATURE },
-    { Bug _WEST,		-1, -1, 12,  7, 0 }, //TILEIMG_IMPLICIT },
-    { Bug _SOUTH,		-1, -1,  8,  7, 0 }, //TILEIMG_IMPLICIT },
-    { Bug _EAST,		-1, -1,  4,  7, 0 }, //TILEIMG_IMPLICIT },
-    { Paramecium _NORTH,	-1, -1,  0, 12, 0 }, //TILEIMG_CREATURE },
-    { Paramecium _WEST,		-1, -1,  9, 12, 0 }, //TILEIMG_IMPLICIT },
-    { Paramecium _SOUTH,	-1, -1,  6, 12, 0 }, //TILEIMG_IMPLICIT },
-    { Paramecium _EAST,		-1, -1,  3, 12, 0 }, //TILEIMG_IMPLICIT },
+    { Glider _NORTH,	    -1, -1,  8,  8, TILEIMG_CREATURE_2 },
+    { Glider _WEST,		    -1, -1, 14,  8, TILEIMG_CREATURE_2 },
+    { Glider _SOUTH,		-1, -1, 12,  8, TILEIMG_CREATURE_2 },
+    { Glider _EAST,		    -1, -1, 10,  8, TILEIMG_CREATURE_2 },
+    { Fireball _NORTH,		-1, -1, 12,  9, TILEIMG_CREATURE_4 }, // TODO: reuse fireball images?
+    { Fireball _WEST,		-1, -1, 12,  9, TILEIMG_CREATURE_4 },
+    { Fireball _SOUTH,		-1, -1, 12,  9, TILEIMG_CREATURE_4 },
+    { Fireball _EAST,		-1, -1, 12,  9, TILEIMG_CREATURE_4 },
+    { Bug _NORTH,		-1, -1,  0,  7, TILEIMG_CREATURE_4 },
+    { Bug _WEST,		-1, -1, 12,  7, TILEIMG_CREATURE_4 },
+    { Bug _SOUTH,		-1, -1,  8,  7, TILEIMG_CREATURE_4 },
+    { Bug _EAST,		-1, -1,  4,  7, TILEIMG_CREATURE_4 },
+    { Paramecium _NORTH,	-1, -1,  0, 12, TILEIMG_CREATURE_3 },
+    { Paramecium _WEST,		-1, -1,  9, 12, TILEIMG_CREATURE_3 },
+    { Paramecium _SOUTH,	-1, -1,  6, 12, TILEIMG_CREATURE_3 },
+    { Paramecium _EAST,		-1, -1,  3, 12, TILEIMG_CREATURE_3 },
     { Teeth _NORTH,		-1, -1,  0, 11, 0 }, //TILEIMG_CREATURE },
     { Teeth _WEST,		-1, -1,  6, 11, 0 }, //TILEIMG_IMPLICIT },
     { Teeth _SOUTH,		-1, -1,  0, 11, 0 }, //TILEIMG_IMPLICIT },
@@ -1427,6 +1433,38 @@ static int initcc2tileset(SDL_Surface *tiles)
             if (!f) {
                 return FALSE;
             }
+        } else if (cc2tileidmap[n].shape == TILEIMG_CREATURE_2 || cc2tileidmap[n].shape == TILEIMG_CREATURE_3 || cc2tileidmap[n].shape == TILEIMG_CREATURE_4) {
+            SDL_Rect rect;
+            int shape = cc2tileidmap[n].shape;
+            int count = 4;
+            if (shape == TILEIMG_CREATURE_2) {
+                count = 2;
+            } else if (shape == TILEIMG_CREATURE_3) {
+                count = 3;
+            }
+            rect.x = cc2tileidmap[n].xtransp * sdlg.wtile;
+            rect.y = cc2tileidmap[n].ytransp * sdlg.htile;
+            rect.w = sdlg.wtile;
+            rect.h = sdlg.htile;
+        	tileptr[id].transpsize = 0;
+        	tileptr[id].celcount = 4;
+        	f = extracttransptileseq(tiles, &rect, 1, tileptr[id].transp, transpclr);
+            if (!f) {
+                return FALSE;
+            }
+            rect.x += sdlg.wtile;
+        	f = extracttransptileseq(tiles, &rect, count-1, &tileptr[id].transp[1], transpclr);
+            if (!f) {
+                return FALSE;
+            }
+            if (count == 2) {
+                tileptr[id].transp[2] = tileptr[id].transp[0];
+                tileptr[id].transp[3] = tileptr[id].transp[1];
+            } else if (count == 3) {
+                tileptr[id].transp[3] = tileptr[id].transp[2];
+                tileptr[id].transp[2] = tileptr[id].transp[1];
+                tileptr[id].transp[1] = tileptr[id].transp[3];
+            }
         } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
@@ -1480,6 +1518,10 @@ static int initcc2tileset(SDL_Surface *tiles)
     // TODO: force floors & random force floor
     // force floors use a moving window over two tiles
     // random force floor is 8 frames
+
+    // in atiles.bmp, the *last* creature image is the static one
+    // but the *first* image of an animated tile is the static one
+    // in cc2, the *first* image of a creature is the static one
 
     return TRUE;
 }
