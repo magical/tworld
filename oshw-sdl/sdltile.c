@@ -59,7 +59,10 @@ enum {
     TILEIMG_CREATURE_4, /* 4 frame creature */
     TILEIMG_CREATURE_5, /* five images of an 8-frame time-symmetric animation */
     TILEIMG_CREATURE_8, /* 8 frame creature */
-    TILEIMG_CREATURE_EXT /* double-size creature */
+    TILEIMG_CREATURE_EXT, /* double-size creature */
+    TILEIMG_COMPOUND /* tile is made of two images on top of each other
+        xtransp,ytransp is the coords of the top tile;
+        xopaque,yopaque is the coords of the base tile. */
 };
 
 /* Structure indicating where to find the various tile images in a
@@ -235,7 +238,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { BlueWall_Real,		 0, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { BlueWall_Fake,		 0, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { SwitchWall_Open,		 0,  9, -1, -1, TILEIMG_OPAQUECELS },
-    { SwitchWall_Closed,	 0,  9,  8,  9, 0 }, //TILEIMG_OPAQUECELS },
+    { SwitchWall_Closed,	 0,  9,  8,  9, TILEIMG_COMPOUND },
     { PopupWall,		 8, 10, -1, -1, TILEIMG_SINGLEOPAQUE },
     { CloneMachine,		15,  1, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Door_Red,			 0,  1, -1, -1, TILEIMG_SINGLEOPAQUE },
@@ -244,7 +247,7 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Door_Green,		 3,  1, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Socket,			 4,  2, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exit,			     6,  2, -1, -1, TILEIMG_OPAQUECELS },
-    { ICChip,			 0,  2, 11,  3, 0 }, //TILEIMG_OPAQUECELS },
+    { ICChip,			 0,  2, 11,  3, TILEIMG_COMPOUND }, //TILEIMG_OPAQUECELS },
     { Key_Red,			-1, -1,  4,  1, 0 }, //TILEIMG_TRANSPCELS },
     { Key_Blue,			-1, -1,  5,  1, 0 }, //TILEIMG_TRANSPCELS },
     { Key_Yellow,		-1, -1,  6,  1, 0 }, //TILEIMG_TRANSPCELS },
@@ -257,10 +260,10 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Overlay_Buffer,	 0,  2, -1, -1, 0 }, //TILEIMG_IMPLICIT },
     { Exit_Extra_1,		 7,  2, -1, -1, TILEIMG_SINGLEOPAQUE },
     { Exit_Extra_2,		 8,  2, -1, -1, TILEIMG_SINGLEOPAQUE },
-    { Burned_Chip,		12, 29,  0,  5, 0 }, //TILEIMG_SINGLEOPAQUE },
-    { Bombed_Chip,		 0,  2,  1,  5, 0 }, //TILEIMG_SINGLEOPAQUE },
-    { Exited_Chip,		 9,  2,  0, 23, 0 }, //TILEIMG_SINGLEOPAQUE },
-    { Drowned_Chip,		12, 24,  5,  5, 0 }, //TILEIMG_SINGLEOPAQUE },
+    { Burned_Chip,		12, 29,  0,  5, TILEIMG_COMPOUND },
+    { Bombed_Chip,		 0,  2,  1,  5, TILEIMG_COMPOUND },
+    { Exited_Chip,		 9,  2,  0, 23, TILEIMG_COMPOUND },
+    { Drowned_Chip,		12, 24,  5,  5, TILEIMG_COMPOUND },
     { Swimming_Chip _NORTH, 12, 24,  0, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
     { Swimming_Chip _WEST,	12, 24,  6, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
     { Swimming_Chip _SOUTH,	12, 24,  4, 24, 0 }, //TILEIMG_SINGLEOPAQUE },
@@ -1582,7 +1585,7 @@ static int initcc2tileset(SDL_Surface *tiles)
             if (!f) {
                 return FALSE;
             }
-        } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
+        } else if (cc2tileidmap[n].shape == TILEIMG_COMPOUND) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
                         cc2tileidmap[n].ytransp * sdlg.htile,
