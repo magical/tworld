@@ -48,8 +48,6 @@ AC_ARG_WITH(sdl,
 
 if test -d "oshw-$OSHWDIR" ; then
   echo using $OSHWDIR for OS/hardware layer ...
-  rm -f oshw
-  ln -s oshw-$OSHWDIR oshw
 else
   AC_MSG_ERROR([OS/hardware layer "$OSHWDIR" not available])
 fi
@@ -62,6 +60,8 @@ if test "$OSHWDIR" = "sdl" ; then
   OSHWCFLAGS=$OSHWCFLAGS' $(shell sdl-config --cflags)'
   LOADLIBES=$LOADLIBES' $(shell sdl-config --libs)'
 fi
+
+OSHWDIR=oshw-$OSHWDIR
 
 dnl
 dnl	--with-win32 puts some Windows-specific lines in the Makefile
@@ -80,8 +80,9 @@ dnl
 AC_SUBST(CC)
 AC_SUBST(CFLAGS)
 AC_SUBST(OSHWCFLAGS)
+AC_SUBST(OSHWDIR)
 AC_SUBST(LDFLAGS)
 AC_SUBST(LOADLIBES)
 AC_SUBST(sharedir)
 
-AC_OUTPUT(Makefile oshw/Makefile)
+AC_OUTPUT(Makefile ${OSHWDIR}/Makefile)

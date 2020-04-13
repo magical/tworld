@@ -19,6 +19,7 @@ CC = @CC@
 CFLAGS :=@CFLAGS@ '-DROOTDIR="$(sharedir)"'
 LDFLAGS :=@LDFLAGS@
 LOADLIBES :=@LOADLIBES@
+OSHWDIR := @OSHWDIR@
 
 #
 # End of configure section
@@ -76,8 +77,8 @@ comptime.h:
 # Libraries
 #
 
-liboshw.a: oshw.h defs.h gen.h state.h err.h oshw/*.c oshw/*.h
-	(cd oshw && $(MAKE))
+liboshw.a: oshw.h defs.h gen.h state.h err.h $(OSHWDIR)/*.c $(OSHWDIR)/*.h
+	(cd $(OSHWDIR) && $(MAKE))
 
 #
 # Resources
@@ -110,10 +111,10 @@ all: tworld
 clean:
 	rm -f $(OBJS) tworld comptime.h config.*
 	rm -f tworldres.o tworld.exe
-	(cd oshw && $(MAKE) clean)
+	(cd $(OSHWDIR) && $(MAKE) clean)
 
 spotless:
 	rm -f $(OBJS) tworld comptime.h config.* configure
 	rm -f tworldres.o tworld.exe
-	(cd oshw && $(MAKE) spotless)
+	(cd $(OSHWDIR) && $(MAKE) spotless)
 	rm -f Makefile
