@@ -1643,6 +1643,15 @@ static int initcc2tileset(SDL_Surface *tiles)
     // but the *first* image of an animated tile is the static one
     // in cc2, the *first* image of a creature is the static one
 
+    // when you run into a creature, the creature disappears and
+    // chip is replaced by the first frame of the explosion animation.
+    // when you drown, chip is replaced by the first tile of the water splash.
+    // when blocks or turtles go into the water, the full splash animation plays
+    // and it lasts for ~one move
+
+    // chip's movement speed on force floors
+    // is slightly faster than the force floor animation speed
+
     return TRUE;
 }
 
