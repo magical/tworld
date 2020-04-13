@@ -305,15 +305,15 @@ static tileidinfo const cc2tileidmap[NTILES] = {
     { Teeth _WEST,		-1, -1,  6, 11, TILEIMG_CREATURE_3 },
     { Teeth _SOUTH,		-1, -1,  0, 11, TILEIMG_CREATURE_3 },
     { Teeth _EAST,		-1, -1,  3, 11, TILEIMG_CREATURE_3 },
-    { Blob _NORTH,		-1, -1,  0, 15, 0 }, //TILEIMG_CREATURE },
-    { Blob _WEST,		-1, -1,  0, 15, 0 }, //TILEIMG_IMPLICIT },
-    { Blob _SOUTH,		-1, -1,  0, 15, 0 }, //TILEIMG_IMPLICIT },
-    { Blob _EAST,		-1, -1,  0, 15, 0 }, //TILEIMG_IMPLICIT },
-    { Walker _NORTH,		-1, -1,  0, 13, 0 }, //TILEIMG_CREATURE },
-    { Walker _WEST,		-1, -1,  0, 13, 0 }, //TILEIMG_IMPLICIT },
-    { Walker _SOUTH,		-1, -1,  0, 13, 0 }, //TILEIMG_IMPLICIT },
-    { Walker _EAST,		-1, -1,  0, 13, 0 }, //TILEIMG_IMPLICIT },
-    { Water_Splash,		-1, -1,  5,  5, 0 }, //TILEIMG_ANIMATION },
+    { Blob _NORTH,		-1, -1,  0, 15, TILEIMG_CREATURE_EXT },
+    { Blob _WEST,		-1, -1,  0, 15, -1 }, //TILEIMG_IMPLICIT },
+    { Blob _SOUTH,		-1, -1,  0, 15, -1 }, //TILEIMG_IMPLICIT },
+    { Blob _EAST,		-1, -1,  0, 15, -1 }, //TILEIMG_IMPLICIT },
+    { Walker _NORTH,		-1, -1,  0, 13, TILEIMG_CREATURE_EXT },
+    { Walker _WEST,		-1, -1,  0, 13, -1 }, //TILEIMG_IMPLICIT },
+    { Walker _SOUTH,		-1, -1,  0, 13, -1 }, //TILEIMG_IMPLICIT },
+    { Walker _EAST,		-1, -1,  0, 13, -1 }, //TILEIMG_IMPLICIT },
+    { Water_Splash,		-1, -1,  5,  5, -1 }, //TILEIMG_ANIMATION },
     { Bomb_Explosion,		-1, -1,  2,  5, 0 }, //TILEIMG_ANIMATION },
     { Entity_Explosion,		-1, -1,  0,  5, 0 }, //TILEIMG_ANIMATION }
 };
@@ -602,6 +602,56 @@ static SDL_Surface *extractkeyedtile(SDL_Surface *src,
     SDL_FreeSurface(temp);
     if (!dest)
 	die("%s", SDL_GetError());
+    SDL_SetAlpha(dest, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+    return dest;
+}
+
+/* Create a new surface containing a single tile with transparent
+ * pixels, as indicated by the given color key. If the transpsize
+ * argument is non-zero, the created image will be extended by blank
+ * space in that direction.
+ */
+static SDL_Surface *extractkeyedtileext(SDL_Surface *src,
+				     int ximg, int yimg, int wimg, int himg,
+				     Uint32 transpclr, int transpsize)
+{
+    SDL_Surface	       *dest;
+    SDL_Surface	       *temp;
+    SDL_Rect		rect;
+    SDL_Rect     dstrect;
+    int wdest = wimg;
+    int hdest = himg;
+
+    if ((transpsize & SIZE_EXTLEFT) || (transpsize & SIZE_EXTRIGHT)) {
+        wdest *= 2;
+    }
+    if ((transpsize & SIZE_EXTUP) || (transpsize & SIZE_EXTDOWN)) {
+        hdest *= 2;
+    }
+    dest = newsurface(wdest, hdest, TRUE);
+    SDL_FillRect(dest, NULL, SDL_MapRGBA(dest->format, 0, 0, 0, SDL_ALPHA_TRANSPARENT));
+    SDL_SetColorKey(src, SDL_SRCCOLORKEY, transpclr);
+    rect.x = ximg;
+    rect.y = yimg;
+    rect.w = wimg;
+    rect.h = himg;
+    dstrect.x = 0;
+    dstrect.y = 0;
+    if (transpsize & SIZE_EXTLEFT) {
+        dstrect.x += wimg;
+    }
+    if (transpsize & SIZE_EXTUP) {
+        dstrect.y += himg;
+    }
+
+    SDL_BlitSurface(src, &rect, dest, &dstrect);
+    SDL_SetColorKey(src, 0, 0);
+
+    temp = dest;
+    dest = SDL_DisplayFormatAlpha(temp);
+    SDL_FreeSurface(temp);
+    if (!dest)
+    	die("%s", SDL_GetError());
     SDL_SetAlpha(dest, SDL_SRCALPHA | SDL_RLEACCEL, 0);
     return dest;
 }
@@ -1341,6 +1391,39 @@ static int extractforcefloorseq(SDL_Surface *src,
     return TRUE;
 }
 
+static int extractcreaturedouble(SDL_Surface *src, int ximg, int yimg, int id, Uint32 transpclr)
+{
+    /* TODO: check return values */
+    int x, i;
+    /* tall images */
+    tileptr[id _NORTH].celcount = 4;
+    tileptr[id _NORTH].transpsize = SIZE_EXTDOWN;
+    tileptr[id _NORTH].transp[0] = extractkeyedtileext(src, ximg, yimg, sdlg.wtile, sdlg.htile, transpclr, SIZE_EXTDOWN);
+    tileptr[id _SOUTH].celcount = 4;
+    tileptr[id _SOUTH].transpsize = SIZE_EXTUP;
+    tileptr[id _SOUTH].transp[0] = extractkeyedtileext(src, ximg, yimg, sdlg.wtile, sdlg.htile, transpclr, SIZE_EXTUP);
+    for (i = 1, x = ximg; i < 4; i++) {
+        x += sdlg.wtile*2; // skip odd images
+        tileptr[id _NORTH].transp[i] = extractkeyedtile(src, x, yimg, sdlg.wtile, sdlg.htile*2, transpclr);
+        tileptr[id _SOUTH].transp[4-i] = tileptr[id _NORTH].transp[i];
+    }
+    /* wide images */
+    tileptr[id _WEST].celcount = 4;
+    tileptr[id _WEST].transpsize = SIZE_EXTRIGHT;
+    tileptr[id _WEST].transp[0] = extractkeyedtileext(src, ximg, yimg, sdlg.wtile, sdlg.htile, transpclr, SIZE_EXTRIGHT);
+    tileptr[id _EAST].celcount = 4;
+    tileptr[id _EAST].transpsize = SIZE_EXTLEFT;
+    tileptr[id _EAST].transp[0] = extractkeyedtileext(src, ximg, yimg, sdlg.wtile, sdlg.htile, transpclr, SIZE_EXTLEFT);
+    //
+    tileptr[id _WEST].transp[1] = extractkeyedtile(src, ximg+sdlg.wtile*10, yimg, sdlg.wtile*2, sdlg.htile, transpclr);
+    tileptr[id _WEST].transp[2] = extractkeyedtile(src, ximg+sdlg.wtile*14, yimg, sdlg.wtile*2, sdlg.htile, transpclr);
+    tileptr[id _WEST].transp[3] = extractkeyedtile(src, ximg+sdlg.wtile*10, yimg+sdlg.htile, sdlg.wtile*2, sdlg.htile, transpclr);
+    for (i = 1; i < 4; i++) {
+        tileptr[id _EAST].transp[4-i] = tileptr[id _WEST].transp[i];
+    }
+    return TRUE;
+}
+
 /* Transfer the tiles to the tileptr array, using cc2tileidmap to
  * identify and locate the individual tile images.
  */
@@ -1356,6 +1439,9 @@ static int initcc2tileset(SDL_Surface *tiles)
     	return FALSE;
 
     for (n = 0 ; n < (int)(sizeof cc2tileidmap / sizeof *cc2tileidmap) ; ++n) {
+        if (cc2tileidmap[n].shape == -1) {
+            continue;
+        }
     	id = cc2tileidmap[n].id;
     	tileptr[id].opaque[0] = NULL;
     	tileptr[id].transp[0] = NULL;
@@ -1487,6 +1573,15 @@ static int initcc2tileset(SDL_Surface *tiles)
             tileptr[id].transp[1] = tileptr[id].transp[2];
             tileptr[id].transp[2] = tileptr[id].transp[4];
             tileptr[id].transp[3] = tileptr[id].transp[6];
+        } else if (cc2tileidmap[n].shape == TILEIMG_CREATURE_EXT) {
+            f = extractcreaturedouble(tiles,
+                cc2tileidmap[n].xtransp * sdlg.wtile,
+                cc2tileidmap[n].ytransp * sdlg.htile,
+                id,
+                transpclr);
+            if (!f) {
+                return FALSE;
+            }
         } else if (cc2tileidmap[n].xtransp >= 0 && cc2tileidmap[n].xopaque >= 0) {
     	    s = extractcompoundtile(tiles,
                         cc2tileidmap[n].xtransp * sdlg.wtile,
