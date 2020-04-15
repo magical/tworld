@@ -13,6 +13,11 @@
 #include	"../err.h"
 #include	"../state.h"
 
+/* This is an automatically-generated file, which contains a
+ * representation of the program's icon.
+ */
+#include	"ccicon.c"
+
 /* Space to leave between graphic objects.
  */
 #define	MARGINW		8
@@ -247,6 +252,25 @@ static int layoutscreen(void)
     return TRUE;
 }
 
+/* Set the icon of the program's display window.
+ */
+static void setwindowicon(void)
+{
+    SDL_Surface	       *icon;
+
+    icon = SDL_CreateRGBSurfaceFrom(cciconimage, CXCCICON, CYCCICON,
+				    32, 4 * CXCCICON,
+				    0x0000FF, 0x00FF00, 0xFF0000, 0);
+    if (!icon) {
+	warn("couldn't create icon surface: %s", SDL_GetError());
+    } else {
+	// TODO: use cciconmask
+	SDL_SetWindowIcon(sdlg.window, icon);
+	SDL_FreeSurface(icon);
+    }
+}
+
+
 /* Create or change the program's display surface.
  */
 static int createdisplay(void)
@@ -290,6 +314,9 @@ static int createdisplay(void)
     if (w != screenw || h != screenh)
 	warn("requested a %dx%d display, got %dx%d instead",
 	     screenw, screenh, w, h);
+
+    setwindowicon();
+
     return TRUE;
 }
 

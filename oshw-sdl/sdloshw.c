@@ -15,11 +15,6 @@
  */
 oshwglobals	sdlg;
 
-/* This is an automatically-generated file, which contains a
- * representation of the program's icon.
- */
-#include	"ccicon.c"
-
 /* Dispatch all events sitting in the SDL event queue. 
  */
 static void _eventupdate(int wait)
@@ -117,14 +112,12 @@ static void shutdown(void)
     SDL_Quit();
 }
 
-/* Initialize SDL, create the program's icon, and then initialize
+/* Initialize SDL and then initialize
  * the other modules of the library.
  */
 int oshwinitialize(int silence, int soundbufsize,
 		   int showhistogram, int fullscreen)
 {
-    SDL_Surface	       *icon;
-
     sdlg.eventupdatefunc = _eventupdate;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -134,17 +127,6 @@ int oshwinitialize(int silence, int soundbufsize,
     atexit(shutdown);
 
     setsubtitle(NULL);
-
-    icon = SDL_CreateRGBSurfaceFrom(cciconimage, CXCCICON, CYCCICON,
-				    32, 4 * CXCCICON,
-				    0x0000FF, 0x00FF00, 0xFF0000, 0);
-    if (icon) {
-	// TODO: set icon later, after window is created
-	//SDL_SetWindowIcon(sdlg.window, icon);
-	// TODO: use cciconmask
-	SDL_FreeSurface(icon);
-    } else
-	warn("couldn't create icon surface: %s", SDL_GetError());
 
     return _sdltimerinitialize(showhistogram)
 	&& _sdltextinitialize()
