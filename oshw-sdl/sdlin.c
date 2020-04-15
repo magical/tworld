@@ -359,6 +359,8 @@ int input(int wait)
 
 	cmd1 = cmd = 0;
 	for (kc = keycmds ; kc->scancode ; ++kc) {
+	    if (kc->scancode >= SDL_NUM_SCANCODES)
+		continue;
 	    n = keystates[kc->scancode];
 	    if (!n)
 		continue;
