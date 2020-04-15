@@ -44,7 +44,7 @@ enum { KS_OFF = 0,		/* key is not currently pressed */
 
 /* The complete array of key states.
  */
-static char		keystates[SDLK_LAST];
+static char		keystates[SDL_NUM_SCANCODES];
 
 /* The last mouse action.
  */
@@ -59,15 +59,17 @@ static int		joystickstyle = FALSE;
  * shift, ctl and alt are positive if the key must be down, zero if
  * the key must be up, or negative if it doesn't matter.
  */
+// TODO: these should be scancodes, not keycodes
+// or maybe keycodes, not scancodes
 static keycmdmap const gamekeycmds[] = {        
     { SDLK_UP,                    0,  0,  0,   CmdNorth,              TRUE },
     { SDLK_LEFT,                  0,  0,  0,   CmdWest,               TRUE },
     { SDLK_DOWN,                  0,  0,  0,   CmdSouth,              TRUE },
     { SDLK_RIGHT,                 0,  0,  0,   CmdEast,               TRUE },
-    { SDLK_KP8,                   0,  0,  0,   CmdNorth,              TRUE },
-    { SDLK_KP4,                   0,  0,  0,   CmdWest,               TRUE },
-    { SDLK_KP2,                   0,  0,  0,   CmdSouth,              TRUE },
-    { SDLK_KP6,                   0,  0,  0,   CmdEast,               TRUE },
+    { SDLK_KP_8,                  0,  0,  0,   CmdNorth,              TRUE },
+    { SDLK_KP_4,                  0,  0,  0,   CmdWest,               TRUE },
+    { SDLK_KP_2,                  0,  0,  0,   CmdSouth,              TRUE },
+    { SDLK_KP_6,                  0,  0,  0,   CmdEast,               TRUE },
     { 'q',                        0,  0,  0,   CmdQuitLevel,          FALSE },
     { 'p',                        0, +1,  0,   CmdPrevLevel,          FALSE },
     { 'r',                        0, +1,  0,   CmdSameLevel,          FALSE },
@@ -176,21 +178,21 @@ static int mergeable[CmdKeyMoveLast + 1];
 static void _keyeventcallback(int scancode, int down)
 {
     switch (scancode) {
-      case SDLK_LSHIFT:
-      case SDLK_RSHIFT:
-      case SDLK_LCTRL:
-      case SDLK_RCTRL:
-      case SDLK_LALT:
-      case SDLK_RALT:
-      case SDLK_LMETA:
-      case SDLK_RMETA:
-      case SDLK_NUMLOCK:
-      case SDLK_CAPSLOCK:
-      case SDLK_MODE:
+      case SDL_SCANCODE_LSHIFT:
+      case SDL_SCANCODE_RSHIFT:
+      case SDL_SCANCODE_LCTRL:
+      case SDL_SCANCODE_RCTRL:
+      case SDL_SCANCODE_LALT:
+      case SDL_SCANCODE_RALT:
+      case SDL_SCANCODE_LGUI:
+      case SDL_SCANCODE_RGUI:
+      case SDL_SCANCODE_NUMLOCKCLEAR:
+      case SDL_SCANCODE_CAPSLOCK:
+      case SDL_SCANCODE_MODE:
 	keystates[scancode] = down ? KS_ON : KS_OFF;
 	break;
       default:
-	if (scancode < SDLK_LAST) {
+	if (scancode < SDL_NUM_SCANCODES) {
 	    if (down) {
 		keystates[scancode] = keystates[scancode] == KS_OFF ?
 						KS_PRESSED : KS_REPEATING;
@@ -207,13 +209,13 @@ static void _keyeventcallback(int scancode, int down)
  */
 static void restartkeystates(void)
 {
-    Uint8      *keyboard;
+    const Uint8	*keyboard;
     int		count, n;
 
     memset(keystates, KS_OFF, sizeof keystates);
-    keyboard = SDL_GetKeyState(&count);
-    if (count > SDLK_LAST)
-	count = SDLK_LAST;
+    keyboard = SDL_GetKeyboardState(&count);
+    if (count > SDL_NUM_SCANCODES)
+	count = SDL_NUM_SCANCODES;
     for (n = 0 ; n < count ; ++n)
 	if (keyboard[n])
 	    _keyeventcallback(n, TRUE);
@@ -256,7 +258,7 @@ static void resetkeystates(void)
     int		n;
 
     newstate = joystickstyle ? joystick_trans : keyboard_trans;
-    for (n = 0 ; n < SDLK_LAST ; ++n)
+    for (n = 0 ; n < SDL_NUM_SCANCODES ; ++n)
 	keystates[n] = newstate[(int)keystates[n]];
 }
 
@@ -287,10 +289,11 @@ static int retrievemousecommand(void)
     switch (mouseinfo.state) {
       case KS_PRESSED:
 	mouseinfo.state = KS_OFF;
-	if (mouseinfo.button == SDL_BUTTON_WHEELDOWN)
-	    return CmdNext;
-	if (mouseinfo.button == SDL_BUTTON_WHEELUP)
-	    return CmdPrev;
+	// TODO: wheel support
+	//if (mouseinfo.button == SDL_BUTTON_WHEELDOWN)
+	//    return CmdNext;
+	//if (mouseinfo.button == SDL_BUTTON_WHEELUP)
+	//    return CmdPrev;
 	if (mouseinfo.button == SDL_BUTTON_LEFT) {
 	    n = windowmappos(mouseinfo.x, mouseinfo.y);
 	    if (n >= 0) {
@@ -329,10 +332,10 @@ int anykey(void)
     for (;;) {
 	resetkeystates();
 	eventupdate(TRUE);
-	for (n = 0 ; n < SDLK_LAST ; ++n)
+	for (n = 0 ; n < SDL_NUM_SCANCODES ; ++n)
 	    if (keystates[n] == KS_STRUCK || keystates[n] == KS_PRESSED
 					  || keystates[n] == KS_REPEATING)
-		return n != 'q' && n != SDLK_ESCAPE;
+		return n != 'q' && n != SDL_SCANCODE_ESCAPE;
     }
 }
 
@@ -361,14 +364,14 @@ int input(int wait)
 		continue;
 	    if (kc->shift != -1)
 		if (kc->shift !=
-			(keystates[SDLK_LSHIFT] || keystates[SDLK_RSHIFT]))
+			(keystates[SDL_SCANCODE_LSHIFT] || keystates[SDL_SCANCODE_RSHIFT]))
 		    continue;
 	    if (kc->ctl != -1)
 		if (kc->ctl !=
-			(keystates[SDLK_LCTRL] || keystates[SDLK_RCTRL]))
+			(keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]))
 		    continue;
 	    if (kc->alt != -1)
-		if (kc->alt != (keystates[SDLK_LALT] || keystates[SDLK_RALT]))
+		if (kc->alt != (keystates[SDL_SCANCODE_LALT] || keystates[SDL_SCANCODE_RALT]))
 		    continue;
 
 	    if (n == KS_PRESSED || (kc->hold && n == KS_DOWN)) {
@@ -407,10 +410,13 @@ int input(int wait)
  */
 int setkeyboardrepeat(int enable)
 {
+    /* TODO: FIXME
     if (enable)
 	return SDL_EnableKeyRepeat(500, 75) == 0;
     else
 	return SDL_EnableKeyRepeat(0, 0) == 0;
+    */
+    return -1;
 }
 
 /* Turn joystick behavior mode on or off. In joystick-behavior mode,
@@ -448,7 +454,6 @@ int _sdlinputinitialize(void)
     mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
 
     setkeyboardrepeat(TRUE);
-    SDL_EnableUNICODE(TRUE);
     return TRUE;
 }
 

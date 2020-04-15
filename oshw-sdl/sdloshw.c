@@ -31,7 +31,7 @@ static void _eventupdate(int wait)
     if (wait)
 	SDL_WaitEvent(NULL);
     SDL_PumpEvents();
-    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_ALLEVENTS)) {
+    while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
 	switch (event.type) {
 	  case SDL_KEYDOWN:
 	    if (mousevisible) {
@@ -41,12 +41,14 @@ static void _eventupdate(int wait)
 		    mousevisible = FALSE;
 		}
 	    }
-	    keyeventcallback(event.key.keysym.sym, TRUE);
-	    if (event.key.keysym.unicode
+	    keyeventcallback(event.key.keysym.scancode, TRUE);
+	    // TODO: redo sym support
+	    //keyeventcallback(event.key.keysym.sym, TRUE);
+	    /*if (event.key.keysym.unicode
 			&& event.key.keysym.unicode != event.key.keysym.sym) {
 		keyeventcallback(event.key.keysym.unicode, TRUE);
 		keyeventcallback(event.key.keysym.unicode, FALSE);
-	    }
+	    }*/
 	    break;
 	  case SDL_KEYUP:
 	    if (mousevisible) {
@@ -56,7 +58,8 @@ static void _eventupdate(int wait)
 		    mousevisible = FALSE;
 		}
 	    }
-	    keyeventcallback(event.key.keysym.sym, FALSE);
+	    //keyeventcallback(event.key.keysym.sym, FALSE);
+	    keyeventcallback(event.key.keysym.scancode, FALSE);
 	    break;
 	  case SDL_MOUSEBUTTONDOWN:
 	  case SDL_MOUSEBUTTONUP:
@@ -93,6 +96,7 @@ void setsubtitle(char const *subtitle)
 	*p++ = ' ';
 	*p++ = '-';
 	*p++ = ' ';
+	// TODO: fix buffer overflow
 	for ( ; *subtitle ; ++subtitle) {
 	    if (*subtitle & 0x80) {
 		*p++ = 0xC0 | ((*subtitle >> 6) & 0x03);
@@ -103,7 +107,7 @@ void setsubtitle(char const *subtitle)
 	}
 	*p = '\0';
     }
-    SDL_WM_SetCaption(buf, "Tile World");
+    SDL_SetWindowTitle(sdlg.window, buf);
 }
 
 /* Shut down SDL.
@@ -135,7 +139,9 @@ int oshwinitialize(int silence, int soundbufsize,
 				    32, 4 * CXCCICON,
 				    0x0000FF, 0x00FF00, 0xFF0000, 0);
     if (icon) {
-	SDL_WM_SetIcon(icon, cciconmask);
+	// TODO: set icon later, after window is created
+	//SDL_SetWindowIcon(sdlg.window, icon);
+	// TODO: use cciconmask
 	SDL_FreeSurface(icon);
     } else
 	warn("couldn't create icon surface: %s", SDL_GetError());

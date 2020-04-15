@@ -56,6 +56,9 @@ typedef	struct oshwglobals
     fontcolors		textclr;	/* color triplet for normal text */
     fontcolors		dimtextclr;	/* color triplet for dim text */
     fontcolors		hilightclr;	/* color triplet for bold text */
+    SDL_Window	       *window;         /* the game window */
+    SDL_Renderer       *renderer;       /* the rendering surface */
+    // TODO: delete screen
     SDL_Surface	       *screen;		/* the display */
     fontinfo		font;		/* the font */
 
