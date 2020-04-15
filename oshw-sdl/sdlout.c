@@ -257,10 +257,10 @@ static int createdisplay(void)
     if (sdlg.screen) {
 	SDL_FreeSurface(sdlg.screen);
     }
-    if (sdlg.renderer) {
+    /* if (sdlg.renderer) {
 	SDL_DestroyRenderer(sdlg.renderer);
 	sdlg.renderer = NULL;
-    }
+    }*/
     if (sdlg.window) {
 	SDL_DestroyWindow(sdlg.window);
 	sdlg.window = NULL;
@@ -278,10 +278,10 @@ static int createdisplay(void)
 		     screenw, screenh, SDL_GetError());
 	return FALSE;
     }
-    if (!(sdlg.renderer = SDL_CreateRenderer(sdlg.window, -1, SDL_RENDERER_SOFTWARE))) {
+    /*if (!(sdlg.renderer = SDL_CreateRenderer(sdlg.window, -1, SDL_RENDERER_SOFTWARE))) {
 	errmsg(NULL, "cannot open renderer: %s\n", SDL_GetError());
 	return FALSE;
-    }
+    }*/
     if (!(sdlg.screen = SDL_GetWindowSurface(sdlg.window))) {
 	errmsg(NULL, "cannot get window surface: %s\n", SDL_GetError());
 	return FALSE;
