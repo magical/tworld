@@ -270,7 +270,6 @@ static void setwindowicon(void)
     }
 }
 
-
 /* Create or change the program's display surface.
  */
 static int createdisplay(void)
@@ -280,27 +279,41 @@ static int createdisplay(void)
 
     if (sdlg.screen) {
 	SDL_FreeSurface(sdlg.screen);
+	sdlg.screen = NULL;
     }
     /* if (sdlg.renderer) {
 	SDL_DestroyRenderer(sdlg.renderer);
 	sdlg.renderer = NULL;
     }*/
-    if (sdlg.window) {
-	SDL_DestroyWindow(sdlg.window);
-	sdlg.window = NULL;
-    }
-    flags = 0;
-    if (fullscreen)
-	flags |= SDL_WINDOW_FULLSCREEN;
-    if (!(sdlg.window = SDL_CreateWindow(
-	    "Tile World",
-	    SDL_WINDOWPOS_UNDEFINED,
-	    SDL_WINDOWPOS_UNDEFINED,
-	    screenw, screenh,
-	    flags))) {
-	errmsg(NULL, "cannot open %dx%d display: %s\n",
-		     screenw, screenh, SDL_GetError());
-	return FALSE;
+    /* Create a window if one hasn't already been created.
+     * If a window has already been created, set the size. */
+    if (!sdlg.window) {
+	flags = 0;
+	if (fullscreen)
+	    flags |= SDL_WINDOW_FULLSCREEN;
+	if (!(sdlg.window = SDL_CreateWindow(
+		"Tile World",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		screenw, screenh,
+		flags))) {
+	    errmsg(NULL, "cannot open %dx%d display: %s\n",
+			 screenw, screenh, SDL_GetError());
+	    return FALSE;
+	}
+	SDL_GetWindowSize(sdlg.window, &w, &h);
+	if (w != screenw || h != screenh)
+	    warn("requested a %dx%d display, got %dx%d instead",
+		 screenw, screenh, w, h);
+    } else {
+	if (fullscreen) {
+	    SDL_SetWindowFullscreen(sdlg.window, SDL_WINDOW_FULLSCREEN);
+	    // TODO: SDL_SetWindowDisplayMode?
+	    // or SDL_RenderSetLogicalSize
+	} else {
+	    SDL_SetWindowFullscreen(sdlg.window, 0);
+	    SDL_SetWindowSize(sdlg.window, screenw, screenh);
+	}
     }
     /*if (!(sdlg.renderer = SDL_CreateRenderer(sdlg.window, -1, SDL_RENDERER_SOFTWARE))) {
 	errmsg(NULL, "cannot open renderer: %s\n", SDL_GetError());
@@ -310,10 +323,6 @@ static int createdisplay(void)
 	errmsg(NULL, "cannot get window surface: %s\n", SDL_GetError());
 	return FALSE;
     }
-    SDL_GetWindowSize(sdlg.window, &w, &h);
-    if (w != screenw || h != screenh)
-	warn("requested a %dx%d display, got %dx%d instead",
-	     screenw, screenh, w, h);
 
     setwindowicon();
 
