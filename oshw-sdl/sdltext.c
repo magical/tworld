@@ -238,8 +238,8 @@ static void *drawtextscanline32(Uint32 *scanline, int w, int y, Uint32 *clr,
  * rect. The bitflags in the final argument control the placement of
  * text within rect and what colors to use.
  */
-static void drawtext(SDL_Rect *rect, unsigned char const *text,
-		     int len, int flags)
+static void drawtext(SDL_Surface *surface, SDL_Rect *rect,
+		     unsigned char const *text, int len, int flags)
 {
     Uint32     *clr;
     void       *p;
@@ -286,9 +286,9 @@ static void drawtext(SDL_Rect *rect, unsigned char const *text,
     else
 	clr = sdlg.textclr.c;
 
-    pitch = sdlg.screen->pitch;
-    bpp = sdlg.screen->format->BytesPerPixel;
-    p = (unsigned char*)sdlg.screen->pixels + rect->y * pitch + rect->x * bpp;
+    pitch = surface->pitch;
+    bpp = surface->format->BytesPerPixel;
+    p = (unsigned char*)surface->pixels + rect->y * pitch + rect->x * bpp;
     for (y = 0 ; y < sdlg.font.h && y < rect->h ; ++y) {
 	switch (bpp) {
 	  case 1:
@@ -324,8 +324,8 @@ static void drawtext(SDL_Rect *rect, unsigned char const *text,
 /* Draw one or more lines of text to the screen at the position given by
  * rect. The text is broken up on whitespace whenever possible.
  */
-static void drawmultilinetext(SDL_Rect *rect, unsigned char const *text,
-			      int len, int flags)
+static void drawmultilinetext(SDL_Surface *surface, SDL_Rect *rect,
+			      unsigned char const *text, int len, int flags)
 {
     SDL_Rect	area;
     int		skip;
@@ -367,7 +367,7 @@ static void drawmultilinetext(SDL_Rect *rect, unsigned char const *text,
 	    if (skip)
 		--skip;
 	    else
-		drawtext(&area, text + index, brkn - index,
+		drawtext(surface, &area, text + index, brkn - index,
 			 flags | PT_UPDATERECT);
 	    index = newindex;
 	    newindex = 0;
@@ -375,12 +375,13 @@ static void drawmultilinetext(SDL_Rect *rect, unsigned char const *text,
 	}
     }
     if (w)
-	drawtext(&area, text + index, len - index, flags | PT_UPDATERECT);
+	drawtext(surface, &area, text + index, len - index,
+		 flags | PT_UPDATERECT);
     if (flags & PT_UPDATERECT) {
 	*rect = area;
     } else {
 	while (area.h)
-	    drawtext(&area, NULL, 0, PT_UPDATERECT);
+	    drawtext(surface, &area, NULL, 0, PT_UPDATERECT);
     }
 }
 
@@ -402,9 +403,9 @@ static void _puttext(SDL_Rect *rect, char const *text, int len, int flags)
 	SDL_LockSurface(sdlg.screen);
 
     if (flags & PT_MULTILINE)
-	drawmultilinetext(rect, (unsigned char const*)text, len, flags);
+	drawmultilinetext(sdlg.screen, rect, (unsigned char const*)text, len, flags);
     else
-	drawtext(rect, (unsigned char const*)text, len, flags);
+	drawtext(sdlg.screen, rect, (unsigned char const*)text, len, flags);
 
     if (SDL_MUSTLOCK(sdlg.screen))
 	SDL_UnlockSurface(sdlg.screen);
@@ -555,9 +556,9 @@ static int _drawtablerow(tablespec const *table, SDL_Rect *cols,
 	else if (p[1] == '.')
 	    f |= PT_CENTER;
 	if (p[1] == '!')
-	    drawmultilinetext(&rect, p + 2, -1, f);
+	    drawmultilinetext(sdlg.screen, &rect, p + 2, -1, f);
 	else
-	    drawtext(&rect, p + 2, -1, f);
+	    drawtext(sdlg.screen, &rect, p + 2, -1, f);
 	if (rect.y > y)
 	    y = rect.y;
     }
