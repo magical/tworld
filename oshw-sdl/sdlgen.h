@@ -84,6 +84,12 @@ typedef	struct oshwglobals
      */
     void (*mouseeventcallbackfunc)(int xpos, int ypos, int button, int down);
 
+    /* A callback function, to be called when the mouse wheel
+     * is scrolled. x and y give the amount of scroll in the
+     * horizontal and vertial directions.
+     */
+    void (*mousewheeleventcallbackfunc)(int x, int y);
+
     /* Given a pixel's coordinates, return an integer identifying the
      * tile on the map view display under that pixel, or -1 if the
      * pixel is not within the map view.
@@ -157,6 +163,7 @@ extern oshwglobals sdlg;
 #define eventupdate		(*sdlg.eventupdatefunc)
 #define	keyeventcallback	(*sdlg.keyeventcallbackfunc)
 #define	mouseeventcallback	(*sdlg.mouseeventcallbackfunc)
+#define	mousewheeleventcallback	(*sdlg.mousewheeleventcallbackfunc)
 #define	windowmappos		(*sdlg.windowmapposfunc)
 #define	puttext			(*sdlg.puttextfunc)
 #define	measuretable		(*sdlg.measuretablefunc)

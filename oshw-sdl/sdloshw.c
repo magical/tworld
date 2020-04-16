@@ -56,6 +56,13 @@ static void _eventupdate(int wait)
 	    //keyeventcallback(event.key.keysym.sym, FALSE);
 	    keyeventcallback(event.key.keysym.scancode, FALSE);
 	    break;
+	  case SDL_MOUSEWHEEL:
+	    if (!mousevisible) {
+		SDL_ShowCursor(SDL_ENABLE);
+		mousevisible = TRUE;
+	    }
+	    mousewheeleventcallback(event.wheel.x, event.wheel.y);
+	    break;
 	  case SDL_MOUSEBUTTONDOWN:
 	  case SDL_MOUSEBUTTONUP:
 	    if (!mousevisible) {

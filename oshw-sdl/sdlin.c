@@ -26,6 +26,7 @@ typedef struct mouseaction {
     int		state;		/* state of mouse action (KS_*) */
     int		x, y;		/* position of the mouse */
     int		button;		/* which button generated the event */
+    int		xwheel, ywheel;	/* direction of mouse wheel scrolling */
 } mouseaction;
 
 /* The possible states of keys.
@@ -267,6 +268,12 @@ static void resetkeystates(void)
  * Mouse event functions.
  */
 
+static void _mousewheeleventcallback(int x, int y)
+{
+    mouseinfo.xwheel = x;
+    mouseinfo.ywheel = y;
+}
+
 /* This callback is called whenever there is a state change in the
  * mouse buttons. Up events are ignored. Down events are stored to
  * be examined later.
@@ -290,11 +297,6 @@ static int retrievemousecommand(void)
     switch (mouseinfo.state) {
       case KS_PRESSED:
 	mouseinfo.state = KS_OFF;
-	// TODO: wheel support
-	//if (mouseinfo.button == SDL_BUTTON_WHEELDOWN)
-	//    return CmdNext;
-	//if (mouseinfo.button == SDL_BUTTON_WHEELUP)
-	//    return CmdPrev;
 	if (mouseinfo.button == SDL_BUTTON_LEFT) {
 	    n = windowmappos(mouseinfo.x, mouseinfo.y);
 	    if (n >= 0) {
@@ -312,6 +314,13 @@ static int retrievemousecommand(void)
       case KS_DOWNBUTOFF3:
 	mouseinfo.state = KS_OFF;
 	return CmdPreserve;
+    }
+    if (mouseinfo.ywheel < 0) {
+	mouseinfo.ywheel = 0;
+	return CmdNext;
+    } else if (mouseinfo.ywheel > 0) {
+	mouseinfo.ywheel = 0;
+	return CmdPrev;
     }
     return 0;
 }
@@ -452,6 +461,7 @@ int _sdlinputinitialize(void)
 {
     sdlg.keyeventcallbackfunc = _keyeventcallback;
     sdlg.mouseeventcallbackfunc = _mouseeventcallback;
+    sdlg.mousewheeleventcallbackfunc = _mousewheeleventcallback;
 
     mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
     mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
