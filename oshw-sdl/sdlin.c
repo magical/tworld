@@ -55,6 +55,10 @@ static mouseaction	mouseinfo;
  */
 static int		joystickstyle = FALSE;
 
+/* TRUE if keydown events from keyboard repeat should be ignored.
+ */
+static int		ignorerepeatedkeys = FALSE;
+
 /* The complete list of key commands recognized by the game while
  * playing. hold is TRUE for keys that are to be forced to repeat.
  * shift, ctl and alt are positive if the key must be down, zero if
@@ -177,8 +181,11 @@ static int mergeable[CmdKeyMoveLast + 1];
  * current behavior settings. Shift-type keys are always either on or
  * off.
  */
-static void _keyeventcallback(int scancode, int down)
+static void _keyeventcallback(int scancode, int down, int repeat)
 {
+    if (down && repeat && ignorerepeatedkeys) {
+	return;
+    }
     switch (scancode) {
       case SDL_SCANCODE_LSHIFT:
       case SDL_SCANCODE_RSHIFT:
@@ -220,7 +227,7 @@ static void restartkeystates(void)
 	count = SDL_NUM_SCANCODES;
     for (n = 0 ; n < count ; ++n)
 	if (keyboard[n])
-	    _keyeventcallback(n, TRUE);
+	    _keyeventcallback(n, TRUE, FALSE);
 }
 
 /* Update the key states. This is done at the start of each polling
@@ -422,13 +429,8 @@ int input(int wait)
  */
 int setkeyboardrepeat(int enable)
 {
-    /* TODO: FIXME
-    if (enable)
-	return SDL_EnableKeyRepeat(500, 75) == 0;
-    else
-	return SDL_EnableKeyRepeat(0, 0) == 0;
-    */
-    return -1;
+    ignorerepeatedkeys = !enable;
+    return 0;
 }
 
 /* Turn joystick behavior mode on or off. In joystick-behavior mode,

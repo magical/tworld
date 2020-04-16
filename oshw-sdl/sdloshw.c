@@ -36,7 +36,7 @@ static void _eventupdate(int wait)
 		    mousevisible = FALSE;
 		}
 	    }
-	    keyeventcallback(event.key.keysym.scancode, TRUE);
+	    keyeventcallback(event.key.keysym.scancode, TRUE, event.key.repeat);
 	    // TODO: redo sym support
 	    //keyeventcallback(event.key.keysym.sym, TRUE);
 	    /*if (event.key.keysym.unicode
@@ -54,7 +54,7 @@ static void _eventupdate(int wait)
 		}
 	    }
 	    //keyeventcallback(event.key.keysym.sym, FALSE);
-	    keyeventcallback(event.key.keysym.scancode, FALSE);
+	    keyeventcallback(event.key.keysym.scancode, FALSE, event.key.repeat);
 	    break;
 	  case SDL_MOUSEWHEEL:
 	    if (!mousevisible) {

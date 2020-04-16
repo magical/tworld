@@ -75,7 +75,7 @@ typedef	struct oshwglobals
      * pressed or released. scancode is an SDL key symbol. down is
      * TRUE if the key was pressed or FALSE if it was released.
      */
-    void (*keyeventcallbackfunc)(int scancode, int down);
+    void (*keyeventcallbackfunc)(int scancode, int down, int repeat);
 
     /* A callback function, to be called when a mouse button is
      * pressed or released. xpos and ypos give the mouse's location.
