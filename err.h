@@ -14,15 +14,15 @@
 
 /* Log an error message and continue.
  */
-extern void _warn(char const *fmt, ...);
+extern void _warn(char const *fmt, ...) __attribute__((format (printf, 1, 2)));
 
 /* Display an error message.
  */
-extern void _errmsg(char const *prefix, char const *fmt, ...);
+extern void _errmsg(char const *prefix, char const *fmt, ...) __attribute__((format (printf, 2, 3)));
 
 /* Display an error message and abort.
  */
-extern void _die(char const *fmt, ...);
+extern void _die(char const *fmt, ...) __attribute__((format (printf, 1, 2)));
 
 /* A really ugly hack used to smuggle extra arguments into variadic
  * functions.
