@@ -73,7 +73,7 @@ int setkeyboardinputmode(int enable)
 int input(int wait)
 {
 	(void)wait;
-	return CmdQuit;
+	return CmdQuitLevel;
 }
 
 int anykey(void)
@@ -157,10 +157,12 @@ int setdisplaymsg(char const *msg, int msecs, int bold)
 
 int displaylist(char const *title, tablespec const *table, int *index, int (*inputcallback)(int*))
 {
+	int n = SCROLL_NOP;
 	(void)title;
 	(void)table;
-	(void)inputcallback;
-	return *index;
+	(void)index;
+	inputcallback(&n);
+	return n;
 }
 
 int displayinputprompt(char const *prompt, char *input, int maxlen, int (*inputcallback)(void))
