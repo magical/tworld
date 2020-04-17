@@ -1,0 +1,37 @@
+
+CC = @CC@
+CFLAGS :=@OSHWCFLAGS@
+
+#
+# End of configure section
+#
+
+OBJS = dummyoshw.o dummyerr.o
+
+#
+# The main target
+#
+
+liboshw.a: $(OBJS)
+	ar crs $@ $^
+	cp liboshw.a ..
+
+#
+# Object files
+#
+
+dummyoshw.o : dummyoshw.c ../gen.h ../oshw.h
+dummyerr.o : dummyerr.c ../gen.h ../oshw.h
+
+#
+# Other
+#
+
+all: liboshw.a
+
+clean:
+	rm -f $(OBJS) liboshw.a
+
+spotless:
+	rm -f $(OBJS) liboshw.a
+	rm -f Makefile
