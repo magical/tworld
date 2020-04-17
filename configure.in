@@ -14,7 +14,7 @@ dnl
 
 AC_ARG_WITH(debug,
 	    [  --with-debug            Build with debugging info],
-	    [if test $withval = yes ; then
+	    [if test "$withval" = yes ; then
 	       CFLAGS=" -Wall -Wextra -ggdb"
 	       LDFLAGS=" -Wall -Wextra -ggdb"
 	     fi])
@@ -42,7 +42,7 @@ OSHWDIR="sdl"
 
 AC_ARG_WITH(sdl,
 	    [  --with-sdl              Build SDL version (default)],
-	    [if test $withval = yes ; then
+	    [if test "$withval" = yes ; then
 	       OSHWDIR="sdl"
 	     else
 	       OSHWDIR="dummy"
@@ -71,7 +71,7 @@ dnl
 
 AC_ARG_WITH(win32,
 	    [  --with-win32            Set defaults for a windows build],
-	    [if test $withval = yes ; then
+	    [if test "$withval" = yes ; then
 	       sharedir="."
 	     fi])
 
