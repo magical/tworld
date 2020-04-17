@@ -44,6 +44,8 @@ AC_ARG_WITH(sdl,
 	    [  --with-sdl              Build SDL version (default)],
 	    [if test $withval = yes ; then
 	       OSHWDIR="sdl"
+	     else
+	       OSHWDIR="dummy"
 	     fi])
 
 if test -d "oshw-$OSHWDIR" ; then
