@@ -1490,6 +1490,7 @@ static void initdirs(char const *series, char const *seriesdat,
 		warn("Value of environment variable TWORLDDIR is too long");
 	}
 	if (!root) {
+#undef ROOTDIR
 #ifdef ROOTDIR
 	    root = ROOTDIR;
 #else
@@ -1501,6 +1502,8 @@ static void initdirs(char const *series, char const *seriesdat,
     setresdir(choosepath(root, "res", res));
     setseriesdir(choosepath(root, "sets", series));
     setseriesdatdir(choosepath(root, "data", seriesdat));
+    setsavedir(choosepath(root, "save", save));
+#if 0
 #ifdef SAVEDIR
     setsavedir(choosepath(SAVEDIR, ".", save));
 #else
@@ -1508,6 +1511,7 @@ static void initdirs(char const *series, char const *seriesdat,
 	setsavedir(choosepath(dir, ".tworld", save));
     else
 	setsavedir(choosepath(root, "save", save));
+#endif
 #endif
 }
 
