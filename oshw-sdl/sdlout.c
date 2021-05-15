@@ -338,22 +338,22 @@ static void drawfulltile(int xpos, int ypos, SDL_Surface *src)
 /* Copy a tile to the position (xpos, ypos) but clipped to the
  * displayloc rectangle.
  */
-static void drawclippedtile(SDL_Rect const *rect, SDL_Surface *src)
+static void drawclippedtile(SDL_Rect const *rect, SDL_Surface *src, SDL_Rect const *clip)
 {
     int	xoff, yoff, w, h;
 
     xoff = 0;
-    if (rect->x < displayloc.x)
-	xoff = displayloc.x - rect->x;
+    if (rect->x < clip->x)
+	xoff = clip->x - rect->x;
     yoff = 0;
-    if (rect->y < displayloc.y)
-	yoff = displayloc.y - rect->y;
+    if (rect->y < clip->y)
+	yoff = clip->y - rect->y;
     w = rect->w - xoff;
-    if (rect->x + rect->w > displayloc.x + displayloc.w)
-	w -= (rect->x + rect->w) - (displayloc.x + displayloc.w);
+    if (rect->x + rect->w > clip->x + clip->w)
+	w -= (rect->x + rect->w) - (clip->x + clip->w);
     h = rect->h - yoff;
-    if (rect->y + rect->h > displayloc.y + displayloc.h)
-	h -= (rect->y + rect->h) - (displayloc.y + displayloc.h);
+    if (rect->y + rect->h > clip->y + clip->h)
+	h -= (rect->y + rect->h) - (clip->y + clip->h);
     if (w <= 0 || h <= 0)
 	return;
 
@@ -472,7 +472,7 @@ static void displayshutter(void)
  * gamestate's map and the list of creatures are consulted to
  * determine what to render.
  */
-static void displaymapview(gamestate const *state)
+static void displaymapview(gamestate const *state, int side)
 {
     SDL_Rect		rect;
     SDL_Surface	       *s;
@@ -487,6 +487,8 @@ static void displaymapview(gamestate const *state)
 	return;
     }
 
+    SDL_Rect *disp = (side==0)?&displayloc:&displayloc2;
+
     xdisppos = state->xviewpos / 2 - (NXTILES / 2) * 4;
     ydisppos = state->yviewpos / 2 - (NYTILES / 2) * 4;
     if (xdisppos < 0)
@@ -497,8 +499,8 @@ static void displaymapview(gamestate const *state)
 	xdisppos = (CXGRID - NXTILES) * 4;
     if (ydisppos > (CYGRID - NYTILES) * 4)
 	ydisppos = (CYGRID - NYTILES) * 4;
-    xorigin = displayloc.x - (xdisppos * sdlg.wtile / 4);
-    yorigin = displayloc.y - (ydisppos * sdlg.htile / 4);
+    xorigin = disp->x - (xdisppos * sdlg.wtile / 4);
+    yorigin = disp->y - (ydisppos * sdlg.htile / 4);
 
     mapvieworigin = ydisppos * CXGRID * 4 + xdisppos;
 
@@ -520,7 +522,7 @@ static void displaymapview(gamestate const *state)
 			     state->map[pos].bot.id,
 			     (state->statusflags & SF_NOANIMATION) ?
 						-1 : state->currenttime);
-	    drawclippedtile(&rect, s);
+	    drawclippedtile(&rect, s, disp);
 	}
     }
 
@@ -538,7 +540,7 @@ static void displaymapview(gamestate const *state)
 	rect.x = xorigin + x * sdlg.wtile;
 	rect.y = yorigin + y * sdlg.htile;
 	s = getcreatureimage(&rect, cr->id, cr->dir, cr->moving, cr->frame);
-	drawclippedtile(&rect, s);
+	drawclippedtile(&rect, s, disp);
     }
 }
 
@@ -741,9 +743,10 @@ void setcolors(long bkgnd, long text, long bold, long dim)
  */
 int displaygame(void const *state, int timeleft, int besttime)
 {
-    displaymapview(state);
+    //displaymapview(state, 0);
+    displaymapview(state, 1);
+    //displayinfo(state, timeleft, besttime, 0);
     displayinfo(state, timeleft, besttime, 1);
-    //displayinfo(state, timeleft, besttime);
     displaymsg(FALSE);
     if (fullredraw) {
 	SDL_UpdateRect(sdlg.screen, 0, 0, 0, 0);
