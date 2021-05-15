@@ -320,10 +320,7 @@ int doturnstate(struct gamestate *state, int cmd, int side) {
 	state->lastmove = NIL;
     }
 
-    if (n)
-	return n;
-
-    return 0;
+    return n;
 }
 
 /* Advance the game one tick and update the game state. cmd is the
