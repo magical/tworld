@@ -1221,8 +1221,12 @@ static int runcurrentlevel(gamespec *gs)
 	return finalinput(gs);
     }
 
+    int nextlevel = gs->currentgame + 1;
+    if (gs->series.count <= nextlevel) {
+	nextlevel = gs->series.count - 1;
+    }
     valid = initgamestate(gs->series.games + gs->currentgame, gs->series.ruleset, TRUE, 0)
-	 && initgamestate(gs->series.games + gs->currentgame+1, gs->series.ruleset, TRUE, 1);
+	 && initgamestate(gs->series.games + nextlevel, gs->series.ruleset, TRUE, 1);
     changesubtitle(gs->series.games[gs->currentgame].name);
     passwordseen(gs, gs->currentgame);
     if (!islastinseries(gs, gs->currentgame))
