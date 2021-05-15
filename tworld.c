@@ -1221,8 +1221,8 @@ static int runcurrentlevel(gamespec *gs)
 	return finalinput(gs);
     }
 
-    valid = initgamestate(gs->series.games + gs->currentgame,
-			  gs->series.ruleset, TRUE);
+    valid = initgamestate(gs->series.games + gs->currentgame, gs->series.ruleset, TRUE, 0)
+	 && initgamestate(gs->series.games + gs->currentgame+1, gs->series.ruleset, TRUE, 1);
     changesubtitle(gs->series.games[gs->currentgame].name);
     passwordseen(gs, gs->currentgame);
     if (!islastinseries(gs, gs->currentgame))
@@ -1266,7 +1266,7 @@ static int batchverify(gameseries *series, int display)
     for (i = 0, game = series->games ; i < series->count ; ++i, ++game) {
 	if (!hassolution(game))
 	    continue;
-	if (initgamestate(game, series->ruleset, FALSE) && prepareplayback()) {
+	if (initgamestate(game, series->ruleset, FALSE, 0) && prepareplayback()) {
 	    setgameplaymode(BeginVerify);
 	    while (!(f = doturn(CmdNone)))
 		advancetick();

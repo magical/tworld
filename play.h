@@ -25,7 +25,7 @@ extern void setgameplaymode(int mode);
 /* Initialize the current state to the starting position of the given
  * level. If withgui is FALSE, the user interface is not created.
  */
-extern int initgamestate(gamesetup *game, int ruleset, int withgui);
+extern int initgamestate(gamesetup *game, int ruleset, int withgui, int side);
 
 /* Set up the current state to play from its prerecorded solution.
  * FALSE is returned if no solution is available for playback.

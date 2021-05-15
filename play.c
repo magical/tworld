@@ -99,38 +99,37 @@ static int setrulesetbehavior(int ruleset, int withgui)
 /* Initialize the current state to the starting position of the
  * given level.
  */
-int initgamestate(gamesetup *game, int ruleset, int withgui)
+int initgamestate(gamesetup *game, int ruleset, int withgui, int side)
 {
-    int i;
+    int i = side;;
+
     if (!setrulesetbehavior(ruleset, withgui))
 	die("unable to initialize the system for the requested ruleset");
 
-    for (i = 0; i < 2; i++) {
-	memset(state[i].map, 0, sizeof state[i].map);
-	state[i].game = game;
-	state[i].ruleset = ruleset;
-	state[i].replay = -1;
-	state[i].currenttime = -1;
-	state[i].timeoffset = 0;
-	state[i].currentinput = NIL;
-	state[i].lastmove = NIL;
-	state[i].initrndslidedir = NIL;
-	state[i].stepping = -1;
-	state[i].soundeffects = 0;
-	state[i].timelimit = game->time * TICKS_PER_SECOND;
-	state[i].statusflags = 0;
-	if (pedanticmode)
-	    state[i].statusflags |= SF_PEDANTIC;
-	initmovelist(&state[i].moves);
-	resetprng(&state[i].mainprng);
+    memset(state[i].map, 0, sizeof state[i].map);
+    state[i].game = game;
+    state[i].ruleset = ruleset;
+    state[i].replay = -1;
+    state[i].currenttime = -1;
+    state[i].timeoffset = 0;
+    state[i].currentinput = NIL;
+    state[i].lastmove = NIL;
+    state[i].initrndslidedir = NIL;
+    state[i].stepping = -1;
+    state[i].soundeffects = 0;
+    state[i].timelimit = game->time * TICKS_PER_SECOND;
+    state[i].statusflags = 0;
+    if (pedanticmode)
+	state[i].statusflags |= SF_PEDANTIC;
+    initmovelist(&state[i].moves);
+    resetprng(&state[i].mainprng);
 
-	// TODO: different level
-	if (!expandleveldata(&state[i]))
-	    return FALSE;
+    if (!expandleveldata(&state[i]))
+	return FALSE;
 
-	if (! (*logic->initgame)(logic, &state[i]))
-	    return FALSE;
-    }
+    if (! (*logic->initgame)(logic, &state[i]))
+	return FALSE;
+
     return TRUE;
 }
 
@@ -305,10 +304,6 @@ int doturnstate(struct gamestate *state, int cmd, int side) {
 	    if (n > state->game->besttime)
 		return -1;
 	}
-    }
-
-    if (side == 1 && state->currenttime < 20) {
-	state->currentinput = CmdNone;
     }
 
     n = (*logic->advancegame)(logic, state);
