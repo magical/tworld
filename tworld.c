@@ -81,7 +81,7 @@ static int		silence = FALSE;
 
 /* FALSE suppresses all password checking.
  */
-static int		usepasswds = TRUE;
+static int		usepasswds = FALSE;
 
 /* The top of the stack of subtitles.
  */
