@@ -174,6 +174,7 @@ static int createprompticons(void)
  */
 static int layoutscreen(void)
 {
+    SDL_Rect temp;
     static char const  *scoretext = "888  DRAWN AND QUARTERED"
 				    "   88,888  8,888,888  8,888,888";
     static char const  *hinttext = "Total Score  ";
@@ -186,13 +187,13 @@ static int layoutscreen(void)
     if (sdlg.wtile <= 0 || sdlg.htile <= 0)
 	return FALSE;
 
-    puttext(&displayloc, scoretext, -1, PT_CALCSIZE);
-    fullw = displayloc.w;
-    texth = displayloc.h;
-    puttext(&displayloc, hinttext, -1, PT_CALCSIZE);
-    infow = displayloc.w;
-    puttext(&displayloc, rscoretext, -1, PT_CALCSIZE);
-    rscorew = displayloc.w;
+    puttext(&temp, scoretext, -1, PT_CALCSIZE);
+    fullw = temp.w;
+    texth = temp.h;
+    puttext(&temp, hinttext, -1, PT_CALCSIZE);
+    infow = temp.w;
+    //puttext(&temp, rscoretext, -1, PT_CALCSIZE);
+    //rscorew = temp.w;
     //infow += rscorew;
 
     displayloc.x = MARGINW;
@@ -205,25 +206,15 @@ static int layoutscreen(void)
     displayloc2.w = NXTILES * sdlg.wtile;
     displayloc2.h = NYTILES * sdlg.htile;
 
-    titleloc.x = displayloc.x;
-    titleloc.y = displayloc.y + displayloc.h + MARGINH;
-    titleloc.w = displayloc.w;
-    titleloc.h = texth;
-
-    titleloc2.x = displayloc2.x;
-    titleloc2.y = displayloc2.y + displayloc2.h + MARGINH;
-    titleloc2.w = displayloc2.w;
-    titleloc2.h = texth;
-
     infoloc.x = displayloc.x;
-    infoloc.y = titleloc.y + titleloc.h + MARGINH;
+    infoloc.y = displayloc.y + displayloc.h + MARGINH;
     infoloc.w = 4 * sdlg.wtile;
     if (infoloc.w < infow)
 	infoloc.w = infow;
     infoloc.h = 6 * texth;
 
     infoloc2.x = displayloc2.x;
-    infoloc2.y = titleloc.y + titleloc.h + MARGINH;
+    infoloc2.y = displayloc2.y + displayloc2.h + MARGINH;
     infoloc2.w = infoloc.w;
     infoloc2.h = infoloc.h;
 
@@ -239,18 +230,47 @@ static int layoutscreen(void)
     puttext(&rinfoloc2, timertext, -1, PT_CALCSIZE);
     rinfoloc2.h = 2 * texth;
 
-    invloc.x = infoloc.x;
-    invloc.y = infoloc.y + infoloc.h + MARGINH;
+    invloc.x = displayloc.x + displayloc.w - 4 * sdlg.wtile;
+    invloc.y = displayloc.y + displayloc.h + MARGINH;
     invloc.w = 4 * sdlg.wtile;
     invloc.h = 2 * sdlg.htile;
 
-    invloc2.x = infoloc2.x;
-    invloc2.y = infoloc2.y + infoloc2.h + MARGINH;
+    if (invloc.x < infoloc.x+infoloc.w) {
+	invloc.y += infoloc.h;
+    }
+
+    invloc2.x = displayloc2.x + displayloc2.w - 4 * sdlg.wtile;
+    invloc2.y = displayloc2.y + displayloc2.h + MARGINH;
     invloc2.w = 4 * sdlg.wtile;
     invloc2.h = 2 * sdlg.htile;
 
+    if (invloc2.x < infoloc2.x+infoloc2.w) {
+	invloc2.y += infoloc2.h;
+    }
+
+    int bottom = invloc.y + invloc.h;
+    if (bottom < invloc2.y + invloc2.h) {
+	bottom = invloc2.y + invloc2.h;
+    }
+    if (bottom < infoloc.y + infoloc.h) {
+	bottom = infoloc.y + infoloc.h;
+    }
+    if (bottom < infoloc2.y + infoloc2.h) {
+	bottom = infoloc2.y + infoloc2.h;
+    }
+
+    titleloc.x = displayloc.x;
+    titleloc.y = bottom + MARGINH;
+    titleloc.w = displayloc.w;
+    titleloc.h = texth;
+
+    titleloc2.x = displayloc2.x;
+    titleloc2.y = bottom + MARGINH;
+    titleloc2.w = displayloc2.w;
+    titleloc2.h = texth;
+
     messageloc.x = displayloc.x;
-    messageloc.y = invloc.y + invloc.h + MARGINH;
+    messageloc.y = titleloc2.y + titleloc2.h + MARGINH;
     messageloc.w = displayloc.w;
     messageloc.h = titleloc.h;
 
@@ -1170,8 +1190,8 @@ int _sdloutputinitialize(int _fullscreen)
     sdlg.windowmapposfunc = _windowmappos;
     fullscreen = _fullscreen;
 
-    screenw = 880;
-    screenh = 640;
+    screenw = 888;
+    screenh = 600;
     promptloc.x = screenw - MARGINW - PROMPTICONW;
     promptloc.y = screenh - MARGINH - PROMPTICONH;
     promptloc.w = PROMPTICONW;
