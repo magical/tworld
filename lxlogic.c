@@ -99,10 +99,10 @@ static int		laststepping = 0;
 #define	yviewoffset()		(getlxstate()->yviewoffset)
 #define	creaturelistend()	(getlxstate()->crend)
 
-#define	inendgame(state)		(getlxstate()->endgametimer)
+#define	inendgame(state)		(getlxstate()->endgametimer >= 0)
 #define	startendgametimer(state)	(getlxstate()->endgametimer = 12 + 1)
 #define	decrendgametimer(state)		(--getlxstate()->endgametimer)
-#define	resetendgametimer(state)	(getlxstate()->endgametimer = 0)
+#define	resetendgametimer(state)	(getlxstate()->endgametimer = -1)
 
 #define	addsoundeffect(state, sfx)	(state->soundeffects |= 1 << (sfx))
 #define	stopsoundeffect(state, sfx)	(state->soundeffects &= ~(1 << (sfx)))
@@ -1807,13 +1807,15 @@ static int advancegame(gamelogic *logic, gamestate *state)
     preparedisplay(state);
 
     if (inendgame()) {
+	if (getlxstate()->endgametimer == 0) {
+	    return completed() ? +1 : -1;
+	}
 	--state->timeoffset;
 	if (!decrendgametimer()) {
 	    resetfloorsounds(state, TRUE);
 	    return completed() ? +1 : -1;
 	}
     }
-
     return 0;
 }
 

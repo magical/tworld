@@ -276,7 +276,7 @@ struct lxstate {
     unsigned char	prng2;		/*   pseudorandom number sequence */
     signed char		xviewoffset;	/* offset of map view center */
     signed char		yviewoffset;	/*   position from position of Chip */
-    unsigned char	endgametimer;	/* end-game countdown timer */
+    signed char		endgametimer;	/* end-game countdown timer */
     unsigned char	togglestate;	/* extra state of the toggle walls */
     unsigned char	completed;	/* level completed successfully */
     unsigned char	stuck;		/* Chip is stuck on a teleport */
