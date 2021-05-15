@@ -19,7 +19,7 @@
 
 /* The current state of the current game.
  */
-static gamestate	state;
+static gamestate	state[2];
 
 /* The current logic module.
  */
@@ -59,7 +59,8 @@ static int setrulesetbehavior(int ruleset, int withgui)
     if (logic) {
 	if (ruleset == logic->ruleset)
 	    return TRUE;
-	(*logic->shutdown)(logic, &state);
+	(*logic->shutdown)(logic, &state[0]);
+	(*logic->shutdown)(logic, &state[1]);
 	logic = NULL;
     }
     if (ruleset == Ruleset_None)
@@ -100,31 +101,37 @@ static int setrulesetbehavior(int ruleset, int withgui)
  */
 int initgamestate(gamesetup *game, int ruleset, int withgui)
 {
+    int i;
     if (!setrulesetbehavior(ruleset, withgui))
 	die("unable to initialize the system for the requested ruleset");
 
-    memset(state.map, 0, sizeof state.map);
-    state.game = game;
-    state.ruleset = ruleset;
-    state.replay = -1;
-    state.currenttime = -1;
-    state.timeoffset = 0;
-    state.currentinput = NIL;
-    state.lastmove = NIL;
-    state.initrndslidedir = NIL;
-    state.stepping = -1;
-    state.soundeffects = 0;
-    state.timelimit = game->time * TICKS_PER_SECOND;
-    state.statusflags = 0;
-    if (pedanticmode)
-	state.statusflags |= SF_PEDANTIC;
-    initmovelist(&state.moves);
-    resetprng(&state.mainprng);
+    for (i = 0; i < 2; i++) {
+	memset(state[i].map, 0, sizeof state[i].map);
+	state[i].game = game;
+	state[i].ruleset = ruleset;
+	state[i].replay = -1;
+	state[i].currenttime = -1;
+	state[i].timeoffset = 0;
+	state[i].currentinput = NIL;
+	state[i].lastmove = NIL;
+	state[i].initrndslidedir = NIL;
+	state[i].stepping = -1;
+	state[i].soundeffects = 0;
+	state[i].timelimit = game->time * TICKS_PER_SECOND;
+	state[i].statusflags = 0;
+	if (pedanticmode)
+	    state[i].statusflags |= SF_PEDANTIC;
+	initmovelist(&state[i].moves);
+	resetprng(&state[i].mainprng);
 
-    if (!expandleveldata(&state))
-	return FALSE;
+	// TODO: different level
+	if (!expandleveldata(&state[i]))
+	    return FALSE;
 
-    return (*logic->initgame)(logic, &state);
+	if (! (*logic->initgame)(logic, &state[i]))
+	    return FALSE;
+    }
+    return TRUE;
 }
 
 /* Change the current state to run from the recorded solution.
@@ -133,19 +140,21 @@ int prepareplayback(void)
 {
     solutioninfo	solution;
 
-    if (!state.game->solutionsize)
+    if (!state[0].game->solutionsize)
 	return FALSE;
     solution.moves.list = NULL;
     solution.moves.allocated = 0;
-    if (!expandsolution(&solution, state.game) || !solution.moves.count)
+    if (!expandsolution(&solution, state[0].game) || !solution.moves.count)
 	return FALSE;
 
-    destroymovelist(&state.moves);
-    state.moves = solution.moves;
-    restartprng(&state.mainprng, solution.rndseed);
-    state.initrndslidedir = solution.rndslidedir;
-    state.stepping = solution.stepping;
-    state.replay = 0;
+    destroymovelist(&state[0].moves);
+    state[0].moves = solution.moves;
+    for (int i = 0; i < 2; i++) {
+	restartprng(&state[i].mainprng, solution.rndseed);
+	state[i].initrndslidedir = solution.rndslidedir;
+	state[i].stepping = solution.stepping;
+	state[i].replay = 0;
+    }
     return TRUE;
 }
 
@@ -153,7 +162,7 @@ int prepareplayback(void)
  */
 int secondsplayed(void)
 {
-    return (state.currenttime + state.timeoffset) / TICKS_PER_SECOND;
+    return (state[0].currenttime + state[0].timeoffset) / TICKS_PER_SECOND;
 }
 
 /* Change the system behavior according to the given gameplay mode.
@@ -182,8 +191,10 @@ void setgameplaymode(int mode)
 	settimer(-1);
 	break;
       case SuspendPlayShuttered:
-	if (state.ruleset == Ruleset_MS)
-	    state.statusflags |= SF_SHUTTERED;
+	if (state[0].ruleset == Ruleset_MS) {
+	    state[0].statusflags |= SF_SHUTTERED;
+	    state[1].statusflags |= SF_SHUTTERED;
+	}
 	/* fallthrough */
       case SuspendPlay:
 	setkeyboardrepeat(TRUE);
@@ -194,7 +205,8 @@ void setgameplaymode(int mode)
 	setkeyboardrepeat(FALSE);
 	settimer(+1);
 	setsoundeffects(+1);
-	state.statusflags &= ~SF_SHUTTERED;
+	state[0].statusflags &= ~SF_SHUTTERED;
+	state[1].statusflags &= ~SF_SHUTTERED;
 	break;
     }
 }
@@ -206,12 +218,13 @@ int setstepping(int stepping, int display)
 {
     char	msg[32], *p;
 
-    state.stepping = stepping;
+    state[0].stepping = stepping;
+    state[1].stepping = stepping;
     if (display) {
 	p = msg;
-	p += sprintf(p, "%s-step", state.stepping & 4 ? "odd" : "even");
-	if (state.stepping & 3)
-	    p += sprintf(p, " +%d", state.stepping & 3);
+	p += sprintf(p, "%s-step", state[0].stepping & 4 ? "odd" : "even");
+	if (state[0].stepping & 3)
+	    p += sprintf(p, " +%d", state[0].stepping & 3);
 	setdisplaymsg(msg, 500, 500);
     }
     return TRUE;
@@ -224,12 +237,12 @@ int changestepping(int delta, int display)
 {
     int	n;
 
-    if (state.stepping < 0)
-	state.stepping = 0;
-    n = (state.stepping + delta) % 8;
-    if (state.ruleset == Ruleset_MS)
+    if (state[0].stepping < 0)
+	state[0].stepping = 0;
+    n = (state[0].stepping + delta) % 8;
+    if (state[0].ruleset == Ruleset_MS)
 	n &= ~3;
-    if (state.stepping != n)
+    if (state[0].stepping != n)
 	return setstepping(n, display);
     return TRUE;
 }
@@ -244,11 +257,12 @@ int rotaterndslidedir(int display)
     char	msg[32];
     char const *dirname;
 
-    if (state.ruleset == Ruleset_MS)
+    if (state[0].ruleset == Ruleset_MS)
 	return FALSE;
-    state.initrndslidedir = right(state.initrndslidedir);
+    state[0].initrndslidedir = right(state[0].initrndslidedir);
+    state[1].initrndslidedir = state[0].initrndslidedir;
     if (display) {
-	switch (right(state.initrndslidedir)) {
+	switch (right(state[0].initrndslidedir)) {
 	  case NORTH:	dirname = "north";	break;
 	  case WEST:	dirname = "west";	break;
 	  case SOUTH:	dirname = "south";	break;
@@ -261,6 +275,57 @@ int rotaterndslidedir(int display)
     return TRUE;
 }
 
+int doturnstate(struct gamestate *state, int cmd, int side) {
+    action	act;
+    int		n;
+
+    state->soundeffects &= ~((1 << SND_ONESHOT_COUNT) - 1);
+    state->currenttime = gettickcount();
+    if (state->currenttime >= MAXIMUM_TICK_COUNT) {
+	errmsg(NULL, "timer reached its maximum of %d.%d hours; quitting now",
+		     MAXIMUM_TICK_COUNT / (TICKS_PER_SECOND * 3600),
+		     (MAXIMUM_TICK_COUNT / (TICKS_PER_SECOND * 360)) % 10);
+	return -1;
+    }
+    // FIXME: replay is broken, one replay needs to feed both games
+    if (state->replay < 0) {
+	if (cmd != CmdPreserve)
+	    state->currentinput = cmd;
+    } else {
+	if (state->replay < state->moves.count) {
+	    if (state->currenttime > state->moves.list[state->replay].when)
+		warn("Replay: Got ahead of saved solution: %d > %d!",
+		     state->currenttime, state->moves.list[state->replay].when);
+	    if (state->currenttime == state->moves.list[state->replay].when) {
+		state->currentinput = state->moves.list[state->replay].dir;
+		++state->replay;
+	    }
+	} else {
+	    n = state->currenttime + state->timeoffset - 1;
+	    if (n > state->game->besttime)
+		return -1;
+	}
+    }
+
+    if (side == 1 && state->currenttime < 20) {
+	state->currentinput = CmdNone;
+    }
+
+    n = (*logic->advancegame)(logic, state);
+
+    if (state->replay < 0 && state->lastmove) {
+	act.when = state->currenttime;
+	act.dir = state->lastmove;
+	addtomovelist(&state->moves, act);
+	state->lastmove = NIL;
+    }
+
+    if (n)
+	return n;
+
+    return 0;
+}
+
 /* Advance the game one tick and update the game state. cmd is the
  * current keyboard command supplied by the user. The return value is
  * positive if the game was completed successfully, negative if the
@@ -268,48 +333,14 @@ int rotaterndslidedir(int display)
  */
 int doturn(int cmd)
 {
-    action	act;
-    int		n;
-
-    state.soundeffects &= ~((1 << SND_ONESHOT_COUNT) - 1);
-    state.currenttime = gettickcount();
-    if (state.currenttime >= MAXIMUM_TICK_COUNT) {
-	errmsg(NULL, "timer reached its maximum of %d.%d hours; quitting now",
-		     MAXIMUM_TICK_COUNT / (TICKS_PER_SECOND * 3600),
-		     (MAXIMUM_TICK_COUNT / (TICKS_PER_SECOND * 360)) % 10);
-	return -1;
-    }
-    if (state.replay < 0) {
-	if (cmd != CmdPreserve)
-	    state.currentinput = cmd;
-    } else {
-	if (state.replay < state.moves.count) {
-	    if (state.currenttime > state.moves.list[state.replay].when)
-		warn("Replay: Got ahead of saved solution: %d > %d!",
-		     state.currenttime, state.moves.list[state.replay].when);
-	    if (state.currenttime == state.moves.list[state.replay].when) {
-		state.currentinput = state.moves.list[state.replay].dir;
-		++state.replay;
-	    }
-	} else {
-	    n = state.currenttime + state.timeoffset - 1;
-	    if (n > state.game->besttime)
-		return -1;
-	}
-    }
-
-    n = (*logic->advancegame)(logic, &state);
-
-    if (state.replay < 0 && state.lastmove) {
-	act.when = state.currenttime;
-	act.dir = state.lastmove;
-	addtomovelist(&state.moves, act);
-	state.lastmove = NIL;
-    }
-
-    if (n)
-	return n;
-
+    int status0 = doturnstate(&state[0], cmd, 0);
+    int status1 = doturnstate(&state[1], cmd, 1);
+    if (status0 < 0)
+	return status0;
+    if (status1 < 0)
+	return status1;
+    if (status0 > 0 && status1 > 0)
+	return status0;
     return 0;
 }
 
@@ -322,35 +353,35 @@ int drawscreen(int showframe)
     int	currenttime;
     int timeleft, besttime;
 
-    playsoundeffects(state.soundeffects);
+    playsoundeffects(state[0].soundeffects | state[1].soundeffects);
 
     if (!showframe)
 	return TRUE;
 
-    currenttime = state.currenttime + state.timeoffset;
-    if (hassolution(state.game))
-	besttime = (state.game->time ? state.game->time : 999)
-				- state.game->besttime / TICKS_PER_SECOND;
-    else
-	besttime = TIME_NIL;
+    currenttime = state[0].currenttime + state[0].timeoffset;
+    besttime = TIME_NIL;
+    //if (hassolution(state[0].game))
+    //    besttime = (state.game->time ? state.game->time : 999)
+    //    			- state.game->besttime / TICKS_PER_SECOND;
 
     timeleft = TIME_NIL;
-    if (state.game->time) {
-	timeleft = state.game->time - currenttime / TICKS_PER_SECOND;
+    if (state[0].game->time) {
+	timeleft = state[0].game->time - currenttime / TICKS_PER_SECOND;
 	if (timeleft <= 0) {
 	    timeleft = 0;
 	    setdisplaymsg("Out of time", 2, 2);
 	}
     }
 
-    return displaygame(&state, timeleft, besttime);
+    return displaygame(&state[0], &state[1], timeleft, besttime);
 }
 
 /* Stop game play and clean up.
  */
 int quitgamestate(void)
 {
-    state.soundeffects = 0;
+    state[0].soundeffects = 0;
+    state[1].soundeffects = 0;
     setsoundeffects(-1);
     return TRUE;
 }
@@ -360,7 +391,9 @@ int quitgamestate(void)
 int endgamestate(void)
 {
     setsoundeffects(-1);
-    return (*logic->endgame)(logic, &state);
+    int ok0 = (*logic->endgame)(logic, &state[0]);
+    int ok1 = (*logic->endgame)(logic, &state[1]);
+    return ok0 && ok1;
 }
 
 /* Close up shop.
@@ -368,7 +401,8 @@ int endgamestate(void)
 void shutdowngamestate(void)
 {
     setrulesetbehavior(Ruleset_None, FALSE);
-    destroymovelist(&state.moves);
+    destroymovelist(&state[0].moves);
+    //destroymovelist(&state[1].moves);
 }
 
 /* Initialize the current game state to a small level used for display
@@ -376,16 +410,18 @@ void shutdowngamestate(void)
  */
 void setenddisplay(void)
 {
-    state.replay = -1;
-    state.timelimit = 0;
-    state.currenttime = -1;
-    state.timeoffset = 0;
-    state.chipsneeded = 0;
-    state.currentinput = NIL;
-    state.statusflags = 0;
-    state.soundeffects = 0;
-    getenddisplaysetup(&state);
-    (*logic->initgame)(logic, &state);
+    for (int i = 0; i < 2; i++) {
+	state[i].replay = -1;
+	state[i].timelimit = 0;
+	state[i].currenttime = -1;
+	state[i].timeoffset = 0;
+	state[i].chipsneeded = 0;
+	state[i].currentinput = NIL;
+	state[i].statusflags = 0;
+	state[i].soundeffects = 0;
+	getenddisplaysetup(&state[i]);
+	(*logic->initgame)(logic, &state[i]);
+    }
 }
 
 /*
@@ -406,6 +442,8 @@ int hassolution(gamesetup const *game)
  */
 int replacesolution(void)
 {
+    return FALSE; // XXX
+    #if 0
     solutioninfo	solution;
     int			currenttime;
 
@@ -427,6 +465,7 @@ int replacesolution(void)
 	return FALSE;
 
     return TRUE;
+    #endif
 }
 
 /* Delete the user's best solution for the current game. FALSE is
@@ -434,6 +473,8 @@ int replacesolution(void)
  */
 int deletesolution(void)
 {
+    return FALSE;
+    #if 0
     if (!hassolution(state.game))
 	return FALSE;
     state.game->besttime = TIME_NIL;
@@ -442,6 +483,7 @@ int deletesolution(void)
     state.game->solutionsize = 0;
     state.game->solutiondata = NULL;
     return TRUE;
+    #endif
 }
 
 /* Double-checks the timing for a solution that has just been played
@@ -453,23 +495,23 @@ int checksolution(void)
 {
     int	currenttime;
 
-    if (!hassolution(state.game))
+    if (!hassolution(state[0].game))
 	return FALSE;
-    currenttime = state.currenttime + state.timeoffset;
-    if (currenttime == state.game->besttime)
+    currenttime = state[0].currenttime + state[0].timeoffset;
+    if (currenttime == state[0].game->besttime)
 	return FALSE;
     warn("saved game has solution time of %d ticks, but replay took %d ticks",
-	 state.game->besttime, currenttime);
-    if (state.game->besttime == state.currenttime) {
+	 state[0].game->besttime, currenttime);
+    if (state[0].game->besttime == state[0].currenttime) {
 	warn("difference matches clock offset; fixing.");
-	state.game->besttime = currenttime;
+	state[0].game->besttime = currenttime;
 	return TRUE;
-    } else if (currenttime - state.game->besttime == 1) {
+    } else if (currenttime - state[0].game->besttime == 1) {
 	warn("difference matches pre-0.10.1 error; fixing.");
-	state.game->besttime = currenttime;
+	state[0].game->besttime = currenttime;
 	return TRUE;
     }
     warn("reason for difference unknown.");
-    state.game->besttime = currenttime;
+    state[0].game->besttime = currenttime;
     return FALSE;
 }

@@ -158,7 +158,7 @@ extern void cleardisplay(void);
  * measured in seconds. All other data comes from the gamestate
  * structure (referred to here as an opaque pointer).
  */
-extern int displaygame(void const *state, int timeleft, int besttime);
+extern int displaygame(void const *state0, void const *state1, int timeleft, int besttime);
 
 /* Display a short message appropriate to the end of a level's game
  * play. If the level was completed successfully, totalscore is

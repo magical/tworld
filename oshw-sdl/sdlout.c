@@ -744,12 +744,12 @@ void setcolors(long bkgnd, long text, long bold, long dim)
 /* Create the game's display. state is a pointer to the gamestate
  * structure.
  */
-int displaygame(void const *state, int timeleft, int besttime)
+int displaygame(void const *state0, void const *state1, int timeleft, int besttime)
 {
-    displaymapview(state, 0);
-    displaymapview(state, 1);
-    displayinfo(state, timeleft, besttime, 0);
-    displayinfo(state, timeleft, besttime, 1);
+    displaymapview(state0, 0);
+    displaymapview(state1, 1);
+    displayinfo(state0, timeleft, besttime, 0);
+    displayinfo(state1, timeleft, besttime, 1);
     displaymsg(FALSE);
     if (fullredraw) {
 	SDL_UpdateRect(sdlg.screen, 0, 0, 0, 0);
