@@ -561,20 +561,20 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
     SDL_Rect *inforect = &infoloc;
     SDL_Rect *hintrect = &hintloc;
     if (side == 1) {
-      titlerect = &titleloc2;
-      invrect = &invloc2;
-      inforect = &infoloc2;
-      //hintrect = &hintloc2;
+	titlerect = &titleloc2;
+	invrect = &invloc2;
+	inforect = &infoloc2;
+	//hintrect = &hintloc2;
     }
 
     puttext(titlerect, state->game->name, -1, PT_CENTER);
 
     if (side == 0) {
-      if (state->statusflags & SF_SHOWHINT) {
-	  puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
-      } else {
-	  fillrect(hintrect);
-      }
+	if (state->statusflags & SF_SHOWHINT) {
+	    puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+	} else {
+	    fillrect(hintrect);
+	}
     }
 
     rect = *inforect;
@@ -594,11 +594,11 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
     puttext(&rect, "", 0, PT_UPDATERECT);
 
     if (side == 0) {
-      rrect.x = rinfoloc.x;
-      rrect.w = rinfoloc.w;
+	rrect.x = rinfoloc.x;
+	rrect.w = rinfoloc.w;
     } else {
-      rrect.x = rinfoloc2.x;
-      rrect.w = rinfoloc2.w;
+	rrect.x = rinfoloc2.x;
+	rrect.w = rinfoloc2.w;
     }
     rrect.y = rect.y;
     rrect.h = rect.h;
@@ -640,22 +640,22 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
     }
 
     if (side == 0) {
-      if (state->statusflags & SF_INVALID) {
-	  puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
-      } else if (state->currenttime < 0 && state->game->unsolvable) {
-	  if (*state->game->unsolvable) {
-	      sprintf(buf, "This level is reported to be unsolvable: %s.",
-			  state->game->unsolvable);
-	      puttext(hintrect, buf, -1, PT_MULTILINE);
-	  } else {
-	      puttext(hintrect, "This level is reported to be unsolvable.", -1,
+	if (state->statusflags & SF_INVALID) {
+	    puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
+	} else if (state->currenttime < 0 && state->game->unsolvable) {
+	    if (*state->game->unsolvable) {
+		sprintf(buf, "This level is reported to be unsolvable: %s.",
+			    state->game->unsolvable);
+		puttext(hintrect, buf, -1, PT_MULTILINE);
+	    } else {
+		puttext(hintrect, "This level is reported to be unsolvable.", -1,
 				PT_MULTILINE);
-	  }
-      } else if (state->statusflags & SF_SHOWHINT) {
-	  puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
-      } else {
-	  //fillrect(hintrect);
-      }
+	    }
+	} else if (state->statusflags & SF_SHOWHINT) {
+	    puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+	} else {
+	    //fillrect(hintrect);
+	}
     }
 
     fillrect(&promptloc);
