@@ -193,7 +193,7 @@ static int layoutscreen(void)
     infow = displayloc.w;
     puttext(&displayloc, rscoretext, -1, PT_CALCSIZE);
     rscorew = displayloc.w;
-    infow += rscorew;
+    //infow += rscorew;
 
     displayloc.x = MARGINW;
     displayloc.y = MARGINH;
@@ -209,7 +209,6 @@ static int layoutscreen(void)
     titleloc.y = displayloc.y + displayloc.h + MARGINH;
     titleloc.w = displayloc.w;
     titleloc.h = texth;
-    printf("%d %d %d %d\n", titleloc.x, titleloc.y, titleloc.w, titleloc.h);
 
     titleloc2.x = displayloc2.x;
     titleloc2.y = displayloc2.y + displayloc2.h + MARGINH;
@@ -256,9 +255,9 @@ static int layoutscreen(void)
     messageloc.h = titleloc.h;
 
     screenw = displayloc2.x + displayloc2.h + MARGINW;
-    if (screenw < 2*fullw)
-	screenw = 2*fullw;
     screenh = messageloc.y + messageloc.h + MARGINH;
+    //if (screenw < fullw)
+    //    screenw = fullw;
 
     promptloc.x = screenw - MARGINW - PROMPTICONW;
     promptloc.y = screenh - MARGINH - PROMPTICONH;
@@ -268,10 +267,10 @@ static int layoutscreen(void)
     hintloc = infoloc;
     hintloc.w = displayloc.w;
 
-    //messageloc.x = infoloc.x;
-    //messageloc.y = titleloc.y;
-    //messageloc.w = promptloc.x - messageloc.x - MARGINW;
-    //messageloc.h = titleloc.h;
+    messageloc.x = displayloc2.x;
+    messageloc.y = screenh - MARGINH - texth;
+    messageloc.w = promptloc.x - messageloc.x - MARGINW;
+    messageloc.h = texth;
 
     //hintloc.x = infoloc.x;
     //hintloc.y = invloc.y + invloc.h + MARGINH;
@@ -570,10 +569,12 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
 
     puttext(titlerect, state->game->name, -1, PT_CENTER);
 
-    if (state->statusflags & SF_SHOWHINT) {
-	puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
-    } else {
-	fillrect(hintrect);
+    if (side == 0) {
+      if (state->statusflags & SF_SHOWHINT) {
+	  puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+      } else {
+	  fillrect(hintrect);
+      }
     }
 
     rect = *inforect;
@@ -638,21 +639,23 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
 		     gettileimage(state->boots[n] ? Boots_Ice + n : Empty));
     }
 
-    if (state->statusflags & SF_INVALID) {
-	puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
-    } else if (state->currenttime < 0 && state->game->unsolvable) {
-	if (*state->game->unsolvable) {
-	    sprintf(buf, "This level is reported to be unsolvable: %s.",
-			 state->game->unsolvable);
-	    puttext(hintrect, buf, -1, PT_MULTILINE);
-	} else {
-	    puttext(hintrect, "This level is reported to be unsolvable.", -1,
-			      PT_MULTILINE);
-	}
-    } else if (state->statusflags & SF_SHOWHINT) {
-	puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
-    } else {
-	//fillrect(hintrect);
+    if (side == 0) {
+      if (state->statusflags & SF_INVALID) {
+	  puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
+      } else if (state->currenttime < 0 && state->game->unsolvable) {
+	  if (*state->game->unsolvable) {
+	      sprintf(buf, "This level is reported to be unsolvable: %s.",
+			  state->game->unsolvable);
+	      puttext(hintrect, buf, -1, PT_MULTILINE);
+	  } else {
+	      puttext(hintrect, "This level is reported to be unsolvable.", -1,
+				PT_MULTILINE);
+	  }
+      } else if (state->statusflags & SF_SHOWHINT) {
+	  puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+      } else {
+	  //fillrect(hintrect);
+      }
     }
 
     fillrect(&promptloc);
@@ -743,9 +746,9 @@ void setcolors(long bkgnd, long text, long bold, long dim)
  */
 int displaygame(void const *state, int timeleft, int besttime)
 {
-    //displaymapview(state, 0);
+    displaymapview(state, 0);
     displaymapview(state, 1);
-    //displayinfo(state, timeleft, besttime, 0);
+    displayinfo(state, timeleft, besttime, 0);
     displayinfo(state, timeleft, besttime, 1);
     displaymsg(FALSE);
     if (fullredraw) {
@@ -771,10 +774,9 @@ int displayendmessage(int basescore, int timescore, long totalscore,
 
     if (totalscore) {
 	fullscore = timescore + basescore;
-	rect = hintloc;
+	rect = messageloc;
 	puttext(&rect, "Level Completed", -1, PT_CENTER);
-	rect.y = rscoreloc.y;
-	rect.h = rscoreloc.h;
+	rect = rscoreloc;
 	puttext(&rect, "Time Bonus", -1, PT_UPDATERECT);
 	puttext(&rect, "Level Bonus", -1, PT_UPDATERECT);
 	puttext(&rect, "Level Score", -1, PT_UPDATERECT);
