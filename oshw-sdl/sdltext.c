@@ -289,7 +289,7 @@ static void drawtext(SDL_Rect *rect, unsigned char const *text,
     pitch = sdlg.screen->pitch;
     bpp = sdlg.screen->format->BytesPerPixel;
     p = (unsigned char*)sdlg.screen->pixels + rect->y * pitch + rect->x * bpp;
-    for (y = 0 ; y < sdlg.font.h && y < rect->h ; ++y) {
+    for (y = 0 ; y < sdlg.font.h && y < rect->h && rect->y+y < sdlg.screen->h ; ++y) {
 	switch (bpp) {
 	  case 1:
 	    q = drawtextscanline8(p, l, y, clr, NULL, 0);

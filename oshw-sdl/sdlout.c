@@ -61,7 +61,8 @@ static int		fullscreen = FALSE;
  */
 static int		screenw, screenh;
 static SDL_Rect		rinfoloc;
-static SDL_Rect		locrects[8];
+static SDL_Rect		rinfoloc2;
+static SDL_Rect		locrects[12];
 
 #define	displayloc	(locrects[0])
 #define	titleloc	(locrects[1])
@@ -71,6 +72,11 @@ static SDL_Rect		locrects[8];
 #define	rscoreloc	(locrects[5])
 #define	messageloc	(locrects[6])
 #define	promptloc	(locrects[7])
+
+#define	displayloc2	(locrects[8])
+#define	titleloc2	(locrects[9])
+#define	infoloc2	(locrects[10])
+#define	invloc2		(locrects[11])
 
 /* TRUE means that the screen is in need of a full update.
  */
@@ -194,17 +200,33 @@ static int layoutscreen(void)
     displayloc.w = NXTILES * sdlg.wtile;
     displayloc.h = NYTILES * sdlg.htile;
 
+    displayloc2.x = displayloc.x + displayloc.w + MARGINW;
+    displayloc2.y = MARGINH;
+    displayloc2.w = NXTILES * sdlg.wtile;
+    displayloc2.h = NYTILES * sdlg.htile;
+
     titleloc.x = displayloc.x;
     titleloc.y = displayloc.y + displayloc.h + MARGINH;
     titleloc.w = displayloc.w;
     titleloc.h = texth;
+    printf("%d %d %d %d\n", titleloc.x, titleloc.y, titleloc.w, titleloc.h);
 
-    infoloc.x = displayloc.x + displayloc.w + MARGINW;
-    infoloc.y = MARGINH;
+    titleloc2.x = displayloc2.x;
+    titleloc2.y = displayloc2.y + displayloc2.h + MARGINH;
+    titleloc2.w = displayloc2.w;
+    titleloc2.h = texth;
+
+    infoloc.x = displayloc.x;
+    infoloc.y = titleloc.y + titleloc.h + MARGINH;
     infoloc.w = 4 * sdlg.wtile;
     if (infoloc.w < infow)
 	infoloc.w = infow;
     infoloc.h = 6 * texth;
+
+    infoloc2.x = displayloc2.x;
+    infoloc2.y = titleloc.y + titleloc.h + MARGINH;
+    infoloc2.w = infoloc.w;
+    infoloc2.h = infoloc.h;
 
     puttext(&rinfoloc, chipstext, -1, PT_CALCSIZE);
     rinfoloc.x = infoloc.x + rinfoloc.w + MARGINW;
@@ -212,37 +234,56 @@ static int layoutscreen(void)
     puttext(&rinfoloc, timertext, -1, PT_CALCSIZE);
     rinfoloc.h = 2 * texth;
 
+    puttext(&rinfoloc2, chipstext, -1, PT_CALCSIZE);
+    rinfoloc2.x = infoloc2.x + rinfoloc2.w + MARGINW;
+    rinfoloc2.y = infoloc2.y + 3 * texth;
+    puttext(&rinfoloc2, timertext, -1, PT_CALCSIZE);
+    rinfoloc2.h = 2 * texth;
+
     invloc.x = infoloc.x;
     invloc.y = infoloc.y + infoloc.h + MARGINH;
     invloc.w = 4 * sdlg.wtile;
     invloc.h = 2 * sdlg.htile;
 
-    screenw = infoloc.x + infoloc.w + MARGINW;
-    if (screenw < fullw)
-	screenw = fullw;
-    screenh = titleloc.y + titleloc.h + MARGINH;
+    invloc2.x = infoloc2.x;
+    invloc2.y = infoloc2.y + infoloc2.h + MARGINH;
+    invloc2.w = 4 * sdlg.wtile;
+    invloc2.h = 2 * sdlg.htile;
+
+    messageloc.x = displayloc.x;
+    messageloc.y = invloc.y + invloc.h + MARGINH;
+    messageloc.w = displayloc.w;
+    messageloc.h = titleloc.h;
+
+    screenw = displayloc2.x + displayloc2.h + MARGINW;
+    if (screenw < 2*fullw)
+	screenw = 2*fullw;
+    screenh = messageloc.y + messageloc.h + MARGINH;
 
     promptloc.x = screenw - MARGINW - PROMPTICONW;
     promptloc.y = screenh - MARGINH - PROMPTICONH;
     promptloc.w = PROMPTICONW;
     promptloc.h = PROMPTICONH;
 
-    messageloc.x = infoloc.x;
-    messageloc.y = titleloc.y;
-    messageloc.w = promptloc.x - messageloc.x - MARGINW;
-    messageloc.h = titleloc.h;
+    hintloc = infoloc;
+    hintloc.w = displayloc.w;
 
-    hintloc.x = infoloc.x;
-    hintloc.y = invloc.y + invloc.h + MARGINH;
-    hintloc.w = screenw - MARGINW - hintloc.x;
-    hintloc.h = messageloc.y - hintloc.y;
-    if (hintloc.y + hintloc.h + MARGINH > promptloc.y)
-	hintloc.h = promptloc.y - MARGINH - hintloc.y;
+    //messageloc.x = infoloc.x;
+    //messageloc.y = titleloc.y;
+    //messageloc.w = promptloc.x - messageloc.x - MARGINW;
+    //messageloc.h = titleloc.h;
 
-    rscoreloc.x = hintloc.x + hintloc.w - rscorew;
-    rscoreloc.y = hintloc.y + 2 * texth;
-    rscoreloc.w = rscorew;
-    rscoreloc.h = hintloc.h - 2 * texth;
+    //hintloc.x = infoloc.x;
+    //hintloc.y = invloc.y + invloc.h + MARGINH;
+    //hintloc.w = screenw - MARGINW - hintloc.x;
+    //hintloc.h = messageloc.y - hintloc.y;
+    //if (hintloc.y + hintloc.h + MARGINH > promptloc.y)
+    //    hintloc.h = promptloc.y - MARGINH - hintloc.y;
+
+    //rscoreloc.x = hintloc.x + hintloc.w - rscorew;
+    //rscoreloc.y = hintloc.y + 2 * texth;
+    //rscoreloc.w = rscorew;
+    //rscoreloc.h = hintloc.h - 2 * texth;
 
     return TRUE;
 }
@@ -508,15 +549,32 @@ static void displaymapview(gamestate const *state)
  * needed, and the keys and boots in possession are all used as well
  * in creating the display.
  */
-static void displayinfo(gamestate const *state, int timeleft, int besttime)
+static void displayinfo(gamestate const *state, int timeleft, int besttime, int side)
 {
     SDL_Rect	rect, rrect;
     char	buf[512];
     int		n;
 
-    puttext(&titleloc, state->game->name, -1, PT_CENTER);
+    SDL_Rect *titlerect = &titleloc;
+    SDL_Rect *invrect = &invloc;
+    SDL_Rect *inforect = &infoloc;
+    SDL_Rect *hintrect = &hintloc;
+    if (side == 1) {
+      titlerect = &titleloc2;
+      invrect = &invloc2;
+      inforect = &infoloc2;
+      //hintrect = &hintloc2;
+    }
 
-    rect = infoloc;
+    puttext(titlerect, state->game->name, -1, PT_CENTER);
+
+    if (state->statusflags & SF_SHOWHINT) {
+	puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+    } else {
+	fillrect(hintrect);
+    }
+
+    rect = *inforect;
 
     if (state->game->number) {
 	sprintf(buf, "Level %d", state->game->number);
@@ -532,8 +590,13 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime)
 
     puttext(&rect, "", 0, PT_UPDATERECT);
 
-    rrect.x = rinfoloc.x;
-    rrect.w = rinfoloc.w;
+    if (side == 0) {
+      rrect.x = rinfoloc.x;
+      rrect.w = rinfoloc.w;
+    } else {
+      rrect.x = rinfoloc2.x;
+      rrect.w = rinfoloc2.w;
+    }
     rrect.y = rect.y;
     rrect.h = rect.h;
     puttext(&rect, "Chips", 5, PT_UPDATERECT);
@@ -546,7 +609,7 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime)
 	puttext(&rrect, decimal(timeleft, 0), -1, PT_RIGHT);
     if (state->stepping) {
 	rrect.x += rrect.w;
-	rrect.w = infoloc.x + infoloc.w - rrect.x;
+	rrect.w = inforect->x + inforect->w - rrect.x;
 	if (state->stepping < 4)
 	    sprintf(buf, "   (+%d)", state->stepping);
 	else if (state->stepping > 4)
@@ -567,27 +630,27 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime)
     fillrect(&rect);
 
     for (n = 0 ; n < 4 ; ++n) {
-	drawfulltile(invloc.x + n * sdlg.wtile, invloc.y,
+	drawfulltile(invrect->x + n * sdlg.wtile, invrect->y,
 		     gettileimage(state->keys[n] ? Key_Red + n : Empty));
-	drawfulltile(invloc.x + n * sdlg.wtile, invloc.y + sdlg.htile,
+	drawfulltile(invrect->x + n * sdlg.wtile, invrect->y + sdlg.htile,
 		     gettileimage(state->boots[n] ? Boots_Ice + n : Empty));
     }
 
     if (state->statusflags & SF_INVALID) {
-	puttext(&hintloc, "This level cannot be played.", -1, PT_MULTILINE);
+	puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
     } else if (state->currenttime < 0 && state->game->unsolvable) {
 	if (*state->game->unsolvable) {
 	    sprintf(buf, "This level is reported to be unsolvable: %s.",
 			 state->game->unsolvable);
-	    puttext(&hintloc, buf, -1, PT_MULTILINE);
+	    puttext(hintrect, buf, -1, PT_MULTILINE);
 	} else {
-	    puttext(&hintloc, "This level is reported to be unsolvable.", -1,
+	    puttext(hintrect, "This level is reported to be unsolvable.", -1,
 			      PT_MULTILINE);
 	}
     } else if (state->statusflags & SF_SHOWHINT) {
-	puttext(&hintloc, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+	puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
     } else {
-	fillrect(&hintloc);
+	//fillrect(hintrect);
     }
 
     fillrect(&promptloc);
@@ -679,7 +742,8 @@ void setcolors(long bkgnd, long text, long bold, long dim)
 int displaygame(void const *state, int timeleft, int besttime)
 {
     displaymapview(state);
-    displayinfo(state, timeleft, besttime);
+    displayinfo(state, timeleft, besttime, 1);
+    //displayinfo(state, timeleft, besttime);
     displaymsg(FALSE);
     if (fullredraw) {
 	SDL_UpdateRect(sdlg.screen, 0, 0, 0, 0);
@@ -1101,8 +1165,8 @@ int _sdloutputinitialize(int _fullscreen)
     sdlg.windowmapposfunc = _windowmappos;
     fullscreen = _fullscreen;
 
-    screenw = 640;
-    screenh = 480;
+    screenw = 880;
+    screenh = 640;
     promptloc.x = screenw - MARGINW - PROMPTICONW;
     promptloc.y = screenh - MARGINH - PROMPTICONH;
     promptloc.w = PROMPTICONW;
