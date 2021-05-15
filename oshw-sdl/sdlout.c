@@ -62,7 +62,7 @@ static int		fullscreen = FALSE;
 static int		screenw, screenh;
 static SDL_Rect		rinfoloc;
 static SDL_Rect		rinfoloc2;
-static SDL_Rect		locrects[12];
+static SDL_Rect		locrects[13];
 
 #define	displayloc	(locrects[0])
 #define	titleloc	(locrects[1])
@@ -77,6 +77,7 @@ static SDL_Rect		locrects[12];
 #define	titleloc2	(locrects[9])
 #define	infoloc2	(locrects[10])
 #define	invloc2		(locrects[11])
+#define	hintloc2	(locrects[12])
 
 /* TRUE means that the screen is in need of a full update.
  */
@@ -286,6 +287,9 @@ static int layoutscreen(void)
 
     hintloc = infoloc;
     hintloc.w = displayloc.w;
+
+    hintloc2 = infoloc2;
+    hintloc2.w = displayloc2.w;
 
     messageloc.x = displayloc2.x;
     messageloc.y = screenh - MARGINH - texth;
@@ -584,17 +588,15 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
 	titlerect = &titleloc2;
 	invrect = &invloc2;
 	inforect = &infoloc2;
-	//hintrect = &hintloc2;
+	hintrect = &hintloc2;
     }
 
     puttext(titlerect, state->game->name, -1, PT_CENTER);
 
-    if (side == 0) {
-	if (state->statusflags & SF_SHOWHINT) {
-	    puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
-	} else {
-	    fillrect(hintrect);
-	}
+    if (state->statusflags & SF_SHOWHINT) {
+	puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+    } else {
+	fillrect(hintrect);
     }
 
     rect = *inforect;
@@ -659,23 +661,21 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
 		     gettileimage(state->boots[n] ? Boots_Ice + n : Empty));
     }
 
-    if (side == 0) {
-	if (state->statusflags & SF_INVALID) {
-	    puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
-	} else if (state->currenttime < 0 && state->game->unsolvable) {
-	    if (*state->game->unsolvable) {
-		sprintf(buf, "This level is reported to be unsolvable: %s.",
-			    state->game->unsolvable);
-		puttext(hintrect, buf, -1, PT_MULTILINE);
-	    } else {
-		puttext(hintrect, "This level is reported to be unsolvable.", -1,
-				PT_MULTILINE);
-	    }
-	} else if (state->statusflags & SF_SHOWHINT) {
-	    puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+    if (state->statusflags & SF_INVALID) {
+	puttext(hintrect, "This level cannot be played.", -1, PT_MULTILINE);
+    } else if (state->currenttime < 0 && state->game->unsolvable) {
+	if (*state->game->unsolvable) {
+	    sprintf(buf, "This level is reported to be unsolvable: %s.",
+			 state->game->unsolvable);
+	    puttext(hintrect, buf, -1, PT_MULTILINE);
 	} else {
-	    //fillrect(hintrect);
+	    puttext(hintrect, "This level is reported to be unsolvable.", -1,
+			      PT_MULTILINE);
 	}
+    } else if (state->statusflags & SF_SHOWHINT) {
+	puttext(hintrect, state->hinttext, -1, PT_MULTILINE | PT_CENTER);
+    } else {
+	//fillrect(hintrect);
     }
 
     fillrect(&promptloc);
