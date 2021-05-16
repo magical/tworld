@@ -62,22 +62,22 @@ static int		fullscreen = FALSE;
 static int		screenw, screenh;
 static SDL_Rect		rinfoloc;
 static SDL_Rect		rinfoloc2;
-static SDL_Rect		locrects[13];
+static SDL_Rect		locrects[12];
 
-#define	displayloc	(locrects[0])
-#define	titleloc	(locrects[1])
-#define	infoloc		(locrects[2])
-#define	invloc		(locrects[3])
-#define	hintloc		(locrects[4])
-#define	rscoreloc	(locrects[5])
-#define	messageloc	(locrects[6])
-#define	promptloc	(locrects[7])
+#define	messageloc	(locrects[0])
+#define	promptloc	(locrects[1])
 
-#define	displayloc2	(locrects[8])
-#define	titleloc2	(locrects[9])
-#define	infoloc2	(locrects[10])
-#define	invloc2		(locrects[11])
-#define	hintloc2	(locrects[12])
+#define	displayloc	(locrects[2])
+#define	titleloc	(locrects[3])
+#define	infoloc		(locrects[4])
+#define	invloc		(locrects[5])
+#define	hintloc		(locrects[6])
+
+#define	displayloc2	(locrects[7])
+#define	titleloc2	(locrects[8])
+#define	infoloc2	(locrects[9])
+#define	invloc2		(locrects[10])
+#define	hintloc2	(locrects[11])
 
 /* TRUE means that the screen is in need of a full update.
  */
@@ -176,26 +176,23 @@ static int createprompticons(void)
 static int layoutscreen(void)
 {
     SDL_Rect temp;
-    static char const  *scoretext = "888  DRAWN AND QUARTERED"
-				    "   88,888  8,888,888  8,888,888";
+    //static char const  *scoretext = "888  DRAWN AND QUARTERED"
+    //				    "   88,888  8,888,888  8,888,888";
     static char const  *hinttext = "Total Score  ";
-    static char const  *rscoretext = "88888888";
+    //static char const  *rscoretext = "88888888";
     static char const  *chipstext = "Chips";
     static char const  *timertext = " 88888";
 
-    int			fullw, infow, rscorew, texth;
+    int			infow, texth;
 
     if (sdlg.wtile <= 0 || sdlg.htile <= 0)
 	return FALSE;
 
-    puttext(&temp, scoretext, -1, PT_CALCSIZE);
-    fullw = temp.w;
-    texth = temp.h;
+    //puttext(&temp, scoretext, -1, PT_CALCSIZE);
+    //fullw = temp.w;
     puttext(&temp, hinttext, -1, PT_CALCSIZE);
     infow = temp.w;
-    //puttext(&temp, rscoretext, -1, PT_CALCSIZE);
-    //rscorew = temp.w;
-    //infow += rscorew;
+    texth = temp.h;
 
     displayloc.x = MARGINW;
     displayloc.y = MARGINH;
@@ -295,11 +292,6 @@ static int layoutscreen(void)
     messageloc.y = screenh - MARGINH - texth;
     messageloc.w = promptloc.x - messageloc.x - MARGINW;
     messageloc.h = texth;
-
-    //rscoreloc.x = hintloc.x + hintloc.w - rscorew;
-    //rscoreloc.y = hintloc.y + 2 * texth;
-    //rscoreloc.w = rscorew;
-    //rscoreloc.h = hintloc.h - 2 * texth;
 
     return TRUE;
 }
@@ -792,25 +784,11 @@ int displaygame(void const *state0, void const *state1, int besttime)
 int displayendmessage(int basescore, int timescore, long totalscore,
 		      int completed)
 {
-    SDL_Rect	rect;
-    int		fullscore;
-
-    if (totalscore) {
-	fullscore = timescore + basescore;
-	rect = messageloc;
-	puttext(&rect, "Level Completed", -1, PT_CENTER);
-	rect = rscoreloc;
-	puttext(&rect, "Time Bonus", -1, PT_UPDATERECT);
-	puttext(&rect, "Level Bonus", -1, PT_UPDATERECT);
-	puttext(&rect, "Level Score", -1, PT_UPDATERECT);
-	puttext(&rect, "Total Score", -1, PT_UPDATERECT);
-	rect = rscoreloc;
-	puttext(&rect, decimal(timescore, 4), -1, PT_RIGHT | PT_UPDATERECT);
-	puttext(&rect, decimal(basescore, 5), -1, PT_RIGHT | PT_UPDATERECT);
-	puttext(&rect, decimal(fullscore, 5), -1, PT_RIGHT | PT_UPDATERECT);
-	puttext(&rect, decimal(totalscore, 7), -1, PT_RIGHT | PT_UPDATERECT);
-	SDL_UpdateRect(sdlg.screen, messageloc.x, messageloc.y,
-				    messageloc.w, messageloc.h);
+    (void)basescore;
+    (void)timescore;
+    (void)totalscore;
+    if (completed) {
+	setdisplaymsg("Level Completed", 2, 2);
     }
     return displayprompticon(completed);
 }
