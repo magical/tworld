@@ -809,8 +809,8 @@ int displayendmessage(int basescore, int timescore, long totalscore,
 	puttext(&rect, decimal(basescore, 5), -1, PT_RIGHT | PT_UPDATERECT);
 	puttext(&rect, decimal(fullscore, 5), -1, PT_RIGHT | PT_UPDATERECT);
 	puttext(&rect, decimal(totalscore, 7), -1, PT_RIGHT | PT_UPDATERECT);
-	SDL_UpdateRect(sdlg.screen, hintloc.x, hintloc.y,
-				    hintloc.w, hintloc.h);
+	SDL_UpdateRect(sdlg.screen, messageloc.x, messageloc.y,
+				    messageloc.w, messageloc.h);
     }
     return displayprompticon(completed);
 }
