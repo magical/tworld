@@ -212,7 +212,7 @@ static int layoutscreen(void)
     infoloc.w = 4 * sdlg.wtile;
     if (infoloc.w < infow)
 	infoloc.w = infow;
-    infoloc.h = 6 * texth;
+    infoloc.h = 5 * texth;
 
     infoloc2.x = displayloc2.x;
     infoloc2.y = displayloc2.y + displayloc2.h + MARGINH;
@@ -295,13 +295,6 @@ static int layoutscreen(void)
     messageloc.y = screenh - MARGINH - texth;
     messageloc.w = promptloc.x - messageloc.x - MARGINW;
     messageloc.h = texth;
-
-    //hintloc.x = infoloc.x;
-    //hintloc.y = invloc.y + invloc.h + MARGINH;
-    //hintloc.w = screenw - MARGINW - hintloc.x;
-    //hintloc.h = messageloc.y - hintloc.y;
-    //if (hintloc.y + hintloc.h + MARGINH > promptloc.y)
-    //    hintloc.h = promptloc.y - MARGINH - hintloc.y;
 
     //rscoreloc.x = hintloc.x + hintloc.w - rscorew;
     //rscoreloc.y = hintloc.y + 2 * texth;
