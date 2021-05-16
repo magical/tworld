@@ -561,17 +561,18 @@ static void displaymapview(gamestate const *state, int side)
 }
 
 /* Render all the various nuggets of data that comprise the
- * information display. timeleft and besttime supply the current timer
- * value and the player's best recorded time as measured in seconds.
+ * information display. currenttime and besttime supply the current elapsed
+ * time and the player's best recorded time as measured in seconds.
  * The level's title, number, password, and hint, the count of chips
  * needed, and the keys and boots in possession are all used as well
  * in creating the display.
  */
-static void displayinfo(gamestate const *state, int timeleft, int besttime, int side)
+static void displayinfo(gamestate const *state, int besttime, int side)
 {
     SDL_Rect	rect, rrect;
     char	buf[512];
     int		n;
+    int		timeleft;
 
     SDL_Rect *titlerect = &titleloc;
     SDL_Rect *invrect = &invloc;
@@ -582,6 +583,15 @@ static void displayinfo(gamestate const *state, int timeleft, int besttime, int 
 	invrect = &invloc2;
 	inforect = &infoloc2;
 	hintrect = &hintloc2;
+    }
+
+    timeleft = TIME_NIL;
+    if (state->game->time) {
+	timeleft = state->game->time - (state->currenttime + state->timeoffset) / TICKS_PER_SECOND;
+	if (timeleft <= 0) {
+	    timeleft = 0;
+	    setdisplaymsg("Out of time", 2, 2);
+	}
     }
 
     puttext(titlerect, state->game->name, -1, PT_CENTER);
@@ -757,12 +767,12 @@ void setcolors(long bkgnd, long text, long bold, long dim)
 /* Create the game's display. state is a pointer to the gamestate
  * structure.
  */
-int displaygame(void const *state0, void const *state1, int timeleft, int besttime)
+int displaygame(void const *state0, void const *state1, int besttime)
 {
     displaymapview(state0, 0);
     displaymapview(state1, 1);
-    displayinfo(state0, timeleft, besttime, 0);
-    displayinfo(state1, timeleft, besttime, 1);
+    displayinfo(state0, besttime, 0);
+    displayinfo(state1, besttime, 1);
     displaymsg(FALSE);
     if (fullredraw) {
 	SDL_UpdateRect(sdlg.screen, 0, 0, 0, 0);

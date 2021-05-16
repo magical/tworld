@@ -153,12 +153,11 @@ extern void setcolors(long bkgnd, long text, long bold, long dim);
  */
 extern void cleardisplay(void);
 
-/* Display the current game state. timeleft and besttime provide the
- * current time on the clock and the best time recorded for the level,
- * measured in seconds. All other data comes from the gamestate
- * structure (referred to here as an opaque pointer).
+/* Display the current game state. besttime provides the best time
+ * recorded for the level, measured in seconds. All other data comes
+ * from the gamestate structure (referred to here as an opaque pointer).
  */
-extern int displaygame(void const *state0, void const *state1, int timeleft, int besttime);
+extern int displaygame(void const *state0, void const *state1, int besttime);
 
 /* Display a short message appropriate to the end of a level's game
  * play. If the level was completed successfully, totalscore is

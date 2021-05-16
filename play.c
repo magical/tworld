@@ -274,7 +274,7 @@ int rotaterndslidedir(int display)
     return TRUE;
 }
 
-int doturnstate(struct gamestate *state, int cmd, int side) {
+int doturnstate(struct gamestate *state, int cmd) {
     action	act;
     int		n;
 
@@ -325,8 +325,8 @@ int doturnstate(struct gamestate *state, int cmd, int side) {
  */
 int doturn(int cmd)
 {
-    int status0 = doturnstate(&state[0], cmd, 0);
-    int status1 = doturnstate(&state[1], cmd, 1);
+    int status0 = doturnstate(&state[0], cmd);
+    int status1 = doturnstate(&state[1], cmd);
     if (status0 < 0)
 	return status0;
     if (status1 < 0)
@@ -342,30 +342,20 @@ int doturn(int cmd)
  */
 int drawscreen(int showframe)
 {
-    int	currenttime;
-    int timeleft, besttime;
+    int	besttime;
 
     playsoundeffects(state[0].soundeffects | state[1].soundeffects);
 
     if (!showframe)
 	return TRUE;
 
-    currenttime = state[0].currenttime + state[0].timeoffset;
     besttime = TIME_NIL;
     //if (hassolution(state[0].game))
     //    besttime = (state.game->time ? state.game->time : 999)
     //    			- state.game->besttime / TICKS_PER_SECOND;
 
-    timeleft = TIME_NIL;
-    if (state[0].game->time) {
-	timeleft = state[0].game->time - currenttime / TICKS_PER_SECOND;
-	if (timeleft <= 0) {
-	    timeleft = 0;
-	    setdisplaymsg("Out of time", 2, 2);
-	}
-    }
 
-    return displaygame(&state[0], &state[1], timeleft, besttime);
+    return displaygame(&state[0], &state[1], besttime);
 }
 
 /* Stop game play and clean up.
